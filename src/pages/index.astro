@@ -1,18 +1,25 @@
 ---
 import { eq, experience, personal_info } from 'astro:db';
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-import '../styles/global.css';
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from '@/layouts/Layout.astro';
+import '@/styles/global.css';
 import { db, users } from 'astro:db';
+
+import About from "@/components/sections/About.astro";
+import Education from "@/components/sections/Education.astro";
+import Experience from "@/components/sections/Experience.astro";
+import Hero from "@/components/sections/Hero.astro";
+import Projects from "@/components/sections/Projects.astro";
+import Skills from "@/components/sections/Skills.astro";
+import Tail from "@/components/sections/Tail.astro";
 
 const [user] = await db.select().from(users).where(eq(users.id, 1));
 const [info] = await db.select().from(personal_info).where(eq(personal_info.user_id, 1));
 const exp = await db.select().from(experience).where(eq(experience.user_id, 1));
+
+const name = `${user.first_name} ${user.last_name}`;
 ---
 
-<Layout>
+<Layout title={`${name} Portfolio - ${info.title}`} image={info.image} summary={info.description} url={info.website}>
   {user &&
       <p><span class="sr-only">name</span>{user.first_name} {user.last_name}</p>
       <p><span class="sr-only">email</span>{user.email}</p>
@@ -30,3 +37,13 @@ const exp = await db.select().from(experience).where(eq(experience.user_id, 1));
       <p><span class="sr-only">description</span>{exp[1].description}</p>
   }
 </Layout>
+<style>
+    @page {
+        size: auto;
+        margin: 0mm;
+    }
+    main {
+        margin: auto;
+        width: 100%;
+    }
+</style>

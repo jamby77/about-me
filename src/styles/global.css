@@ -1,19 +1,99 @@
 @import "tailwindcss";
 
+@tailwind base;
+
+@layer base {
+    :root {
+        --color-text-base: 0, 0, 0;
+        --color-text-muted: 120, 120, 120;
+        --color-text-inverted: 255, 255, 255;
+        --color-fill: 245, 245, 245;
+        --muted: 200, 200, 200;
+        --color: 249, 115, 22;
+        --color-button-accent: 249, 115, 22;
+        --color-button-accent-hover: 55, 55, 55;
+        --color-button-muted: 244, 239, 238;
+    }
+
+    .dark {
+        --color-text-base: 255, 255, 255;
+        --color-text-muted: 150, 150, 150;
+        --color-text-inverted: 255, 255, 255;
+        --color-fill: 18, 18, 18;
+        --muted: 36, 36, 36;
+        --color: 227, 77, 10;
+        --color-button-accent: 227, 77, 10;
+        --color-button-accent-hover: 231, 121, 43;
+        --color-button-muted: 26, 26, 26;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --color-text-base: 255, 255, 255;
+            --color-text-muted: 150, 150, 150;
+            --color-text-inverted: 255, 255, 255;
+            --color-fill: 18, 18, 18;
+            --muted: 36, 36, 36;
+            --color: 227, 77, 10;
+            --color-button-accent: 227, 77, 10;
+            --color-button-accent-hover: 231, 121, 43;
+            --color-button-muted: 26, 26, 26;
+        }
+    }
+}
+
 @theme {
-    --font-display: "Satoshi", "sans-serif";
+    --color-skin-hue: rgb(var(--color));
+    --color-skin-muted: rgb(var(--muted));
+    --color-text-skin-base: rgb(var(--color-text-base));
+    --color-text-skin-muted: rgb(var(--color-text-muted));
+    --color-text-skin-inverted: rgb(var(--color-text-inverted));
+    --color-bg-skin-fill: rgb(var(--color-fill));
+    --color-bg-skin-button-accent: rgb(var(--color-button-accent));
+    --color-bg-skin-button-accent-hover: rgb(var(--color-button-accent-hover));
+    --color-bg-skin-button-muted: rgb(var(--color-button-muted));
+    --color-ring-skin-fill: rgb(var(--color-fill));
+    --color-grad-skin-hue: rgb(var(--color-fill));
+}
 
-    --breakpoint-3xl: 1920px;
+h1,
+h2,
+h3,
+h4 {
+    @apply text-text-skin-base;
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
 
-    --color-avocado-100: oklch(0.99 0 0);
-    --color-avocado-200: oklch(0.98 0.04 113.22);
-    --color-avocado-300: oklch(0.94 0.11 115.03);
-    --color-avocado-400: oklch(0.92 0.19 114.08);
-    --color-avocado-500: oklch(0.84 0.18 117.33);
-    --color-avocado-600: oklch(0.53 0.12 118.34);
+p {
+    @apply text-sm text-skin-muted;
+    line-height: 1.5;
+    text-wrap: pretty;
+}
 
-    --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
-    --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+.print {
+    display: none !important;
+}
 
-    /* ... */
+.dev * {
+    @apply border border-red-500/50 bg-red-500/5;
+}
+
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .print {
+        display: block !important;
+    }
+
+    astro-dev-toolbar {
+        display: none !important;
+    }
+
+    article {
+        break-inside: avoid;
+    }
 }
