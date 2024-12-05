@@ -94,3 +94,5 @@ interface Projects {
   repoUrl?: string;
   date?: string;
 }
+
+export type SocialIcon = Record<string, string | any>;
