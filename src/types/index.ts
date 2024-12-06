@@ -28,7 +28,7 @@ interface UserInfo {
   description: string;
 }
 
-interface Work {
+export interface Work {
   id: number;
   name: string;
   title: string;
@@ -36,7 +36,12 @@ interface Work {
   url: string;
   start_date: DateStr | Date;
   end_date: DateStr | Date | null;
-  description: string;
+  description: string | null;
+  responsibilities: string[] | null;
+  achievements: string[] | null;
+  skills: string[] | null;
+  location_type?: string | null;
+  location?: string | null;
 }
 
 type DateStr = `${string}-${string}-${string}`;

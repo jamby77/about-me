@@ -1,3 +1,12 @@
 ---
+import Section from "../Section.astro";
 
+const { basics } = Astro.props;
+const { description } = basics;
 ---
+
+<Section title="About">
+  <p>
+    {description}
+  </p>
+</Section>

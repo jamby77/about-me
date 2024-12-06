@@ -7,7 +7,7 @@ import LinkedIn from "@/icons/LinkedIn.astro";
 import GitHub from "@/icons/GitHub.astro";
 import WorldMap from "@/icons/WorldMap.astro";
 import SocialLink from "../SocialLink.astro";
-
+import {SHOW_PERSONAL} from 'astro:env/server'
 const { basics } = Astro.props;
 const { name, title, image, linkedin, github, twitter, phone, email, location } = basics;
 
@@ -18,8 +18,8 @@ const printInfo = [email, phone, linkedin].filter(Boolean).join(" • ");
   <div class="flex flex-col-reverse gap-8">
     <div class="flex flex-col gap-1 pr-8 print:gap-0 print:pr-0">
       <h1 class="text-4xl font-bold print:text-3xl">{name}</h1>
-      <h2 class="text-balance text-base text-skin-txt-muted! print:text-lg">{title}</h2>
-      <div class="flex items-center gap-2 pt-2 text-sm text-skin-txt-muted">
+      <h2 class="text-balance text-base text-fg-muted! print:text-lg">{title}</h2>
+      <div class="flex items-center gap-2 pt-2 text-sm text-fg-muted">
         <WorldMap />
         {location}
       </div>
@@ -27,20 +27,20 @@ const printInfo = [email, phone, linkedin].filter(Boolean).join(" • ");
         {printInfo}
       </footer>
       <footer class="no-print mt-2 flex gap-1 text-sm">
-        {email && <SocialLink url={`mailto:${email}`} text={`Send email to ${name} at ${email}`} Icon={Mail}/>}
-        {phone && <SocialLink url={`tel:${phone}`} text={`Call ${name} at ${phone}`} Icon={Phone}/>}
+        {SHOW_PERSONAL && email && <SocialLink url={`mailto:${email}`} text={`Send email to ${name} at ${email}`} Icon={Mail}/>}
+        {SHOW_PERSONAL && phone && <SocialLink url={`tel:${phone}`} text={`Call ${name} at ${phone}`} Icon={Phone}/>}
         {linkedin && <SocialLink url={linkedin} text={`Visit ${name} profile on LinkedIn`} Icon={LinkedIn} />}
         {twitter && <SocialLink url={twitter} text={`Visit ${name} profile on X`} Icon={X} />}
         {github && <SocialLink url={github} text={`Visit ${name} profile on LinkedIn`} Icon={GitHub} />}
       </footer>
     </div>
     <figure class="print:hidden w-fit relative">
-      <img class="aspect-square w-32 rounded-2xl bg-cover shadow-lg shadow-skin-hues" src={image} alt={name} />
+      <img class="aspect-square w-32 rounded-2xl bg-cover shadow-lg shadow-hue" src={image} alt={name} />
       <div class="pointer-events-none absolute -inset-2">
-        <div class="absolute -inset-y-8 right-0 w-px bg-skin-hue/50 [mask-image:linear-gradient(to_top,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
-        <div class="absolute -inset-y-8 left-0 w-px bg-skin-hue/50 [mask-image:linear-gradient(to_top,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
-        <div class="absolute -inset-x-8 bottom-0 h-px bg-skin-hue/50 [mask-image:linear-gradient(to_left,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
-        <div class="absolute -inset-x-8 top-0 h-px bg-skin-hue/50 [mask-image:linear-gradient(to_left,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
+        <div class="absolute -inset-y-8 right-0 w-px bg-hue/50 [mask-image:linear-gradient(to_top,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
+        <div class="absolute -inset-y-8 left-0 w-px bg-hue/50 [mask-image:linear-gradient(to_top,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
+        <div class="absolute -inset-x-8 bottom-0 h-px bg-hue/50 [mask-image:linear-gradient(to_left,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
+        <div class="absolute -inset-x-8 top-0 h-px bg-hue/50 [mask-image:linear-gradient(to_left,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
       </div>
     </figure>
   </div>
