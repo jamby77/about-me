@@ -14,8 +14,6 @@ import Tail from "@/components/sections/Tail.astro";
 
 const [user] = await db.select().from(users).where(eq(users.id, 1));
 const [info] = await db.select().from(personal_info).where(eq(personal_info.user_id, 1));
-const exp = await db.select().from(experience).where(eq(experience.user_id, 1));
-const proj = await db.select().from(projects).where(eq(projects.user_id, 1));
 
 const name = `${user.first_name} ${user.last_name}`;
 ---
@@ -27,8 +25,8 @@ const name = `${user.first_name} ${user.last_name}`;
       <About basics={info} />
     </div>
     <div class="space-y-12 md:col-span-4 print:col-span-1 print:grid print:grid-cols-4 print:gap-2 print:space-y-0">
-      <Experience className="print:col-span-3" experience={exp} />
-      <Projects className="print:hidden" projects={proj} />
+      <Experience className="print:col-span-3" />
+      <Projects className="print:hidden"/>
       <Skills className="print:hidden" />
       <Education className="order-first" />
     </div>

@@ -16,12 +16,11 @@ import Swift from "@/icons/swift.astro"
 import SwiftUI from "@/icons/swiftui.astro"
 import Kotlin from "@/icons/kotlin.astro"
 import Flutter from "@/icons/flutter.astro"
+import { db, eq, experience } from "astro:db";
 interface Props {
-  experience: any[],
   className?: string
 }
 const {
-  experience,
   className
 } = Astro.props
 const SKILLS_ICONS: Record<string, any> = {
@@ -41,24 +40,26 @@ const SKILLS_ICONS: Record<string, any> = {
   Kotlin,
   Flutter,
 }
+
+const exp = await db.select().from(experience).where(eq(experience.user_id, 1));
 ---
 <Section className={className} title="Experience">
   <ul class="flex flex-col">
-    {experience.map(({
-                       name,
-                       start_date,
-                       end_date,
-                       id,
-                       role,
-                       title,
-                       description,
-                       responsibilities,
-                       achievements,
-                       url,
-                       skills,
-                       location,
-                       location_type
-                     }) => {
+    {exp.map(({
+                name,
+                start_date,
+                end_date,
+                id,
+                role,
+                title,
+                description,
+                responsibilities,
+                achievements,
+                url,
+                skills,
+                location,
+                location_type
+              }) => {
       const startDate = new Date(start_date)
       const startYear = startDate.getFullYear()
       const endDate = end_date != null ? new Date(end_date) : new Date()
@@ -124,7 +125,7 @@ const SKILLS_ICONS: Record<string, any> = {
                             <div class="flex flex-col gap-1">
                               <h4>Responsibilities:</h4>
                               <ul class="text-fg-muted [&>li]:ml-4 flex list-disc flex-col gap-2">
-                                {responsibilities.map((responsibility: string) => (
+                                {(responsibilities as string[]).map((responsibility) => (
                                     <li>{responsibility}</li>
                                 ))}
                               </ul>
@@ -135,7 +136,7 @@ const SKILLS_ICONS: Record<string, any> = {
                             <div class="flex flex-col gap-1">
                               <h4>Achievements:</h4>
                               <ul class="text-fg-muted [&>li]:ml-4 flex list-disc flex-col gap-2">
-                                {achievements.map((achievement: string) => (
+                                {(achievements as string[]).map((achievement) => (
                                     <li>{achievement}</li>
                                 ))}
                               </ul>
@@ -156,7 +157,7 @@ const SKILLS_ICONS: Record<string, any> = {
 
 
                       <ul class="flex print:hidden flex-wrap gap-2" aria-label="Technologies used">
-                        {skills && skills.map((skill: string) => {
+                        {skills && (skills as string[]).map((skill) => {
                           const iconName = skill === "Next.js" ? "Next" : skill
                           const Icon = SKILLS_ICONS[iconName]
                           return (
