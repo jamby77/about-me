@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import Section from "@/components/Section.astro";
 import Mail from "@/icons/Mail.astro";
 import Phone from "@/icons/Phone.astro";
@@ -35,7 +36,7 @@ const printInfo = [email, phone, linkedin].filter(Boolean).join(" • ");
       </footer>
     </div>
     <figure class="print:hidden w-fit relative">
-      <img class="aspect-square w-32 rounded-2xl bg-cover shadow-lg shadow-hue" src={image} alt={name} />
+      <Image class="aspect-square w-32 rounded-2xl bg-cover shadow-lg shadow-hue" src={image} alt={name} width={128} height={128} />
       <div class="pointer-events-none absolute -inset-2">
         <div class="absolute -inset-y-8 right-0 w-px bg-hue/50 [mask-image:linear-gradient(to_top,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
         <div class="absolute -inset-y-8 left-0 w-px bg-hue/50 [mask-image:linear-gradient(to_top,transparent,white_4rem,white_calc(100%-4rem),transparent)]"></div>
@@ -45,27 +46,3 @@ const printInfo = [email, phone, linkedin].filter(Boolean).join(" • ");
     </figure>
   </div>
 </Section>
-
-<style>
-/*    @media (width <= 700px) {
-        .container {
-            flex-direction: column-reverse;
-        }
-
-        .info {
-            @apply md:items-center md:justify-center pr-0 ;
-        }
-
-        figure {
-            @apply flex md:items-center md:justify-center;
-        }
-
-        h2 {
-            text-wrap: balance;
-        }
-
-        figure {
-            @apply md:mx-auto;
-        }
-    }*/
-</style>

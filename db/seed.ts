@@ -22,6 +22,7 @@ export default async function seed() {
 
   await db.insert(personal_info).values({
     user_id: 1,
+    image: "/assets/images/me.jpeg",
     title: "Software Engineer",
     phone: "123-456-7890",
     location: "New York, NY",
