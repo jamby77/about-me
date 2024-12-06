@@ -16,9 +16,8 @@ import Swift from "@/icons/swift.astro"
 import SwiftUI from "@/icons/swiftui.astro"
 import Kotlin from "@/icons/kotlin.astro"
 import Flutter from "@/icons/flutter.astro"
-import type { Work } from "../../types";
 interface Props {
-  experience: Work[],
+  experience: any[],
   className?: string
 }
 const {
@@ -125,7 +124,7 @@ const SKILLS_ICONS: Record<string, any> = {
                             <div class="flex flex-col gap-1">
                               <h4>Responsibilities:</h4>
                               <ul class="text-fg-muted [&>li]:ml-4 flex list-disc flex-col gap-2">
-                                {responsibilities.map(responsibility => (
+                                {responsibilities.map((responsibility: string) => (
                                     <li>{responsibility}</li>
                                 ))}
                               </ul>
@@ -136,7 +135,7 @@ const SKILLS_ICONS: Record<string, any> = {
                             <div class="flex flex-col gap-1">
                               <h4>Achievements:</h4>
                               <ul class="text-fg-muted [&>li]:ml-4 flex list-disc flex-col gap-2">
-                                {achievements.map(achievement => (
+                                {achievements.map((achievement: string) => (
                                     <li>{achievement}</li>
                                 ))}
                               </ul>
@@ -157,7 +156,7 @@ const SKILLS_ICONS: Record<string, any> = {
 
 
                       <ul class="flex print:hidden flex-wrap gap-2" aria-label="Technologies used">
-                        {skills && skills.map(skill => {
+                        {skills && skills.map((skill: string) => {
                           const iconName = skill === "Next.js" ? "Next" : skill
                           const Icon = SKILLS_ICONS[iconName]
                           return (

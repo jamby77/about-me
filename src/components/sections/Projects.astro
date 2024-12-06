@@ -1,3 +1,68 @@
 ---
-
+import GitIcon from "@/icons/git.astro";
+import FolderIcon from "@/icons/Folder.astro";
+import Section from "../Section.astro";
+interface Props {
+	className?: string,
+  projects: any[],
+}
+const { projects, className } = Astro.props;
 ---
+
+<Section className={className} title="Projects">
+  <div class="grid grid-cols-1 gap-3 md:grid-cols-2 print:flex print:flex-col">
+    {
+      projects.map(({ url, description, name, repoUrl }) => {
+        return (
+            <div role="contentinfo" class="grid-span-1 ring-muted relative flex flex-col rounded-md bg-bg-button-muted/50 p-5 shadow-sm ring-1">
+              <div class="flex items-center justify-between space-x-[10px]">
+                <div class="flex items-center gap-2">
+                  <FolderIcon />
+                  <div class="flex items-center gap-[6px]">
+                      <span>{name}</span>
+                  </div>
+                </div>
+
+                {repoUrl && (
+                    <a href={repoUrl} title="View slug repository on GitHub" target="_blank" rel="noopener" class="opacity-75 transition-opacity duration-100 hover:opacity-100">
+                      <GitIcon />
+                    </a>
+                )}
+              </div>
+
+              <p class="py-3 text-sm text-fg-base">{description}</p>
+            </div>
+        );
+      })
+    }
+  </div>
+</Section>
+
+<style>
+    footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        font-size: 0.6rem;
+    }
+
+    footer span {
+        border-radius: 6px;
+        background: #eee;
+        color: #444;
+        font-size: 0.6rem;
+        font-weight: 500;
+        padding: 0.2rem 0.6rem;
+    }
+    @keyframes flicker {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.25;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+</style>
