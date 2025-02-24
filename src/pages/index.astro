@@ -1,8 +1,8 @@
 ---
-import { eq, experience, personal_info } from 'astro:db';
-import Layout from '@/layouts/Layout.astro';
-import '@/styles/global.css';
-import { db, users,projects } from 'astro:db';
+import { eq, experience, personal_info } from "astro:db";
+import Layout from "@/layouts/Layout.astro";
+import "@/styles/global.css";
+import { db, users, projects } from "astro:db";
 
 import About from "@/components/sections/About.astro";
 import Education from "@/components/sections/Education.astro";
@@ -13,25 +13,39 @@ import Skills from "@/components/sections/Skills.astro";
 import Tail from "@/components/sections/Tail.astro";
 
 const [user] = await db.select().from(users).where(eq(users.id, 1));
-const [info] = await db.select().from(personal_info).where(eq(personal_info.user_id, 1));
+const [info] = await db
+    .select()
+    .from(personal_info)
+    .where(eq(personal_info.user_id, 1));
 
 const name = `${user.first_name} ${user.last_name}`;
 ---
 
-<Layout title={`${name} Portfolio - ${info.title}`} image={info.image} summary={info.description} url={info.website}>
-  <main class="relative grid max-w-7xl gap-12 p-8 max-sm:py-16 md:grid-cols-6 md:p-16 xl:gap-24 print:max-w-none print:grid-cols-1 print:gap-6">
-    <div class="space-y-6 md:col-span-2 print:col-span-1 print:grid print:grid-cols-2 print:gap-5 print:space-y-0">
-      <Hero basics={{ ...info, name, email: user.email}} />
-      <About basics={info} />
-    </div>
-    <div class="space-y-12 md:col-span-4 print:col-span-1 print:grid print:grid-cols-4 print:gap-2 print:space-y-0">
-      <Experience className="print:col-span-3" />
-      <Projects className="print:hidden"/>
-      <Skills className="print:hidden" />
-      <Education className="order-first" />
-    </div>
-    <Tail />
-  </main>
+<Layout
+    title={`${name} Portfolio - ${info.title}`}
+    image={info.image}
+    summary={info.description}
+    url={info.website}
+>
+    <main
+        class="relative grid max-w-7xl gap-12 p-8 max-sm:py-16 md:grid-cols-6 md:p-16 xl:gap-24 print:max-w-none print:grid-cols-1 print:gap-6"
+    >
+        <div
+            class="space-y-6 md:col-span-2 print:col-span-1 print:grid print:grid-cols-2 print:gap-5 print:space-y-0"
+        >
+            <Hero basics={{ ...info, name, email: user.email }} />
+            <About basics={info} />
+        </div>
+        <div
+            class="space-y-12 md:col-span-4 print:col-span-1 print:grid print:grid-cols-4 print:gap-2 print:space-y-0"
+        >
+            <Experience className="print:col-span-3" />
+            <Projects className="print:hidden" />
+            <Skills className="print:hidden" />
+            <Education className="order-first" />
+        </div>
+        <Tail />
+    </main>
 </Layout>
 <style>
     @page {

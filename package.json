@@ -9,14 +9,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/db": "^0.14.3",
-    "astro": "^5.0.3"
+    "@astrojs/db": "^0.14.6",
+    "astro": "^5.3.1"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "4.0.0-beta.4",
+    "@tailwindcss/vite": "4.0.8",
     "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.6.9",
-    "tailwindcss": "4.0.0-beta.4"
+    "tailwindcss": "4.0.8"
   }
 }
