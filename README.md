@@ -2,28 +2,33 @@
 
 ## 🚀 Project Structure
 
-Inside your Astro project, you'll see the following folders and files:
+Inside this Astro project, you'll see the following folders and files:
 
 ```text
 /
 ├── public/
-│   └── favicon.svg
+│   └── assets/
 ├── src/
+│   ├── components/
+│   │   └── sections/
+│   ├── icons/
 │   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+│   ├── pages/
+│   ├── styles/
+│   └── types/
+├── db/
+├── .env
+├── astro.config.mjs
+├── package.json
+└── tsconfig.json
 ```
-
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
 
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:
 
 | Command                  | Action                                           |
-|:-------------------------| :----------------------------------------------- |
+|:-------------------------|:-------------------------------------------------|
 | `pn install`             | Installs dependencies                            |
 | `pn run dev`             | Starts local dev server at `localhost:4321`      |
 | `pn run build`           | Build your production site to `./dist/`          |
