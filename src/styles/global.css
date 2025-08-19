@@ -7,127 +7,149 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-text-base: 0, 0, 0;
+    --color-text-muted: 120, 120, 120;
+    --color-text-inverted: 255, 255, 255;
+    --color-fill: 245, 245, 245;
+    --muted: 200, 200, 200;
+    --color: 249, 115, 22;
+    --color-button-accent: 249, 115, 22;
+    --color-button-accent-hover: 55, 55, 55;
+    --color-button-muted: 244, 239, 238;
+  }
+
+  .dark {
+    --color-text-base: 255, 255, 255;
+    --color-text-muted: 150, 150, 150;
+    --color-text-inverted: 255, 255, 255;
+    --color-fill: 18, 18, 18;
+    --muted: 36, 36, 36;
+    --color: 227, 77, 10;
+    --color-button-accent: 227, 77, 10;
+    --color-button-accent-hover: 231, 121, 43;
+    --color-button-muted: 26, 26, 26;
+  }
+
+  @media (prefers-color-scheme: dark) {
     :root {
-        --color-text-base: 0, 0, 0;
-        --color-text-muted: 120, 120, 120;
-        --color-text-inverted: 255, 255, 255;
-        --color-fill: 245, 245, 245;
-        --muted: 200, 200, 200;
-        --color: 249, 115, 22;
-        --color-button-accent: 249, 115, 22;
-        --color-button-accent-hover: 55, 55, 55;
-        --color-button-muted: 244, 239, 238;
+      --color-text-base: 255, 255, 255;
+      --color-text-muted: 150, 150, 150;
+      --color-text-inverted: 255, 255, 255;
+      --color-fill: 18, 18, 18;
+      --muted: 36, 36, 36;
+      --color: 227, 77, 10;
+      --color-button-accent: 227, 77, 10;
+      --color-button-accent-hover: 231, 121, 43;
+      --color-button-muted: 26, 26, 26;
     }
-
-    .dark {
-        --color-text-base: 255, 255, 255;
-        --color-text-muted: 150, 150, 150;
-        --color-text-inverted: 255, 255, 255;
-        --color-fill: 18, 18, 18;
-        --muted: 36, 36, 36;
-        --color: 227, 77, 10;
-        --color-button-accent: 227, 77, 10;
-        --color-button-accent-hover: 231, 121, 43;
-        --color-button-muted: 26, 26, 26;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --color-text-base: 255, 255, 255;
-            --color-text-muted: 150, 150, 150;
-            --color-text-inverted: 255, 255, 255;
-            --color-fill: 18, 18, 18;
-            --muted: 36, 36, 36;
-            --color: 227, 77, 10;
-            --color-button-accent: 227, 77, 10;
-            --color-button-accent-hover: 231, 121, 43;
-            --color-button-muted: 26, 26, 26;
-        }
-    }
+  }
 }
 
 @theme {
-    --color-hue: rgb(var(--color));
-    --color-muted: rgb(var(--muted));
-    --color-fg-base: rgb(var(--color-text-base));
-    --color-fg-muted: rgb(var(--color-text-muted));
-    --color-fg-inverted: rgb(var(--color-text-inverted));
-    --color-bg-fill: rgb(var(--color-fill));
-    --color-bg-button-accent: rgb(var(--color-button-accent));
-    --color-bg-button-accent-hover: rgb(var(--color-button-accent-hover));
-    --color-bg-button-muted: rgb(var(--color-button-muted));
-    --color-ring-fill: rgb(var(--color-fill));
-    --color-grad-hue: rgb(var(--color-fill));
+  --color-hue: rgb(var(--color));
+  --color-muted: rgb(var(--muted));
+  --color-fg-base: rgb(var(--color-text-base));
+  --color-fg-muted: rgb(var(--color-text-muted));
+  --color-fg-inverted: rgb(var(--color-text-inverted));
+  --color-bg-fill: rgb(var(--color-fill));
+  --color-bg-button-accent: rgb(var(--color-button-accent));
+  --color-bg-button-accent-hover: rgb(var(--color-button-accent-hover));
+  --color-bg-button-muted: rgb(var(--color-button-muted));
+  --color-ring-fill: rgb(var(--color-fill));
+  --color-grad-hue: rgb(var(--color-fill));
 }
 
 body {
-    @apply bg-bg-fill text-fg-base;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  @apply bg-bg-fill text-fg-base;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
 }
 
 h1,
 h2,
 h3,
 h4 {
-    @apply text-fg-base;
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  @apply text-fg-base;
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
 }
 
 p {
-    @apply text-sm text-fg-muted;
-    line-height: 1.5;
-    text-wrap: pretty;
+  @apply text-sm text-fg-muted;
+  line-height: 1.5;
+  text-wrap: pretty;
 }
 
 .print {
-    display: none !important;
+  display: none !important;
 }
 
 .dev * {
-    @apply border border-red-500/50 bg-red-500/5;
+  @apply border border-red-500/50 bg-red-500/5;
 }
 
 li::marker {
-    @apply text-hue
+  @apply text-hue;
 }
 
 @media (width <= 700px) {
-    .container {
-        flex-direction: column-reverse;
-    }
+  .container {
+    flex-direction: column-reverse;
+  }
 
-    .info {
-        @apply md:items-center md:justify-center pr-0 ;
-    }
+  .info {
+    @apply md:items-center md:justify-center pr-0;
+  }
 
-    figure {
-        @apply flex md:items-center md:justify-center;
-    }
+  figure {
+    @apply flex md:items-center md:justify-center;
+  }
 
-    h2 {
-        text-wrap: balance;
-    }
+  h2 {
+    text-wrap: balance;
+  }
 
-    figure {
-        @apply md:mx-auto;
-    }
+  figure {
+    @apply md:mx-auto;
+  }
 }
 
 @media print {
-    .no-print {
-        display: none !important;
-    }
+  .no-print {
+    display: none !important;
+  }
 
-    .print {
-        display: block !important;
-    }
+  .print {
+    display: block !important;
+  }
 
-    astro-dev-toolbar {
-        display: none !important;
-    }
+  astro-dev-toolbar {
+    display: none !important;
+  }
 
-    article {
-        break-inside: avoid;
-    }
+  article {
+    break-inside: avoid;
+  }
 }
