@@ -16,7 +16,7 @@ import Swift from "@/icons/swift.astro"
 import SwiftUI from "@/icons/swiftui.astro"
 import Kotlin from "@/icons/kotlin.astro"
 import Flutter from "@/icons/flutter.astro"
-import { db, eq, experience } from "astro:db";
+import { db, eq, experience, desc } from "astro:db";
 interface Props {
   className?: string
 }
@@ -41,7 +41,7 @@ const SKILLS_ICONS: Record<string, any> = {
   Flutter,
 }
 
-const exp = await db.select().from(experience).where(eq(experience.user_id, 1));
+const exp = await db.select().from(experience).where(eq(experience.user_id, 1)).orderBy(desc(experience.start_date));
 ---
 <Section className={className} title="Experience">
   <ul class="flex flex-col">
