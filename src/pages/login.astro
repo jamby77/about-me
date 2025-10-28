@@ -1,8 +1,146 @@
 ---
 import "@/styles/global.css";
-// TODO: Implement login
 ---
 
-<div class="flex h-screen w-screen items-center justify-center">
-  <h1>Login</h1>
+<div class="flex h-screen w-screen items-center justify-center p-4">
+  <form id="login-form" class="flex-1">
+    <div
+      class="container w-full max-w-lg mx-auto space-y-8 rounded-lg p-6 shadow-lg"
+    >
+      <h1
+        class="text-2xl font-semibold uppercase text-center mb-8! flex items-center justify-center"
+      >
+        <span id="loading-spinner" style="visibility: hidden">
+          <svg
+            class="mr-3 -ml-1 size-5 animate-spin text-fg-base"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg></span
+        >
+        <span class="mr-3">Login</span>
+      </h1>
+
+      <div class="flex flex-col gap-2">
+        <label for="email" class="text-sm font-medium">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="jane@example.com"
+          class="w-full rounded border px-3 py-2"
+          required
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="password" class="text-sm font-medium">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          minlength="8"
+          placeholder="Your password"
+          class="w-full rounded border px-3 py-2"
+          required
+        />
+      </div>
+
+      <div id="form-error" class="text-sm text-red-600" hidden></div>
+      <div id="form-success" class="text-sm text-green-600" hidden></div>
+
+      <div class="flex justify-center">
+        <button
+          type="submit"
+          class="w-1/2 rounded-full bg-bg-button-accent px-4 py-2 text-base hover:opacity-90 cursor-pointer"
+        >
+          Sign in
+        </button>
+      </div>
+      <p class="mt-4 text-center text-sm text-fg-subtle">
+        Don't have an account?
+        <a href="/sign-up" class="text-fg-link hover:underline">Sign up</a>
+      </p>
+    </div>
+  </form>
 </div>
+
+<script>
+  import { authClient } from "@/lib/auth-client";
+  const form = document.getElementById("login-form") as HTMLFormElement;
+  const errorEl = document.getElementById("form-error");
+  const successEl = document.getElementById("form-success");
+  const loadingSpinnerEl = document.getElementById("loading-spinner");
+
+  const showSpinner = () => {
+    if (loadingSpinnerEl) loadingSpinnerEl.style.visibility = "visible";
+  };
+  const hideSpinner = () => {
+    if (loadingSpinnerEl) loadingSpinnerEl.style.visibility = "hidden";
+  };
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!errorEl || !successEl) return;
+
+    errorEl.textContent = "";
+    errorEl.hidden = true;
+    successEl.textContent = "";
+    successEl.hidden = true;
+
+    const formData = new FormData(form);
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
+
+    if (!email || !password) {
+      errorEl.textContent = "Email and password are required.";
+      errorEl.hidden = false;
+      return;
+    }
+
+    try {
+      await authClient.signIn.email(
+        {
+          email,
+          password,
+          callbackURL: "/admin",
+          rememberMe: true,
+        },
+        {
+          onRequest: () => {
+            showSpinner();
+          },
+          onSuccess: () => {
+            hideSpinner();
+            successEl.textContent = "Signed in successfully. Redirecting...";
+            successEl.hidden = false;
+            setTimeout(() => (window.location.href = "/admin"), 300);
+          },
+          onError: (ctx) => {
+            hideSpinner();
+            if (errorEl) {
+              errorEl.textContent = ctx.error?.message ?? "Failed to sign in.";
+              errorEl.hidden = false;
+            }
+          },
+        },
+      );
+    } catch (err) {
+      errorEl.textContent = (err as Error).message ?? "Unexpected error.";
+      errorEl.hidden = false;
+    }
+  });
+</script>

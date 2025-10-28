@@ -34,6 +34,16 @@ export default async function seed() {
     updatedAt: new Date(),
   });
 
+  await db.insert(user).values({
+    id: "s079WDJVTLf5izUvYu3EbY9Y8i0rAO4G",
+    name: "PETAR DZHAMBAZOV",
+    email: "petar.dev@gmail.com",
+    emailVerified: true,
+    image: "/assets/images/me.jpeg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
   await db.insert(account).values({
     id: "1",
     userId: "1",
@@ -46,6 +56,23 @@ export default async function seed() {
     scope: "1",
     idToken: "1",
     password: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(account).values({
+    id: "RsaRkPjC4ZUbwFS6NqSexqmkTOUnAJbR",
+    userId: "s079WDJVTLf5izUvYu3EbY9Y8i0rAO4G",
+    accountId: "s079WDJVTLf5izUvYu3EbY9Y8i0rAO4G",
+    providerId: "credential",
+    accessToken: null,
+    refreshToken: null,
+    accessTokenExpiresAt: null,
+    refreshTokenExpiresAt: null,
+    scope: null,
+    idToken: null,
+    password:
+      "30c4dc9b26372887ba53e8714f9da3ec:3fac461bd7f62814ddfbd405d6f0ac94c05ff9b1680b9bb685557ff112ff1273e58cda397cd020dc3dbec9d1dd7b1fbf437b32326496d295cea2ce480f0e2575",
     createdAt: new Date(),
     updatedAt: new Date(),
   });
