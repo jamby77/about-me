@@ -9,6 +9,10 @@ import {
   skills,
   user_languages,
   projects,
+  user,
+  session,
+  account,
+  verification,
 } from "astro:db";
 
 // https://astro.build/db/seed
@@ -18,6 +22,52 @@ export default async function seed() {
     first_name: "John",
     last_name: "Doe",
     email: "pKj9w@example.com",
+  });
+
+  await db.insert(user).values({
+    id: "1",
+    name: "John Doe",
+    email: "pKj9w@example.com",
+    image: "/assets/images/me.jpeg",
+    emailVerified: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(account).values({
+    id: "1",
+    userId: "1",
+    accountId: "1",
+    providerId: "1",
+    accessToken: "1",
+    refreshToken: "1",
+    accessTokenExpiresAt: new Date(),
+    refreshTokenExpiresAt: new Date(),
+    scope: "1",
+    idToken: "1",
+    password: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(session).values({
+    id: "1",
+    userId: "1",
+    token: "1",
+    expiresAt: new Date(),
+    ipAddress: "1",
+    userAgent: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(verification).values({
+    id: "1",
+    identifier: "1",
+    value: "1",
+    expiresAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   await db.insert(personal_info).values({

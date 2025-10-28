@@ -6,7 +6,7 @@
     "dev": "astro dev",
     "build": "astro build --remote",
     "preview": "astro preview",
-    "astro": "astro"
+    "as": "astro"
   },
   "dependencies": {
     "@astrojs/db": "^0.18.2",
