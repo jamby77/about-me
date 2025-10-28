@@ -1,23 +1,36 @@
 ---
+import "@/styles/global.css";
 import { auth } from "@/lib/auth.ts";
-export const prerender = false;
+import UserAvatar from "@/components/UserAvatar.astro";
 
-const session = async () => {
-  if (Astro.locals.session) {
-    return Astro.locals.session;
+const user = async () => {
+  if (Astro.locals.user) {
+    return Astro.locals.user;
   }
-  const session = await auth.api.getSession({
+  const { user } = await auth.api.getSession({
     headers: Astro.request.headers,
   });
-  if (session) {
-    return session;
+  if (user) {
+    return user;
   }
   // Redirect to login page if the user is not authenticated
   //       return Astro.redirect("/login");
   return null;
 };
+
+const currentUser = await user();
 ---
 
-<pre>
-  {JSON.stringify(await session(), null, 2)}
-</pre>
+<div class="p-6">
+  {
+    currentUser ? (
+      <UserAvatar user={currentUser} class="justify-end" />
+    ) : (
+      <div class="text-center">
+        <a href="/login" class="text-fg-link hover:underline">
+          Sign in
+        </a>
+      </div>
+    )
+  }
+</div>
