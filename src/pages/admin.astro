@@ -1,0 +1,23 @@
+---
+import { auth } from "@/lib/auth.ts";
+export const prerender = false;
+
+const session = async () => {
+  if (Astro.locals.session) {
+    return Astro.locals.session;
+  }
+  const session = await auth.api.getSession({
+    headers: Astro.request.headers,
+  });
+  if (session) {
+    return session;
+  }
+  // Redirect to login page if the user is not authenticated
+  //       return Astro.redirect("/login");
+  return null;
+};
+---
+
+<pre>
+  {JSON.stringify(session(), null, 2)}
+</pre>
