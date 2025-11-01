@@ -1,0 +1,100 @@
+---
+interface EducationItem {
+  id: number;
+  name: string | null;
+  degree: string | null;
+  field: string | null;
+}
+
+interface Props {
+  edu: EducationItem[];
+}
+
+const { edu } = Astro.props as Props;
+import Button from "@/components/Button.astro";
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Education</h2>
+  <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+    <input type="hidden" name="_action" value="add_education" />
+    <div class="md:col-span-2">
+      <label for="edu_name" class="text-sm">School</label>
+      <input
+        id="edu_name"
+        name="name"
+        placeholder="School"
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div>
+      <label for="edu_degree" class="text-sm">Degree</label>
+      <input
+        id="edu_degree"
+        name="degree"
+        placeholder="Degree"
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div>
+      <label for="edu_field" class="text-sm">Field of study</label>
+      <input
+        id="edu_field"
+        name="field"
+        placeholder="Field"
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div>
+      <label for="edu_start_date" class="text-sm">Start date</label>
+      <input
+        id="edu_start_date"
+        type="date"
+        name="start_date"
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div>
+      <label for="edu_end_date" class="text-sm">End date</label>
+      <input
+        id="edu_end_date"
+        type="date"
+        name="end_date"
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div class="md:col-span-3">
+      <label for="edu_url" class="text-sm">URL</label>
+      <input
+        id="edu_url"
+        name="url"
+        placeholder="URL"
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div class="md:col-span-6">
+      <Button type="submit" variant="primary">Add education</Button>
+    </div>
+  </form>
+  <ul class="space-y-4">
+    {
+      edu.map((e) => (
+        <li class="p-4 flex items-center justify-between rounded border">
+          <div>
+            <p class="font-medium">
+              {e.name} — {e.degree}
+            </p>
+            <p class="text-sm text-fg-subtle">{e.field}</p>
+          </div>
+          <form method="post">
+            <input type="hidden" name="_action" value="delete_education" />
+            <input type="hidden" name="id" value={String(e.id)} />
+            <Button type="submit" variant="danger">
+              Delete
+            </Button>
+          </form>
+        </li>
+      ))
+    }
+  </ul>
+</section>

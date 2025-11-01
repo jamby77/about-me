@@ -1,0 +1,65 @@
+---
+interface PersonalInfo {
+  image: string | null;
+  title: string | null;
+  phone: string | null;
+  location: string | null;
+  website: string | null;
+  linkedin: string | null;
+  github: string | null;
+  twitter: string | null;
+  description: string | null;
+}
+
+interface Props {
+  pi: PersonalInfo | undefined;
+}
+
+const { pi } = Astro.props as Props;
+import Button from "@/components/Button.astro";
+---
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Personal info</h2>
+  <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <input type="hidden" name="_action" value="upsert_personal_info" />
+    <div>
+      <label for="image" class="text-sm">Image</label>
+      <input id="image" name="image" value={pi?.image || ""} class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="title" class="text-sm">Title</label>
+      <input id="title" name="title" value={pi?.title || ""} class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="phone" class="text-sm">Phone</label>
+      <input id="phone" name="phone" value={pi?.phone || ""} class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="location" class="text-sm">Location</label>
+      <input id="location" name="location" value={pi?.location || ""} class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="website" class="text-sm">Website</label>
+      <input id="website" name="website" value={pi?.website || ""} class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="linkedin" class="text-sm">LinkedIn</label>
+      <input id="linkedin" name="linkedin" value={pi?.linkedin || ""} class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="github" class="text-sm">GitHub</label>
+      <input id="github" name="github" value={pi?.github || ""} class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="twitter" class="text-sm">Twitter</label>
+      <input id="twitter" name="twitter" value={pi?.twitter || ""} class="w-full rounded border px-3 py-2" />
+    </div>
+    <div class="md:col-span-3">
+      <label for="description" class="text-sm">Description</label>
+      <textarea id="description" name="description" rows="4" class="w-full rounded border px-3 py-2">{pi?.description || ""}</textarea>
+    </div>
+    <div class="md:col-span-3">
+      <Button type="submit" variant="primary">Save personal info</Button>
+    </div>
+  </form>
+</section>

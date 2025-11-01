@@ -1,0 +1,58 @@
+---
+interface ProjectItem {
+  id: number;
+  name: string | null;
+  description: string | null;
+}
+
+interface Props {
+  projects: ProjectItem[];
+}
+
+const { projects } = Astro.props as Props;
+import Button from "@/components/Button.astro";
+---
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Projects</h2>
+  <form method="post" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <input type="hidden" name="_action" value="add_project" />
+    <div>
+      <label for="proj_name" class="text-sm">Name</label>
+      <input id="proj_name" name="name" placeholder="Name" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="proj_description" class="text-sm">Description</label>
+      <input id="proj_description" name="description" placeholder="Description" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="proj_url" class="text-sm">URL</label>
+      <input id="proj_url" name="url" placeholder="URL" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="proj_repoUrl" class="text-sm">Repo URL</label>
+      <input id="proj_repoUrl" name="repoUrl" placeholder="Repo URL" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="proj_date" class="text-sm">Date</label>
+      <input id="proj_date" type="date" name="date" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div class="md:col-span-5">
+      <Button type="submit" variant="primary">Add project</Button>
+    </div>
+  </form>
+  <ul class="divide-y rounded border">
+    {projects.map((p) => (
+      <li class="p-4 flex items-center justify-between">
+        <div>
+          <p class="font-medium">{p.name}</p>
+          <p class="text-sm text-fg-subtle">{p.description}</p>
+        </div>
+        <form method="post">
+          <input type="hidden" name="_action" value="delete_project" />
+          <input type="hidden" name="id" value={String(p.id)} />
+          <Button type="submit" variant="danger">Delete</Button>
+        </form>
+      </li>
+    ))}
+  </ul>
+</section>

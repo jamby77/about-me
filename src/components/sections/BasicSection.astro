@@ -1,0 +1,51 @@
+---
+interface Props {
+  userRow: {
+    id: number;
+    first_name: string | null;
+    last_name: string | null;
+    email: string | null;
+  };
+}
+
+const { userRow } = Astro.props as Props;
+import Button from "@/components/Button.astro";
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Basic</h2>
+  <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <input type="hidden" name="_action" value="update_user_basic" />
+    <div>
+      <label for="first_name" class="text-sm">First name</label>
+      <input
+        id="first_name"
+        name="first_name"
+        value={userRow.first_name || ""}
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div>
+      <label for="last_name" class="text-sm">Last name</label>
+      <input
+        id="last_name"
+        name="last_name"
+        value={userRow.last_name || ""}
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div>
+      <label for="email" class="text-sm">Email</label>
+      <input
+        id="email"
+        type="email"
+        name="email"
+        value={userRow.email || ""}
+        class="w-full rounded border px-3 py-2"
+      />
+    </div>
+    <div class="md:col-span-3">
+      <Button type="submit" variant="primary">Save basic</Button>
+    </div>
+  </form>
+</section>

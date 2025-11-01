@@ -24,7 +24,14 @@ const currentUser = await user();
 <div class="p-6">
   {
     currentUser ? (
-      <UserAvatar user={currentUser} class="justify-end" />
+      <div class="flex flex-col gap-6">
+        <UserAvatar user={currentUser} class="justify-end" />
+        <div class="flex justify-center">
+          <a href="/admin/users" class="text-fg-link hover:underline text-2xl">
+            Manage Users
+          </a>
+        </div>
+      </div>
     ) : (
       <div class="text-center">
         <a href="/login" class="text-fg-link hover:underline">

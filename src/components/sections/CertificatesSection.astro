@@ -1,0 +1,54 @@
+---
+interface CertificateItem {
+  id: number;
+  name: string | null;
+  description: string | null;
+}
+
+interface Props {
+  certs: CertificateItem[];
+}
+
+const { certs } = Astro.props as Props;
+import Button from "@/components/Button.astro";
+---
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Certificates</h2>
+  <form method="post" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <input type="hidden" name="_action" value="add_certificate" />
+    <div class="md:col-span-2">
+      <label for="cert_name" class="text-sm">Name</label>
+      <input id="cert_name" name="name" placeholder="Name" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="cert_date" class="text-sm">Date</label>
+      <input id="cert_date" type="date" name="date" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="cert_description" class="text-sm">Issuer / Description</label>
+      <input id="cert_description" name="description" placeholder="Issuer / Description" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div>
+      <label for="cert_url" class="text-sm">URL</label>
+      <input id="cert_url" name="url" placeholder="URL" class="w-full rounded border px-3 py-2" />
+    </div>
+    <div class="md:col-span-5">
+      <Button type="submit" variant="primary">Add certificate</Button>
+    </div>
+  </form>
+  <ul class="divide-y rounded border">
+    {certs.map((c) => (
+      <li class="p-4 flex items-center justify-between">
+        <div>
+          <p class="font-medium">{c.name}</p>
+          <p class="text-sm text-fg-subtle">{c.description}</p>
+        </div>
+        <form method="post">
+          <input type="hidden" name="_action" value="delete_certificate" />
+          <input type="hidden" name="id" value={String(c.id)} />
+          <Button type="submit" variant="danger">Delete</Button>
+        </form>
+      </li>
+    ))}
+  </ul>
+</section>
