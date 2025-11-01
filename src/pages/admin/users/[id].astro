@@ -13,6 +13,7 @@ import {
   skills as Skills,
   eq,
 } from "astro:db";
+import { handleAdminUserPost } from "@/lib/adminUserActions";
 import BasicSection from "@/components/sections/BasicSection.astro";
 import PersonalInfoSection from "@/components/sections/PersonalInfoSection.astro";
 import EducationSection from "@/components/sections/EducationSection.astro";
@@ -21,9 +22,9 @@ import CertificatesSection from "@/components/sections/CertificatesSection.astro
 import ProjectsSection from "@/components/sections/ProjectsSection.astro";
 import SkillsSection from "@/components/sections/SkillsSection.astro";
 import LanguagesSection from "@/components/sections/LanguagesSection.astro";
+import { parseExperienceRows } from "@/lib/schemas";
 
-const idParam = Astro.params.id;
-const userId = Number(idParam);
+const userId = Number(Astro.params.id);
 if (!Number.isFinite(userId)) {
   return Astro.redirect("/admin/users");
 }
@@ -31,204 +32,8 @@ if (!Number.isFinite(userId)) {
 // Handle POST actions (create/update/delete)
 if (Astro.request.method === "POST") {
   const form = await Astro.request.formData();
-  const action = String(form.get("_action") || "");
-
   try {
-    switch (action) {
-      case "update_user_basic": {
-        const first_name =
-          String(form.get("first_name") || "").trim() || undefined;
-        const last_name =
-          String(form.get("last_name") || "").trim() || undefined;
-        const email = String(form.get("email") || "").trim() || undefined;
-        await db
-          .update(Users)
-          .set({ first_name, last_name, email })
-          .where(eq(Users.id, userId));
-        break;
-      }
-      case "upsert_personal_info": {
-        const image = String(form.get("image") || "").trim() || null;
-        const title = String(form.get("title") || "").trim() || null;
-        const phone = String(form.get("phone") || "").trim() || null;
-        const location = String(form.get("location") || "").trim() || null;
-        const website = String(form.get("website") || "").trim() || null;
-        const linkedin = String(form.get("linkedin") || "").trim() || null;
-        const github = String(form.get("github") || "").trim() || null;
-        const twitter = String(form.get("twitter") || "").trim() || null;
-        const description =
-          String(form.get("description") || "").trim() || null;
-        // Remove existing and insert new
-        await db.delete(PersonalInfo).where(eq(PersonalInfo.user_id, userId));
-        await db.insert(PersonalInfo).values({
-          user_id: userId,
-          image: image || undefined,
-          title: title || undefined,
-          phone: phone || undefined,
-          location: location || undefined,
-          website: website || undefined,
-          linkedin: linkedin || undefined,
-          github: github || undefined,
-          twitter: twitter || undefined,
-          description: description || undefined,
-        });
-        break;
-      }
-      case "add_education": {
-        const name = String(form.get("name") || "").trim();
-        const degree = String(form.get("degree") || "").trim();
-        const field = String(form.get("field") || "").trim() || undefined;
-        const start_date = form.get("start_date")
-          ? new Date(String(form.get("start_date")))
-          : undefined;
-        const end_date = form.get("end_date")
-          ? new Date(String(form.get("end_date")))
-          : undefined;
-        const url = String(form.get("url") || "").trim() || undefined;
-        await db
-          .insert(Education)
-          .values({
-            user_id: userId,
-            name,
-            degree,
-            field,
-            start_date: start_date!,
-            end_date,
-            url,
-          });
-        break;
-      }
-      case "delete_education": {
-        const eduId = Number(form.get("id"));
-        if (Number.isFinite(eduId)) {
-          await db.delete(Education).where(eq(Education.id, eduId));
-        }
-        break;
-      }
-      case "add_experience": {
-        const name = String(form.get("name") || "").trim();
-        const title = String(form.get("title") || "").trim();
-        const role = String(form.get("role") || "").trim();
-        const url = String(form.get("url") || "").trim() || undefined;
-        const start_date = form.get("start_date")
-          ? new Date(String(form.get("start_date")))
-          : undefined;
-        const end_date = form.get("end_date")
-          ? new Date(String(form.get("end_date")))
-          : undefined;
-        const description =
-          String(form.get("description") || "").trim() || undefined;
-        const location = String(form.get("location") || "").trim() || undefined;
-        const location_type =
-          String(form.get("location_type") || "").trim() || undefined;
-        // New fields: skills (multi-select), responsibilities, achievements (multiline)
-        const skills = (form.getAll("skills") || [])
-          .map((v) => String(v).trim())
-          .filter(Boolean);
-        const respRaw = String(form.get("responsibilities") || "").trim();
-        const responsibilities = respRaw
-          ? respRaw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean)
-          : undefined;
-        const achRaw = String(form.get("achievements") || "").trim();
-        const achievements = achRaw
-          ? achRaw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean)
-          : undefined;
-        await db.insert(Experience).values({
-          user_id: userId,
-          name,
-          title,
-          role,
-          url,
-          start_date: start_date!,
-          end_date,
-          description,
-          location,
-          location_type,
-          skills: skills.length ? skills : undefined,
-          responsibilities,
-          achievements,
-        });
-        break;
-      }
-      case "delete_experience": {
-        const expId = Number(form.get("id"));
-        if (Number.isFinite(expId)) {
-          await db.delete(Experience).where(eq(Experience.id, expId));
-        }
-        break;
-      }
-      case "add_certificate": {
-        const name = String(form.get("name") || "").trim();
-        const date = form.get("date")
-          ? new Date(String(form.get("date")))
-          : undefined;
-        const description =
-          String(form.get("description") || "").trim() || undefined;
-        const url = String(form.get("url") || "").trim() || undefined;
-        await db
-          .insert(Certificates)
-          .values({ user_id: userId, name, date, description, url });
-        break;
-      }
-      case "delete_certificate": {
-        const certId = Number(form.get("id"));
-        if (Number.isFinite(certId)) {
-          await db.delete(Certificates).where(eq(Certificates.id, certId));
-        }
-        break;
-      }
-      case "add_project": {
-        const name = String(form.get("name") || "").trim();
-        const description =
-          String(form.get("description") || "").trim() || undefined;
-        const url = String(form.get("url") || "").trim() || undefined;
-        const repoUrl = String(form.get("repoUrl") || "").trim() || undefined;
-        const date = form.get("date")
-          ? new Date(String(form.get("date")))
-          : undefined;
-        await db
-          .insert(Projects)
-          .values({ user_id: userId, name, description, url, repoUrl, date });
-        break;
-      }
-      case "delete_project": {
-        const projId = Number(form.get("id"));
-        if (Number.isFinite(projId)) {
-          await db.delete(Projects).where(eq(Projects.id, projId));
-        }
-        break;
-      }
-      case "add_skill": {
-        const name = String(form.get("name") || "").trim();
-        if (name) {
-          await db.insert(Skills).values({ user_id: userId, name });
-        }
-        break;
-      }
-      case "delete_skill": {
-        const skillId = Number(form.get("id"));
-        if (Number.isFinite(skillId)) {
-          await db.delete(Skills).where(eq(Skills.id, skillId));
-        }
-        break;
-      }
-      case "add_language": {
-        const language_id = Number(form.get("language_id"));
-        if (Number.isFinite(language_id)) {
-          await db
-            .insert(UserLanguages)
-            .values({ user_id: userId, language_id });
-        }
-        break;
-      }
-      case "delete_language": {
-        const ulId = Number(form.get("id"));
-        if (Number.isFinite(ulId)) {
-          await db.delete(UserLanguages).where(eq(UserLanguages.id, ulId));
-        }
-        break;
-      }
-    }
+    await handleAdminUserPost(userId, form);
   } catch (e) {
     console.error(e);
   }
@@ -252,6 +57,8 @@ const exp = await db
   .select()
   .from(Experience)
   .where(eq(Experience.user_id, userId));
+// Validate and transform DB rows to component shape
+const expItems = parseExperienceRows(exp);
 const certs = await db
   .select()
   .from(Certificates)
@@ -269,7 +76,9 @@ const userSkills = await db
   .select()
   .from(Skills)
   .where(eq(Skills.user_id, userId));
-const availableSkills = Array.from(new Set(userSkills.map((s) => s.name).filter(Boolean))) as string[];
+const availableSkills = Array.from(
+  new Set(userSkills.map((s) => s.name).filter(Boolean)),
+) as string[];
 ---
 
 <div class="p-6 max-w-5xl mx-auto space-y-10">
@@ -282,7 +91,7 @@ const availableSkills = Array.from(new Set(userSkills.map((s) => s.name).filter(
   <BasicSection userRow={userRow} />
   <PersonalInfoSection pi={pi} />
   <EducationSection edu={edu} />
-  <ExperienceSection exp={exp} availableSkills={availableSkills} />
+  <ExperienceSection exp={expItems} availableSkills={availableSkills} />
   <CertificatesSection certs={certs} />
   <ProjectsSection projects={projects} />
   <SkillsSection userSkills={userSkills} />
