@@ -130,6 +130,10 @@ emailVerified	boolean	-	Whether the user's email is verified
 image	string	?	User's image url
 createdAt	Date	-	Timestamp of when the user account was created
 updatedAt	Date	-	Timestamp of the last update to the user's information
+role	string	?	The user's role. Defaults to `user`. Admins will have the `admin` role.
+banned	boolean	?	Indicates whether the user is banned.
+banReason	string	?	The reason for the user's ban.
+banExpires	date	?	The date when the user's ban will expire.
 */
 const user = defineTable({
   columns: {
@@ -147,6 +151,24 @@ const user = defineTable({
     emailVerified: column.boolean({
       default: false,
       label: "Whether the user's email is verified",
+    }),
+    role: column.text({
+      optional: true,
+      label:
+        "The user's role. Defaults to `user`. Admins will have the `admin` role.",
+      default: "user",
+    }),
+    banned: column.boolean({
+      optional: true,
+      label: "Indicates whether the user is banned.",
+    }),
+    banReason: column.text({
+      optional: true,
+      label: "The reason for the user's ban.",
+    }),
+    banExpires: column.date({
+      optional: true,
+      label: "The date when the user's ban will expire.",
     }),
     image: column.text({ optional: true, label: "User's image url" }),
     createdAt: column.date({
@@ -167,6 +189,7 @@ token	string	-	The unique session token
 expiresAt	Date	-	The time when the session expires
 ipAddress	string	?	The IP address of the device
 userAgent	string	?	The user agent information of the device
+impersonatedBy	string	?	The ID of the admin that is impersonating this session.
 createdAt	Date	-	Timestamp of when the session was created
 updatedAt	Date	-	Timestamp of when the session was updated
 */
@@ -193,6 +216,10 @@ const session = defineTable({
     userAgent: column.text({
       optional: true,
       label: "The user agent information of the device",
+    }),
+    impersonatedBy: column.text({
+      optional: true,
+      label: "The ID of the admin that is impersonating this session.",
     }),
     createdAt: column.date({
       label: "Timestamp of when the session was created",
