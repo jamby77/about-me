@@ -1,5 +1,6 @@
 ---
 import "@/styles/global.css";
+import FormInput from "@/components/FormInput.astro";
 ---
 
 <div class="flex h-screen w-screen items-center justify-center p-4">
@@ -34,30 +35,26 @@ import "@/styles/global.css";
         <span class="mr-3">Login</span>
       </h1>
 
-      <div class="flex flex-col gap-2">
-        <label for="email" class="text-sm font-medium">Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="jane@example.com"
-          class="w-full rounded border px-3 py-2"
-          required
-        />
-      </div>
+      <FormInput
+        className="flex flex-col gap-2"
+        id="email"
+        name="email"
+        label="Email"
+        type="email"
+        placeholder="jane@example.com"
+        required
+      />
 
-      <div class="flex flex-col gap-2">
-        <label for="password" class="text-sm font-medium">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          minlength="8"
-          placeholder="Your password"
-          class="w-full rounded border px-3 py-2"
-          required
-        />
-      </div>
+      <FormInput
+        className="flex flex-col gap-2"
+        id="password"
+        name="password"
+        label="Password"
+        type="password"
+        minLength={8}
+        placeholder="Your password"
+        required
+      />
 
       <div id="form-error" class="text-sm text-red-600" hidden></div>
       <div id="form-success" class="text-sm text-green-600" hidden></div>

@@ -12,66 +12,46 @@ interface Props {
 
 const { edu } = Astro.props as Props;
 import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
 ---
 
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Education</h2>
   <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
     <input type="hidden" name="_action" value="add_education" />
-    <div class="md:col-span-2">
-      <label for="edu_name" class="text-sm">School</label>
-      <input
-        id="edu_name"
-        name="name"
-        placeholder="School"
-        class="w-full rounded border px-3 py-2"
-      />
-    </div>
-    <div>
-      <label for="edu_degree" class="text-sm">Degree</label>
-      <input
-        id="edu_degree"
-        name="degree"
-        placeholder="Degree"
-        class="w-full rounded border px-3 py-2"
-      />
-    </div>
-    <div>
-      <label for="edu_field" class="text-sm">Field of study</label>
-      <input
-        id="edu_field"
-        name="field"
-        placeholder="Field"
-        class="w-full rounded border px-3 py-2"
-      />
-    </div>
-    <div>
-      <label for="edu_start_date" class="text-sm">Start date</label>
-      <input
-        id="edu_start_date"
-        type="date"
-        name="start_date"
-        class="w-full rounded border px-3 py-2"
-      />
-    </div>
-    <div>
-      <label for="edu_end_date" class="text-sm">End date</label>
-      <input
-        id="edu_end_date"
-        type="date"
-        name="end_date"
-        class="w-full rounded border px-3 py-2"
-      />
-    </div>
-    <div class="md:col-span-3">
-      <label for="edu_url" class="text-sm">URL</label>
-      <input
-        id="edu_url"
-        name="url"
-        placeholder="URL"
-        class="w-full rounded border px-3 py-2"
-      />
-    </div>
+    <FormInput
+      className="md:col-span-2"
+      id="edu_name"
+      name="name"
+      label="School"
+      placeholder="School"
+    />
+    <FormInput
+      id="edu_degree"
+      name="degree"
+      label="Degree"
+      placeholder="Degree"
+    />
+    <FormInput
+      id="edu_field"
+      name="field"
+      label="Field of study"
+      placeholder="Field"
+    />
+    <FormInput
+      id="edu_start_date"
+      name="start_date"
+      label="Start date"
+      type="date"
+    />
+    <FormInput id="edu_end_date" name="end_date" label="End date" type="date" />
+    <FormInput
+      className="md:col-span-3"
+      id="edu_url"
+      name="url"
+      label="URL"
+      placeholder="URL"
+    />
     <div class="md:col-span-6">
       <Button type="submit" variant="primary">Add education</Button>
     </div>

@@ -1,23 +1,20 @@
 ---
 import Section from "../Section.astro";
-import GraduateIcon from "@/icons/graduate.astro"
-import ScrollIcon from "@/icons/scroll.astro"
+import GraduateIcon from "@/icons/graduate.astro";
+import ScrollIcon from "@/icons/scroll.astro";
 
 import { db, eq, education, certificates } from "astro:db";
 const educ = await db.select().from(education).where(eq(education.user_id, 1));
-const cert = await db.select().from(certificates).where(eq(certificates.user_id, 1));
+const cert = await db
+  .select()
+  .from(certificates)
+  .where(eq(certificates.user_id, 1));
 ---
 
 <Section className={Astro.props.className} title="Education">
   <ul class="space-y-4 py-3 print:space-y-0">
     {
-      educ.map(({
-                  name,
-                  start_date,
-                  end_date,
-                  field,
-                  url
-                }) => {
+      educ.map(({ name, start_date, end_date, field, url }) => {
         const startDate = new Date(start_date);
         const endDate = end_date != null ? new Date(end_date) : new Date();
         const startYear = startDate.getFullYear();
@@ -25,20 +22,24 @@ const cert = await db.select().from(certificates).where(eq(certificates.user_id,
         const years = `${startYear} - ${endYear}`;
 
         return (
-            <div class="flex items-baseline">
-              <GraduateIcon />
-              <div class="relative w-full items-baseline justify-between gap-2">
-                <h3 class="mr-6 items-baseline gap-x-2 gap-y-0.5 font-medium">
-                  <a target="_blank"
-                     class="hover:text-hue group flex items-center gap-[6px] decoration-dotted underline-offset-[5px] hover:underline"
-                     href={url}>
-                    {name}
-                  </a>
-                </h3>
-                <div class="text-sm text-fg-muted">{field}</div>
-                <time class="right-0 top-0 text-xs text-fg-muted md:absolute md:block">{years}</time>
-              </div>
+          <div class="flex items-baseline">
+            <GraduateIcon />
+            <div class="relative w-full items-baseline justify-between gap-2">
+              <h3 class="mr-6 items-baseline gap-x-2 gap-y-0.5 font-medium">
+                <a
+                  target="_blank"
+                  class="hover:text-hue group flex items-center gap-[6px] decoration-dotted underline-offset-[5px] hover:underline"
+                  href={url}
+                >
+                  {name}
+                </a>
+              </h3>
+              <div class="text-sm text-fg-muted">{field}</div>
+              <time class="right-0 top-0 text-xs text-fg-muted md:absolute md:block">
+                {years}
+              </time>
             </div>
+          </div>
         );
       })
     }
@@ -46,34 +47,34 @@ const cert = await db.select().from(certificates).where(eq(certificates.user_id,
 
   {
     cert.length > 0 && (
-          <>
-            <h4>Certificates</h4>
-            <ul class="space-y-4 py-3 print:space-y-0">
-              {cert.map(({
-                           name,
-                           date,
-                           description,
-                           url
-                         }) => {
-                const certificateYear = date ? new Date(date).getFullYear() : "N/A";
-                return (
-                    <div class="flex items-baseline">
-                      <ScrollIcon />
-                      <div class="relative w-full items-baseline justify-between gap-2">
-                        <h3 class="mr-6 items-baseline gap-x-2 gap-y-0.5 font-medium">
-                          <a class="hover:text-hue group flex items-center gap-[6px] text-fg-base decoration-dotted underline-offset-[5px] hover:underline"
-                             href={url} target="_blank">
-                            {name}
-                          </a>
-                        </h3>
-                        <div class="text-sm text-fg-muted">{description}</div>
-                        <time class="right-0 top-0 text-xs text-fg-muted md:absolute md:block">{certificateYear}</time>
-                      </div>
-                    </div>
-                );
-              })}
-            </ul>
-          </>
+      <>
+        <h4>Certificates</h4>
+        <ul class="space-y-4 py-3 print:space-y-0">
+          {cert.map(({ name, date, description, url }) => {
+            const certificateYear = date ? new Date(date).getFullYear() : "N/A";
+            return (
+              <div class="flex items-baseline">
+                <ScrollIcon />
+                <div class="relative w-full items-baseline justify-between gap-2">
+                  <h3 class="mr-6 items-baseline gap-x-2 gap-y-0.5 font-medium">
+                    <a
+                      class="hover:text-hue group flex items-center gap-[6px] text-fg-base decoration-dotted underline-offset-[5px] hover:underline"
+                      href={url}
+                      target="_blank"
+                    >
+                      {name}
+                    </a>
+                  </h3>
+                  <div class="text-sm text-fg-muted">{description}</div>
+                  <time class="right-0 top-0 text-xs text-fg-muted md:absolute md:block">
+                    {certificateYear}
+                  </time>
+                </div>
+              </div>
+            );
+          })}
+        </ul>
+      </>
     )
   }
 </Section>
