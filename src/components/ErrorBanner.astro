@@ -15,7 +15,7 @@ const { message, class: className } = Astro.props as Props;
         className,
       ]}
     >
-      Error: {message}
+      Error: <pre>{message}</pre>
     </div>
   )
 }

@@ -15,6 +15,13 @@ const edu = await db
   .select()
   .from(Education)
   .where(eq(Education.user_id, userId));
+// Pretty date formatter (e.g., 'Nov 2025')
+const formatMonthYear = (d: unknown) => {
+  if (!d) return "";
+  const date = d instanceof Date ? d : new Date(d as any);
+  if (isNaN(date.getTime())) return "";
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "short" });
+};
 ---
 
 <section class="space-y-4">
@@ -62,11 +69,17 @@ const edu = await db
   <ul class="space-y-4">
     {
       edu.map((e) => (
-        <li class="p-4 flex items-center justify-between rounded border">
-          <div>
-            <p class="font-medium">
-              {e.name} — {e.degree}
-            </p>
+        <li class="p-4 flex items-center justify-between rounded border gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 justify-between">
+              <p class="font-medium">
+                {e.name} — {e.degree}
+              </p>
+              <p class="text-sm text-fg-subtle">
+                {formatMonthYear(e.start_date)}
+                {e.end_date && ` - ${formatMonthYear(e.end_date)}`}
+              </p>
+            </div>
             <p class="text-sm text-fg-subtle">{e.field}</p>
           </div>
           <form method="post">

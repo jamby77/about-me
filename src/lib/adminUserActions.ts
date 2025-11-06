@@ -18,6 +18,7 @@ import {
   RequiredTrimmed,
   OptionalTrimmed,
   IdNumber,
+  OptionalUrl,
 } from "@/lib/schemas.ts";
 
 // Result helpers
@@ -69,14 +70,14 @@ export async function upsertPersonalInfo(
 ): Promise<ActionResult> {
   const schema = z.object({
     image: OptionalTrimmed,
-    title: OptionalTrimmed,
-    phone: OptionalTrimmed,
-    location: OptionalTrimmed,
+    title: RequiredTrimmed,
+    phone: RequiredTrimmed,
+    location: RequiredTrimmed,
     website: OptionalTrimmed,
     linkedin: OptionalTrimmed,
     github: OptionalTrimmed,
     twitter: OptionalTrimmed,
-    description: OptionalTrimmed,
+    description: RequiredTrimmed,
   });
   const { success, error, data } = schema.safeParse(
     Object.fromEntries(form.entries()),
@@ -122,11 +123,11 @@ export async function addEducation(
     field: OptionalTrimmed,
     start_date: RequiredDate,
     end_date: OptionalDate,
-    url: OptionalTrimmed,
+    url: OptionalUrl,
   });
-  const { success, error, data } = schema.safeParse(
-    Object.fromEntries(form.entries()),
-  );
+  let fromEntries = Object.fromEntries(form.entries());
+  console.log({ fromEntries });
+  const { success, error, data } = schema.safeParse(fromEntries);
   if (!success) {
     return fail(z.prettifyError(error) ?? "Invalid input");
   }

@@ -24,17 +24,6 @@ export function parseExperienceRows(rows: unknown): ExperienceItem[] {
   return z.array(ExperienceDbRowSchema).parse(rows);
 }
 
-// Date validators: not in the future and not older than 100 years
-const isValidDate = (d: Date | undefined) =>
-  d instanceof Date && !isNaN(d.getTime());
-
-const withinLast100Years = (d: Date) => {
-  const now = new Date();
-  if (d > now) return false;
-  const hundredYearsAgo = new Date(now);
-  hundredYearsAgo.setFullYear(now.getFullYear() - 100);
-  return d >= hundredYearsAgo;
-};
 // Zod helpers
 export const OptionalTrimmed = z.string().trim().optional();
 export const RequiredTrimmed = z
@@ -42,20 +31,30 @@ export const RequiredTrimmed = z
   .trim()
   .min(1, { message: "Field is required" });
 
-export const OptionalDate = z.coerce
-  .date()
-  .optional()
-  .refine((d) => d === undefined || isValidDate(d), { message: "Invalid date" })
-  .refine((d) => d === undefined || withinLast100Years(d), {
-    message: "Date must be within the last 100 years and not in the future",
-  });
+const hundredYearsAgo = new Date();
+hundredYearsAgo.setFullYear(hundredYearsAgo.getFullYear() - 100);
 
-export const RequiredDate = z.coerce
-  .date()
-  .refine((d) => isValidDate(d), { message: "Invalid date" })
-  .refine((d) => withinLast100Years(d), {
-    message: "Date must be within the last 100 years and not in the future",
-  });
+export const OptionalUrl = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z.url().optional(),
+);
+
+export const OptionalDate = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z.coerce
+    .date()
+    .min(hundredYearsAgo, { message: "Date is too far in the past" })
+    .max(new Date(), { message: "Date is in the future" })
+    .optional(),
+);
+
+export const RequiredDate = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z.coerce
+    .date()
+    .min(hundredYearsAgo, { message: "Date is too far in the past" })
+    .max(new Date(), { message: "Date is in the future" }),
+);
 
 export const IdNumber = z.coerce
   .number()
