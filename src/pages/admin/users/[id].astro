@@ -11,6 +11,7 @@ import CertificatesSection from "@/components/sections/CertificatesSection.astro
 import ProjectsSection from "@/components/sections/ProjectsSection.astro";
 import SkillsSection from "@/components/sections/SkillsSection.astro";
 import LanguagesSection from "@/components/sections/LanguagesSection.astro";
+import TabLink from "@/components/TabLink.astro";
 
 const userId = Number(Astro.params.id);
 const [userRow] = await db.select().from(Users).where(eq(Users.id, userId));
@@ -93,46 +94,14 @@ const finalTab = postError ? errorTab : activeTab;
     <!-- Tab Navigation -->
     <div class="border-b border-bg-subtle mb-8">
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-        <a
-          href="?tab=basic"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "basic" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
-          >Basic Info</a
-        >
-        <a
-          href="?tab=personal"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "personal" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
-          >Personal Info</a
-        >
-        <a
-          href="?tab=education"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "education" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
-          >Education</a
-        >
-        <a
-          href="?tab=experience"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "experience" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
-          >Experience</a
-        >
-        <a
-          href="?tab=certificates"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "certificates" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
-          >Certificates</a
-        >
-        <a
-          href="?tab=projects"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "projects" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
-          >Projects</a
-        >
-        <a
-          href="?tab=skills"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "skills" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
-          >Skills</a
-        >
-        <a
-          href="?tab=languages"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "languages" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
-          >Languages</a
-        >
+        <TabLink href="?tab=basic" active={finalTab === "basic"}>Basic Info</TabLink>
+        <TabLink href="?tab=personal" active={finalTab === "personal"}>Personal Info</TabLink>
+        <TabLink href="?tab=education" active={finalTab === "education"}>Education</TabLink>
+        <TabLink href="?tab=experience" active={finalTab === "experience"}>Experience</TabLink>
+        <TabLink href="?tab=certificates" active={finalTab === "certificates"}>Certificates</TabLink>
+        <TabLink href="?tab=projects" active={finalTab === "projects"}>Projects</TabLink>
+        <TabLink href="?tab=skills" active={finalTab === "skills"}>Skills</TabLink>
+        <TabLink href="?tab=languages" active={finalTab === "languages"}>Languages</TabLink>
       </nav>
     </div>
 
