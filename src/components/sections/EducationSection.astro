@@ -20,8 +20,23 @@ const formatMonthYear = (d: unknown) => {
   if (!d) return "";
   const date = d instanceof Date ? d : new Date(d as any);
   if (isNaN(date.getTime())) return "";
-  return date.toLocaleDateString(undefined, { year: "numeric", month: "short" });
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+  });
 };
+// Format for <input type="date">
+const formatDateInput = (d: unknown) => {
+  if (!d) return "";
+  const date = d instanceof Date ? d : new Date(d as any);
+  if (isNaN(date.getTime())) return "";
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+// Which education entry is being edited (from URL)
+const editEduId = Number(Astro.url.searchParams.get("editEdu") || "");
 ---
 
 <section class="space-y-4">
@@ -68,29 +83,103 @@ const formatMonthYear = (d: unknown) => {
   </form>
   <ul class="space-y-4">
     {
-      edu.map((e) => (
-        <li class="p-4 flex items-center justify-between rounded border gap-4">
-          <div class="flex-1">
-            <div class="flex items-center gap-2 justify-between">
-              <p class="font-medium">
-                {e.name} — {e.degree}
-              </p>
-              <p class="text-sm text-fg-subtle">
-                {formatMonthYear(e.start_date)}
-                {e.end_date && ` - ${formatMonthYear(e.end_date)}`}
-              </p>
-            </div>
-            <p class="text-sm text-fg-subtle">{e.field}</p>
-          </div>
-          <form method="post">
-            <input type="hidden" name="_action" value="delete_education" />
-            <input type="hidden" name="id" value={String(e.id)} />
-            <Button type="submit" variant="danger">
-              Delete
-            </Button>
-          </form>
-        </li>
-      ))
+      edu.map((e) => {
+        const isEditing = e.id === editEduId;
+        return (
+          <li class="p-4 rounded border gap-4">
+            {isEditing ? (
+              <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <input type="hidden" name="_action" value="update_education" />
+                <input type="hidden" name="id" value={String(e.id)} />
+                <FormInput
+                  className="md:col-span-2"
+                  id={`edu_name_${e.id}`}
+                  name="name"
+                  label="School"
+                  value={e.name || ""}
+                />
+                <FormInput
+                  id={`edu_degree_${e.id}`}
+                  name="degree"
+                  label="Degree"
+                  value={e.degree || ""}
+                />
+                <FormInput
+                  id={`edu_field_${e.id}`}
+                  name="field"
+                  label="Field of study"
+                  value={e.field || ""}
+                />
+                <FormInput
+                  id={`edu_start_date_${e.id}`}
+                  name="start_date"
+                  label="Start date"
+                  type="date"
+                  value={formatDateInput(e.start_date)}
+                />
+                <FormInput
+                  id={`edu_end_date_${e.id}`}
+                  name="end_date"
+                  label="End date"
+                  type="date"
+                  value={formatDateInput(e.end_date)}
+                />
+                <FormInput
+                  className="md:col-span-3"
+                  id={`edu_url_${e.id}`}
+                  name="url"
+                  label="URL"
+                  value={(e as any).url || ""}
+                />
+                <div class="md:col-span-6 flex items-center gap-3">
+                  <Button type="submit" variant="primary">
+                    Save
+                  </Button>
+                  <a href="?tab=education" class="text-fg-link hover:underline">
+                    Cancel
+                  </a>
+                </div>
+              </form>
+            ) : (
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 justify-between">
+                    <div class="flex flex-col gap-2">
+                      <p class="font-medium">
+                        {e.name} — {e.degree}
+                      </p>
+                      <p class="text-sm text-fg-subtle">{e.field}</p>
+                    </div>
+                    <p class="text-sm text-fg-subtle">
+                      {formatMonthYear(e.start_date)}
+                      {e.end_date && ` - ${formatMonthYear(e.end_date)}`}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <a
+                    href={`?tab=education&editEdu=${e.id}`}
+                    class="px-3.5 py-1.5 border rounded font-medium focus:outline-none focus:ring-2 focus:ring-offset-2"
+                  >
+                    Edit
+                  </a>
+                  <form method="post">
+                    <input
+                      type="hidden"
+                      name="_action"
+                      value="delete_education"
+                    />
+                    <input type="hidden" name="id" value={String(e.id)} />
+                    <Button type="submit" variant="danger">
+                      Delete
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })
     }
   </ul>
 </section>

@@ -145,6 +145,34 @@ export async function addEducation(
   });
 }
 
+export async function updateEducation(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    id: IdNumber,
+    name: RequiredTrimmed,
+    degree: RequiredTrimmed,
+    field: OptionalTrimmed,
+    start_date: RequiredDate,
+    end_date: OptionalDate,
+    url: OptionalUrl,
+  });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id, name, degree, field, start_date, end_date, url } = data;
+  return withTry("update_education", async () => {
+    await db
+      .update(Education)
+      .set({ name, degree, field, start_date, end_date, url })
+      .where(eq(Education.id, id));
+  });
+}
+
 export async function deleteEducation(
   _userId: number,
   form: FormData,
@@ -422,6 +450,9 @@ export async function handleAdminUserPost(
       break;
     case "add_education":
       res = await addEducation(userId, form);
+      break;
+    case "update_education":
+      res = await updateEducation(userId, form);
       break;
     case "delete_education":
       res = await deleteEducation(userId, form);

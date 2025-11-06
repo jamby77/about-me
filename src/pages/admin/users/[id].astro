@@ -54,6 +54,7 @@ if (postError) {
       errorTab = "personal";
       break;
     case "add_education":
+    case "update_education":
     case "delete_education":
       errorTab = "education";
       break;
@@ -138,6 +139,7 @@ const finalTab = postError ? errorTab : activeTab;
             error={
               postError &&
               (postError.action === "add_education" ||
+                postError.action === "update_education" ||
                 postError.action === "delete_education")
                 ? postError.error
                 : undefined
