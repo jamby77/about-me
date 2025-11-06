@@ -12,14 +12,20 @@ interface PersonalInfo {
 }
 
 interface Props {
-  pi: PersonalInfo | undefined;
+  userId: number;
 }
 
-const { pi } = Astro.props as Props;
+const { userId } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
----
+import { db, personal_info as PersonalInfo, eq } from "astro:db";
 
+// Fetch personal info data
+const [pi] = await db
+  .select()
+  .from(PersonalInfo)
+  .where(eq(PersonalInfo.user_id, userId));
+---
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Personal info</h2>
   <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">

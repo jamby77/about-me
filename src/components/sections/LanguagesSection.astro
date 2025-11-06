@@ -1,23 +1,19 @@
 ---
 import Button from "@/components/Button.astro";
-
-interface LanguageItem {
-  id: number;
-  language: string;
-  abbr: string;
-}
-
-interface UserLanguage {
-  id: number;
-  language_id: number;
-}
+import { db, languages as Languages, user_languages as UserLanguages, eq } from "astro:db";
 
 interface Props {
-  languages: LanguageItem[];
-  userLanguages: UserLanguage[];
+  userId: number;
 }
 
-const { languages, userLanguages } = Astro.props as Props;
+const { userId } = Astro.props as Props;
+
+// Fetch languages data
+const languages = await db.select().from(Languages);
+const userLanguages = await db
+  .select()
+  .from(UserLanguages)
+  .where(eq(UserLanguages.user_id, userId));
 ---
 
 <section class="space-y-4">

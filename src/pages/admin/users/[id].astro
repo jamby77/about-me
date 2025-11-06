@@ -14,6 +14,7 @@ import {
   eq,
 } from "astro:db";
 import { handleAdminUserPost } from "@/lib/adminUserActions";
+import AdminLayout from "@/layouts/AdminLayout.astro";
 import BasicSection from "@/components/sections/BasicSection.astro";
 import PersonalInfoSection from "@/components/sections/PersonalInfoSection.astro";
 import EducationSection from "@/components/sections/EducationSection.astro";
@@ -25,7 +26,10 @@ import LanguagesSection from "@/components/sections/LanguagesSection.astro";
 import { parseExperienceRows } from "@/lib/schemas";
 
 const userId = Number(Astro.params.id);
-if (!Number.isFinite(userId)) {
+const [userRow] = await db.select().from(Users).where(eq(Users.id, userId));
+
+// Fetch only the user row to verify existence
+if (!userRow) {
   return Astro.redirect("/admin/users");
 }
 
@@ -40,95 +44,75 @@ if (Astro.request.method === "POST") {
   return Astro.redirect(Astro.url.pathname);
 }
 
-// Fetch data for rendering
-const [userRow] = await db.select().from(Users).where(eq(Users.id, userId));
-if (!userRow) {
-  return Astro.redirect("/admin/users");
-}
-const [pi] = await db
-  .select()
-  .from(PersonalInfo)
-  .where(eq(PersonalInfo.user_id, userId));
-const edu = await db
-  .select()
-  .from(Education)
-  .where(eq(Education.user_id, userId));
-const exp = await db
-  .select()
-  .from(Experience)
-  .where(eq(Experience.user_id, userId));
-// Validate and transform DB rows to component shape
-const expItems = parseExperienceRows(exp);
-const certs = await db
-  .select()
-  .from(Certificates)
-  .where(eq(Certificates.user_id, userId));
-const projects = await db
-  .select()
-  .from(Projects)
-  .where(eq(Projects.user_id, userId));
-const languages = await db.select().from(Languages);
-const userLanguages = await db
-  .select()
-  .from(UserLanguages)
-  .where(eq(UserLanguages.user_id, userId));
-const userSkills = await db
-  .select()
-  .from(Skills)
-  .where(eq(Skills.user_id, userId));
-const availableSkills = Array.from(
-  new Set(userSkills.map((s) => s.name).filter(Boolean)),
-) as string[];
-
 // Get the active tab from URL search params or default to 'basic'
-const activeTab = Astro.url.searchParams.get('tab') || 'basic';
+const activeTab = Astro.url.searchParams.get("tab") || "basic";
 ---
 
-<div class="p-6 max-w-5xl mx-auto">
-  <div class="mb-6 flex items-center justify-between">
-    <h1 class="text-2xl font-semibold">Manage user #{userRow.id}</h1>
-    <a href="/admin/users" class="text-fg-link hover:underline">Back to users</a>
-  </div>
+<AdminLayout title="User #{userRow.id}">
+  <div class="p-6 max-w-5xl mx-auto">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-semibold">Manage user #{userRow.id}</h1>
+      <a href="/admin/users" class="text-fg-link hover:underline"
+        >Back to users</a
+      >
+    </div>
 
-  <!-- Tab Navigation -->
-  <div class="border-b border-bg-subtle mb-8">
-    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-      <a href="?tab=basic"
-        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'basic' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
-      >Basic Info</a>
-      <a href="?tab=personal"
-        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'personal' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
-      >Personal Info</a>
-      <a href="?tab=education"
-        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'education' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
-      >Education</a>
-      <a href="?tab=experience"
-        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'experience' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
-      >Experience</a>
-      <a href="?tab=certificates"
-        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'certificates' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
-      >Certificates</a>
-      <a href="?tab=projects"
-        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'projects' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
-      >Projects</a>
-      <a href="?tab=skills"
-        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'skills' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
-      >Skills</a>
-      <a href="?tab=languages"
-        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'languages' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
-      >Languages</a>
-    </nav>
-  </div>
+    <!-- Tab Navigation -->
+    <div class="border-b border-bg-subtle mb-8">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <a
+          href="?tab=basic"
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "basic" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          >Basic Info</a
+        >
+        <a
+          href="?tab=personal"
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "personal" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          >Personal Info</a
+        >
+        <a
+          href="?tab=education"
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "education" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          >Education</a
+        >
+        <a
+          href="?tab=experience"
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "experience" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          >Experience</a
+        >
+        <a
+          href="?tab=certificates"
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "certificates" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          >Certificates</a
+        >
+        <a
+          href="?tab=projects"
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "projects" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          >Projects</a
+        >
+        <a
+          href="?tab=skills"
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "skills" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          >Skills</a
+        >
+        <a
+          href="?tab=languages"
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "languages" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          >Languages</a
+        >
+      </nav>
+    </div>
 
-  <!-- Tab Content -->
-  <div class="space-y-6">
-    {activeTab === 'basic' && <BasicSection userRow={userRow} />}
-    {activeTab === 'personal' && <PersonalInfoSection pi={pi} />}
-    {activeTab === 'education' && <EducationSection edu={edu} />}
-    {activeTab === 'experience' && <ExperienceSection exp={expItems} availableSkills={availableSkills} />}
-    {activeTab === 'certificates' && <CertificatesSection certs={certs} />}
-    {activeTab === 'projects' && <ProjectsSection projects={projects} />}
-    {activeTab === 'skills' && <SkillsSection userSkills={userSkills} />}
-    {activeTab === 'languages' && <LanguagesSection languages={languages} userLanguages={userLanguages} />}
+    <!-- Tab Content -->
+    <div class="space-y-6">
+      {activeTab === "basic" && <BasicSection userRow={userRow} />}
+      {activeTab === "personal" && <PersonalInfoSection userId={userId} />}
+      {activeTab === "education" && <EducationSection userId={userId} />}
+      {activeTab === "experience" && <ExperienceSection userId={userId} />}
+      {activeTab === "certificates" && <CertificatesSection userId={userId} />}
+      {activeTab === "projects" && <ProjectsSection userId={userId} />}
+      {activeTab === "skills" && <SkillsSection userId={userId} />}
+      {activeTab === "languages" && <LanguagesSection userId={userId} />}
+    </div>
   </div>
-</div>
+</AdminLayout>

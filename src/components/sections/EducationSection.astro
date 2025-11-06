@@ -1,18 +1,18 @@
 ---
-interface EducationItem {
-  id: number;
-  name: string | null;
-  degree: string | null;
-  field: string | null;
-}
-
 interface Props {
-  edu: EducationItem[];
+  userId: number;
 }
 
-const { edu } = Astro.props as Props;
+const { userId } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
+import { db, education as Education, eq } from "astro:db";
+
+// Fetch education data
+const edu = await db
+  .select()
+  .from(Education)
+  .where(eq(Education.user_id, userId));
 ---
 
 <section class="space-y-4">
@@ -27,7 +27,7 @@ import FormInput from "@/components/FormInput.astro";
       placeholder="School"
     />
     <FormInput
-      id="edu_degree"
+      id="eduDegree"
       name="degree"
       label="Degree"
       placeholder="Degree"

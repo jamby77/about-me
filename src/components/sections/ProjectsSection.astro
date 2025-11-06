@@ -1,17 +1,18 @@
 ---
-interface ProjectItem {
-  id: number;
-  name: string | null;
-  description: string | null;
-}
-
 interface Props {
-  projects: ProjectItem[];
+  userId: number;
 }
 
-const { projects } = Astro.props as Props;
+const { userId } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
+import { db, projects as Projects, eq } from "astro:db";
+
+// Fetch projects data
+const projects = await db
+  .select()
+  .from(Projects)
+  .where(eq(Projects.user_id, userId));
 ---
 
 <section class="space-y-4">

@@ -1,18 +1,19 @@
 ---
-interface SkillItem {
-  id: number;
-  name: string | null;
-}
-
 interface Props {
-  userSkills: SkillItem[];
+  userId: number;
 }
 
-const { userSkills } = Astro.props as Props;
+const { userId } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
----
+import { db, skills as Skills, eq } from "astro:db";
 
+// Fetch skills data
+const userSkills = await db
+  .select()
+  .from(Skills)
+  .where(eq(Skills.user_id, userId));
+---
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Skills</h2>
   <form method="post" class="flex gap-3 items-end">
