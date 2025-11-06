@@ -7,9 +7,10 @@ import { parseExperienceRows } from "@/lib/schemas";
 
 interface Props {
   userId: number;
+  error?: string;
 }
 
-const { userId } = Astro.props as Props;
+const { userId, error } = Astro.props as Props;
 const expRaw = await db
   .select()
   .from(Experience)
@@ -20,6 +21,11 @@ const availableSkills: string[] = [];
 ---
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Experience</h2>
+  {error && (
+    <div class="p-3 bg-red-100 text-red-800 rounded border border-red-300">
+      Error: {error}
+    </div>
+  )}
   <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
     <input type="hidden" name="_action" value="add_experience" />
     <FormInput

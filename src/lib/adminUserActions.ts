@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   db,
   users as Users,
@@ -11,99 +12,206 @@ import {
   skills as Skills,
   eq,
 } from "astro:db";
+import {
+  OptionalDate,
+  RequiredDate,
+  RequiredTrimmed,
+  OptionalTrimmed,
+  IdNumber,
+} from "@/lib/schemas.ts";
 
-// Helpers
-const getString = (form: FormData, key: string) => {
-  const v = String(form.get(key) ?? "").trim();
-  return v.length ? v : undefined;
-};
-const getNumber = (form: FormData, key: string) => {
-  const n = Number(form.get(key));
-  return Number.isFinite(n) ? n : undefined;
-};
-const getDate = (form: FormData, key: string) => {
-  const v = form.get(key);
-  if (!v) return undefined;
-  const d = new Date(String(v));
-  return isNaN(d.getTime()) ? undefined : d;
-};
-
-// Action functions
-export async function updateUserBasic(userId: number, form: FormData) {
-  const first_name = getString(form, "first_name");
-  const last_name = getString(form, "last_name");
-  const email = getString(form, "email");
-  await db.update(Users).set({ first_name, last_name, email }).where(eq(Users.id, userId));
+// Result helpers
+type ActionResult = { ok: true } | { ok: false; error: string };
+const ok = (): ActionResult => ({ ok: true });
+const fail = (msg: string): ActionResult => ({ ok: false, error: msg });
+async function withTry(
+  action: string,
+  fn: () => Promise<void>,
+): Promise<ActionResult> {
+  try {
+    await fn();
+    return ok();
+  } catch (e: any) {
+    console.error(`[adminUserActions] ${action} failed`, e);
+    const msg = typeof e?.message === "string" ? e.message : "Unexpected error";
+    return fail(msg);
+  }
 }
 
-export async function upsertPersonalInfo(userId: number, form: FormData) {
-  const image = getString(form, "image") ?? null;
-  const title = getString(form, "title") ?? null;
-  const phone = getString(form, "phone") ?? null;
-  const location = getString(form, "location") ?? null;
-  const website = getString(form, "website") ?? null;
-  const linkedin = getString(form, "linkedin") ?? null;
-  const github = getString(form, "github") ?? null;
-  const twitter = getString(form, "twitter") ?? null;
-  const description = getString(form, "description") ?? null;
-
-  await db.delete(PersonalInfo).where(eq(PersonalInfo.user_id, userId));
-  await db.insert(PersonalInfo).values({
-    user_id: userId,
-    image: image || undefined,
-    title: title || undefined,
-    phone: phone || undefined,
-    location: location || undefined,
-    website: website || undefined,
-    linkedin: linkedin || undefined,
-    github: github || undefined,
-    twitter: twitter || undefined,
-    description: description || undefined,
+// Action functions
+export async function updateUserBasic(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    first_name: RequiredTrimmed,
+    last_name: RequiredTrimmed,
+    email: RequiredTrimmed,
+  });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { first_name, last_name, email } = data;
+  return withTry("update_user_basic", async () => {
+    await db
+      .update(Users)
+      .set({ first_name, last_name, email })
+      .where(eq(Users.id, userId));
   });
 }
 
-export async function addEducation(userId: number, form: FormData) {
-  const name = getString(form, "name");
-  const degree = getString(form, "degree");
-  const field = getString(form, "field");
-  const start_date = getDate(form, "start_date");
-  const end_date = getDate(form, "end_date");
-  const url = getString(form, "url");
-  if (!name || !degree || !start_date) return;
-  await db.insert(Education).values({ user_id: userId, name, degree, field, start_date, end_date, url });
+export async function upsertPersonalInfo(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    image: OptionalTrimmed,
+    title: OptionalTrimmed,
+    phone: OptionalTrimmed,
+    location: OptionalTrimmed,
+    website: OptionalTrimmed,
+    linkedin: OptionalTrimmed,
+    github: OptionalTrimmed,
+    twitter: OptionalTrimmed,
+    description: OptionalTrimmed,
+  });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const {
+    image,
+    title,
+    phone,
+    location,
+    website,
+    linkedin,
+    github,
+    twitter,
+    description,
+  } = data;
+  return withTry("upsert_personal_info", async () => {
+    await db.delete(PersonalInfo).where(eq(PersonalInfo.user_id, userId));
+    await db.insert(PersonalInfo).values({
+      user_id: userId,
+      image,
+      title,
+      phone,
+      location,
+      website,
+      linkedin,
+      github,
+      twitter,
+      description,
+    });
+  });
 }
 
-export async function deleteEducation(_userId: number, form: FormData) {
-  const id = getNumber(form, "id");
-  if (id !== undefined) await db.delete(Education).where(eq(Education.id, id));
+export async function addEducation(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    name: RequiredTrimmed,
+    degree: RequiredTrimmed,
+    field: OptionalTrimmed,
+    start_date: RequiredDate,
+    end_date: OptionalDate,
+    url: OptionalTrimmed,
+  });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { name, degree, field, start_date, end_date, url } = data;
+  return withTry("add_education", async () => {
+    await db.insert(Education).values({
+      user_id: userId,
+      name,
+      degree,
+      field,
+      start_date,
+      end_date,
+      url,
+    });
+  });
 }
 
-export async function addExperience(userId: number, form: FormData) {
-  const name = getString(form, "name");
-  const title = getString(form, "title");
-  const role = getString(form, "role");
-  const url = getString(form, "url");
-  const start_date = getDate(form, "start_date");
-  const end_date = getDate(form, "end_date");
-  const description = getString(form, "description");
-  const location = getString(form, "location");
-  const location_type = getString(form, "location_type");
+export async function deleteEducation(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const { success, error, data } = z
+    .object({ id: IdNumber })
+    .safeParse(Object.fromEntries(form.entries()));
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id } = data;
+  return withTry("delete_education", async () => {
+    await db.delete(Education).where(eq(Education.id, id));
+  });
+}
 
-  const skills = (form.getAll("skills") || [])
-    .map((v) => String(v).trim())
-    .filter(Boolean);
-  const respRaw = getString(form, "responsibilities") || "";
-  const responsibilities = respRaw
-    ? respRaw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean)
-    : undefined;
-  const achRaw = getString(form, "achievements") || "";
-  const achievements = achRaw
-    ? achRaw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean)
-    : undefined;
-
-  if (!name || !title || !role || !start_date) return;
-  await db.insert(Experience).values({
-    user_id: userId,
+export async function addExperience(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    name: RequiredTrimmed,
+    title: RequiredTrimmed,
+    role: RequiredTrimmed,
+    url: OptionalTrimmed,
+    start_date: RequiredDate,
+    end_date: OptionalDate,
+    description: OptionalTrimmed,
+    location: OptionalTrimmed,
+    location_type: OptionalTrimmed,
+    responsibilities: z
+      .string()
+      .optional()
+      .transform((s) =>
+        s
+          ? s
+              .split(/\r?\n/)
+              .map((x) => x.trim())
+              .filter(Boolean)
+          : undefined,
+      ),
+    achievements: z
+      .string()
+      .optional()
+      .transform((s) =>
+        s
+          ? s
+              .split(/\r?\n/)
+              .map((x) => x.trim())
+              .filter(Boolean)
+          : undefined,
+      ),
+    skills: z
+      .array(z.string())
+      .optional()
+      .transform((a) =>
+        a && a.length ? a.map((x) => x.trim()).filter(Boolean) : undefined,
+      ),
+  });
+  const base = Object.fromEntries(form.entries());
+  const { success, error, data } = schema.safeParse({
+    ...base,
+    skills: form.getAll("skills"),
+  });
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const {
     name,
     title,
     role,
@@ -113,100 +221,242 @@ export async function addExperience(userId: number, form: FormData) {
     description,
     location,
     location_type,
-    skills: skills.length ? skills : undefined,
     responsibilities,
     achievements,
+    skills,
+  } = data;
+  return withTry("add_experience", async () => {
+    await db.insert(Experience).values({
+      user_id: userId,
+      name,
+      title,
+      role,
+      url,
+      start_date,
+      end_date,
+      description,
+      location,
+      location_type,
+      skills,
+      responsibilities,
+      achievements,
+    });
   });
 }
 
-export async function deleteExperience(_userId: number, form: FormData) {
-  const id = getNumber(form, "id");
-  if (id !== undefined) await db.delete(Experience).where(eq(Experience.id, id));
+export async function deleteExperience(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const { success, error, data } = z
+    .object({ id: IdNumber })
+    .safeParse(Object.fromEntries(form.entries()));
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id } = data;
+  return withTry("delete_experience", async () => {
+    await db.delete(Experience).where(eq(Experience.id, id));
+  });
 }
 
-export async function addCertificate(userId: number, form: FormData) {
-  const name = getString(form, "name");
-  const date = getDate(form, "date");
-  const description = getString(form, "description");
-  const url = getString(form, "url");
-  if (!name) return;
-  await db.insert(Certificates).values({ user_id: userId, name, date, description, url });
+export async function addCertificate(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    name: RequiredTrimmed,
+    date: OptionalDate,
+    description: OptionalTrimmed,
+    url: OptionalTrimmed,
+  });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { name, date, description, url } = data;
+  return withTry("add_certificate", async () => {
+    await db
+      .insert(Certificates)
+      .values({ user_id: userId, name, date, description, url });
+  });
 }
 
-export async function deleteCertificate(_userId: number, form: FormData) {
-  const id = getNumber(form, "id");
-  if (id !== undefined) await db.delete(Certificates).where(eq(Certificates.id, id));
+export async function deleteCertificate(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const { success, error, data } = z
+    .object({ id: IdNumber })
+    .safeParse(Object.fromEntries(form.entries()));
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id } = data;
+  return withTry("delete_certificate", async () => {
+    await db.delete(Certificates).where(eq(Certificates.id, id));
+  });
 }
 
-export async function addProject(userId: number, form: FormData) {
-  const name = getString(form, "name");
-  const description = getString(form, "description");
-  const url = getString(form, "url");
-  const repoUrl = getString(form, "repoUrl");
-  const date = getDate(form, "date");
-  if (!name) return;
-  await db.insert(Projects).values({ user_id: userId, name, description, url, repoUrl, date });
+export async function addProject(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    name: RequiredTrimmed,
+    description: OptionalTrimmed,
+    url: OptionalTrimmed,
+    repoUrl: OptionalTrimmed,
+    date: OptionalDate,
+  });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { name, description, url, repoUrl, date } = data;
+  return withTry("add_project", async () => {
+    await db
+      .insert(Projects)
+      .values({ user_id: userId, name, description, url, repoUrl, date });
+  });
 }
 
-export async function deleteProject(_userId: number, form: FormData) {
-  const id = getNumber(form, "id");
-  if (id !== undefined) await db.delete(Projects).where(eq(Projects.id, id));
+export async function deleteProject(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const { success, error, data } = z
+    .object({ id: IdNumber })
+    .safeParse(Object.fromEntries(form.entries()));
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id } = data;
+  return withTry("delete_project", async () => {
+    await db.delete(Projects).where(eq(Projects.id, id));
+  });
 }
 
-export async function addSkill(userId: number, form: FormData) {
-  const name = getString(form, "name");
-  if (!name) return;
-  await db.insert(Skills).values({ user_id: userId, name });
+export async function addSkill(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({ name: RequiredTrimmed });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { name } = data;
+  return withTry("add_skill", async () => {
+    await db.insert(Skills).values({ user_id: userId, name });
+  });
 }
 
-export async function deleteSkill(_userId: number, form: FormData) {
-  const id = getNumber(form, "id");
-  if (id !== undefined) await db.delete(Skills).where(eq(Skills.id, id));
+export async function deleteSkill(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const { success, error, data } = z
+    .object({ id: IdNumber })
+    .safeParse(Object.fromEntries(form.entries()));
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id } = data;
+  return withTry("delete_skill", async () => {
+    await db.delete(Skills).where(eq(Skills.id, id));
+  });
 }
 
-export async function addLanguage(userId: number, form: FormData) {
-  const language_id = getNumber(form, "language_id");
-  if (language_id === undefined) return;
-  await db.insert(UserLanguages).values({ user_id: userId, language_id });
+export async function addLanguage(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const { success, error, data } = z
+    .object({ language_id: IdNumber })
+    .safeParse(Object.fromEntries(form.entries()));
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { language_id } = data;
+  return withTry("add_language", async () => {
+    await db.insert(UserLanguages).values({ user_id: userId, language_id });
+  });
 }
 
-export async function deleteLanguage(_userId: number, form: FormData) {
-  const id = getNumber(form, "id");
-  if (id !== undefined) await db.delete(UserLanguages).where(eq(UserLanguages.id, id));
+export async function deleteLanguage(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const { success, error, data } = z
+    .object({ id: IdNumber })
+    .safeParse(Object.fromEntries(form.entries()));
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id } = data;
+  return withTry("delete_language", async () => {
+    await db.delete(UserLanguages).where(eq(UserLanguages.id, id));
+  });
 }
 
-export async function handleAdminUserPost(userId: number, form: FormData) {
+export async function handleAdminUserPost(
+  userId: number,
+  form: FormData,
+): Promise<{ action: string; error?: string }> {
   const action = String(form.get("_action") || "");
+  let res: ActionResult;
   switch (action) {
     case "update_user_basic":
-      return updateUserBasic(userId, form);
+      res = await updateUserBasic(userId, form);
+      break;
     case "upsert_personal_info":
-      return upsertPersonalInfo(userId, form);
+      res = await upsertPersonalInfo(userId, form);
+      break;
     case "add_education":
-      return addEducation(userId, form);
+      res = await addEducation(userId, form);
+      break;
     case "delete_education":
-      return deleteEducation(userId, form);
+      res = await deleteEducation(userId, form);
+      break;
     case "add_experience":
-      return addExperience(userId, form);
+      res = await addExperience(userId, form);
+      break;
     case "delete_experience":
-      return deleteExperience(userId, form);
+      res = await deleteExperience(userId, form);
+      break;
     case "add_certificate":
-      return addCertificate(userId, form);
+      res = await addCertificate(userId, form);
+      break;
     case "delete_certificate":
-      return deleteCertificate(userId, form);
+      res = await deleteCertificate(userId, form);
+      break;
     case "add_project":
-      return addProject(userId, form);
+      res = await addProject(userId, form);
+      break;
     case "delete_project":
-      return deleteProject(userId, form);
+      res = await deleteProject(userId, form);
+      break;
     case "add_skill":
-      return addSkill(userId, form);
+      res = await addSkill(userId, form);
+      break;
     case "delete_skill":
-      return deleteSkill(userId, form);
+      res = await deleteSkill(userId, form);
+      break;
     case "add_language":
-      return addLanguage(userId, form);
+      res = await addLanguage(userId, form);
+      break;
     case "delete_language":
-      return deleteLanguage(userId, form);
+      res = await deleteLanguage(userId, form);
+      break;
     default:
-      return;
+      return { action, error: "Invalid action" };
   }
+  return { action, error: res.ok ? undefined : res.error };
 }

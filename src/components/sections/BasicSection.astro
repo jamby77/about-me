@@ -6,15 +6,17 @@ interface Props {
     last_name: string | null;
     email: string | null;
   };
+  error?: string;
 }
 
-const { userRow } = Astro.props as Props;
+const { userRow, error } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
 ---
 
 <section class="space-y-4">
-  <h2 class="text-xl font-semibold">Basic</h2>
+  <h2 class="text-xl font-semibold">Basic info</h2>
+  {error && <div class="p-3 bg-red-100 text-red-800 rounded border border-red-300">Error: {error}</div>}
   <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <input type="hidden" name="_action" value="update_user_basic" />
     <FormInput

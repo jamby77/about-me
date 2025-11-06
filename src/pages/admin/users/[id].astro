@@ -1,18 +1,6 @@
 ---
 import "@/styles/global.css";
-import {
-  db,
-  users as Users,
-  personal_info as PersonalInfo,
-  education as Education,
-  experience as Experience,
-  certificates as Certificates,
-  projects as Projects,
-  languages as Languages,
-  user_languages as UserLanguages,
-  skills as Skills,
-  eq,
-} from "astro:db";
+import { db, users as Users, eq } from "astro:db";
 import { handleAdminUserPost } from "@/lib/adminUserActions";
 import AdminLayout from "@/layouts/AdminLayout.astro";
 import BasicSection from "@/components/sections/BasicSection.astro";
@@ -23,7 +11,6 @@ import CertificatesSection from "@/components/sections/CertificatesSection.astro
 import ProjectsSection from "@/components/sections/ProjectsSection.astro";
 import SkillsSection from "@/components/sections/SkillsSection.astro";
 import LanguagesSection from "@/components/sections/LanguagesSection.astro";
-import { parseExperienceRows } from "@/lib/schemas";
 
 const userId = Number(Astro.params.id);
 const [userRow] = await db.select().from(Users).where(eq(Users.id, userId));
@@ -34,18 +21,64 @@ if (!userRow) {
 }
 
 // Handle POST actions (create/update/delete)
+let postError: { action: string; error?: string } | undefined;
 if (Astro.request.method === "POST") {
   const form = await Astro.request.formData();
   try {
-    await handleAdminUserPost(userId, form);
+    const result = await handleAdminUserPost(userId, form);
+    if (result.error) {
+      postError = result;
+    } else {
+      return Astro.redirect(Astro.url.pathname);
+    }
   } catch (e) {
     console.error(e);
+    postError = {
+      action: String(form.get("_action") || "unknown"),
+      error: "An unexpected error occurred",
+    };
   }
-  return Astro.redirect(Astro.url.pathname);
 }
 
 // Get the active tab from URL search params or default to 'basic'
 const activeTab = Astro.url.searchParams.get("tab") || "basic";
+// Determine active tab based on post error if applicable
+let errorTab = activeTab;
+if (postError) {
+  switch (postError.action) {
+    case "update_user_basic":
+      errorTab = "basic";
+      break;
+    case "upsert_personal_info":
+      errorTab = "personal";
+      break;
+    case "add_education":
+    case "delete_education":
+      errorTab = "education";
+      break;
+    case "add_experience":
+    case "delete_experience":
+      errorTab = "experience";
+      break;
+    case "add_certificate":
+    case "delete_certificate":
+      errorTab = "certificates";
+      break;
+    case "add_project":
+    case "delete_project":
+      errorTab = "projects";
+      break;
+    case "add_skill":
+    case "delete_skill":
+      errorTab = "skills";
+      break;
+    case "add_language":
+    case "delete_language":
+      errorTab = "languages";
+      break;
+  }
+}
+const finalTab = postError ? errorTab : activeTab;
 ---
 
 <AdminLayout title="User #{userRow.id}">
@@ -62,42 +95,42 @@ const activeTab = Astro.url.searchParams.get("tab") || "basic";
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
         <a
           href="?tab=basic"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "basic" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "basic" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
           >Basic Info</a
         >
         <a
           href="?tab=personal"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "personal" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "personal" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
           >Personal Info</a
         >
         <a
           href="?tab=education"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "education" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "education" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
           >Education</a
         >
         <a
           href="?tab=experience"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "experience" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "experience" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
           >Experience</a
         >
         <a
           href="?tab=certificates"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "certificates" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "certificates" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
           >Certificates</a
         >
         <a
           href="?tab=projects"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "projects" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "projects" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
           >Projects</a
         >
         <a
           href="?tab=skills"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "skills" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "skills" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
           >Skills</a
         >
         <a
           href="?tab=languages"
-          class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "languages" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
+          class={`py-4 px-1 border-b-2 font-medium text-sm ${finalTab === "languages" ? "border-primary-500 text-primary-600" : "border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted"}`}
           >Languages</a
         >
       </nav>
@@ -105,14 +138,114 @@ const activeTab = Astro.url.searchParams.get("tab") || "basic";
 
     <!-- Tab Content -->
     <div class="space-y-6">
-      {activeTab === "basic" && <BasicSection userRow={userRow} />}
-      {activeTab === "personal" && <PersonalInfoSection userId={userId} />}
-      {activeTab === "education" && <EducationSection userId={userId} />}
-      {activeTab === "experience" && <ExperienceSection userId={userId} />}
-      {activeTab === "certificates" && <CertificatesSection userId={userId} />}
-      {activeTab === "projects" && <ProjectsSection userId={userId} />}
-      {activeTab === "skills" && <SkillsSection userId={userId} />}
-      {activeTab === "languages" && <LanguagesSection userId={userId} />}
+      {
+        finalTab === "basic" && (
+          <BasicSection
+            userRow={userRow}
+            error={
+              postError && postError.action === "update_user_basic"
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
+      {
+        finalTab === "personal" && (
+          <PersonalInfoSection
+            userId={userId}
+            error={
+              postError && postError.action === "upsert_personal_info"
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
+      {
+        finalTab === "education" && (
+          <EducationSection
+            userId={userId}
+            error={
+              postError &&
+              (postError.action === "add_education" ||
+                postError.action === "delete_education")
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
+      {
+        finalTab === "experience" && (
+          <ExperienceSection
+            userId={userId}
+            error={
+              postError &&
+              (postError.action === "add_experience" ||
+                postError.action === "delete_experience")
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
+      {
+        finalTab === "certificates" && (
+          <CertificatesSection
+            userId={userId}
+            error={
+              postError &&
+              (postError.action === "add_certificate" ||
+                postError.action === "delete_certificate")
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
+      {
+        finalTab === "projects" && (
+          <ProjectsSection
+            userId={userId}
+            error={
+              postError &&
+              (postError.action === "add_project" ||
+                postError.action === "delete_project")
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
+      {
+        finalTab === "skills" && (
+          <SkillsSection
+            userId={userId}
+            error={
+              postError &&
+              (postError.action === "add_skill" ||
+                postError.action === "delete_skill")
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
+      {
+        finalTab === "languages" && (
+          <LanguagesSection
+            userId={userId}
+            error={
+              postError &&
+              (postError.action === "add_language" ||
+                postError.action === "delete_language")
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
     </div>
   </div>
 </AdminLayout>
