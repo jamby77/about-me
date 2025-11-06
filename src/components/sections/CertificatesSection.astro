@@ -7,6 +7,7 @@ interface Props {
 const { userId, error } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
 import { db, certificates as Certificates, eq } from "astro:db";
 
 // Fetch certificates data
@@ -17,7 +18,7 @@ const certs = await db
 ---
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Certificates</h2>
-  {error && <div class="p-3 bg-red-100 text-red-800 rounded border border-red-300">Error: {error}</div>}
+  <ErrorBanner message={error} />
   <form method="post" class="grid grid-cols-1 md:grid-cols-5 gap-4">
     <input type="hidden" name="_action" value="add_certificate" />
     <FormInput

@@ -7,6 +7,7 @@ interface Props {
 const { userId, error } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
 import { db, projects as Projects, eq } from "astro:db";
 
 // Fetch projects data
@@ -18,7 +19,7 @@ const projects = await db
 
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Projects</h2>
-  {error && <div class="p-3 bg-red-100 text-red-800 rounded border border-red-300">Error: {error}</div>}
+  <ErrorBanner message={error} />
   <form method="post" class="grid grid-cols-1 md:grid-cols-5 gap-4">
     <input type="hidden" name="_action" value="add_project" />
     <FormInput id="proj_name" name="name" label="Name" placeholder="Name" />
