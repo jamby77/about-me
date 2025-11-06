@@ -1,5 +1,5 @@
 ---
-import "@/styles/global.css";
+import AdminLayout from "@/layouts/AdminLayout.astro";
 import { db, users, personal_info as PersonalInfo } from "astro:db";
 import UserAvatar from "@/components/UserAvatar.astro";
 
@@ -16,31 +16,37 @@ const list = rows.map((u) => ({
 }));
 ---
 
-<div class="p-6 max-w-4xl mx-auto">
-  <div class="mb-6 flex items-center justify-between">
-    <h1 class="text-2xl font-semibold">Users</h1>
-    <a href="/admin" class="text-fg-link hover:underline">Back to admin</a>
-  </div>
+<AdminLayout title="Users">
+  <div class="bg-bg-surface rounded-lg shadow overflow-hidden">
+    <div class="px-6 py-5 border-b border-bg-subtle">
+      <h2 class="text-lg font-medium">User Management</h2>
+      <p class="mt-1 text-sm text-fg-subtle">Edit users' data</p>
+    </div>
 
-  {
-    list.length === 0 ? (
-      <p class="text-fg-subtle">No users found.</p>
-    ) : (
-      <ul class="divide-y rounded border">
-        {list.map((u) => (
-          <li class="p-4 flex items-center justify-between">
-            <UserAvatar
-              user={{ name: u.name, email: u.email, image: u.image }}
-            />
-            <a
-              href={`/admin/users/${u.id}`}
-              class="text-fg-link hover:underline"
-            >
-              Edit
-            </a>
-          </li>
-        ))}
-      </ul>
-    )
-  }
-</div>
+    <div class="px-6 py-5">
+      {
+        list.length === 0 ? (
+          <div class="text-center py-8">
+            <p class="text-fg-subtle">No users found.</p>
+          </div>
+        ) : (
+          <ul class="divide-y rounded border">
+            {list.map((u) => (
+              <li class="p-4 flex items-center justify-between">
+                <UserAvatar
+                  user={{ name: u.name, email: u.email, image: u.image }}
+                />
+                <a
+                  href={`/admin/users/${u.id}`}
+                  class="text-fg-link hover:underline"
+                >
+                  Edit
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</AdminLayout>

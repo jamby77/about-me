@@ -1,7 +1,6 @@
 ---
-import "@/styles/global.css";
 import { auth } from "@/lib/auth.ts";
-import UserAvatar from "@/components/UserAvatar.astro";
+import AdminLayout from "@/layouts/AdminLayout.astro";
 
 const user = async () => {
   if (Astro.locals.user) {
@@ -21,11 +20,10 @@ const user = async () => {
 const currentUser = await user();
 ---
 
-<div class="p-6">
+<AdminLayout title="Dashboard">
   {
     currentUser ? (
       <div class="flex flex-col gap-6">
-        <UserAvatar user={currentUser} class="justify-end" />
         <div class="flex justify-center">
           <a href="/admin/users" class="text-fg-link hover:underline text-2xl">
             Manage Users
@@ -40,4 +38,4 @@ const currentUser = await user();
       </div>
     )
   }
-</div>
+</AdminLayout>

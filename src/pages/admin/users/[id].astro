@@ -79,21 +79,56 @@ const userSkills = await db
 const availableSkills = Array.from(
   new Set(userSkills.map((s) => s.name).filter(Boolean)),
 ) as string[];
+
+// Get the active tab from URL search params or default to 'basic'
+const activeTab = Astro.url.searchParams.get('tab') || 'basic';
 ---
 
-<div class="p-6 max-w-5xl mx-auto space-y-10">
-  <div class="flex items-center justify-between">
+<div class="p-6 max-w-5xl mx-auto">
+  <div class="mb-6 flex items-center justify-between">
     <h1 class="text-2xl font-semibold">Manage user #{userRow.id}</h1>
-    <a href="/admin/users" class="text-fg-link hover:underline">Back to users</a
-    >
+    <a href="/admin/users" class="text-fg-link hover:underline">Back to users</a>
   </div>
 
-  <BasicSection userRow={userRow} />
-  <PersonalInfoSection pi={pi} />
-  <EducationSection edu={edu} />
-  <ExperienceSection exp={expItems} availableSkills={availableSkills} />
-  <CertificatesSection certs={certs} />
-  <ProjectsSection projects={projects} />
-  <SkillsSection userSkills={userSkills} />
-  <LanguagesSection languages={languages} userLanguages={userLanguages} />
+  <!-- Tab Navigation -->
+  <div class="border-b border-bg-subtle mb-8">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <a href="?tab=basic"
+        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'basic' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
+      >Basic Info</a>
+      <a href="?tab=personal"
+        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'personal' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
+      >Personal Info</a>
+      <a href="?tab=education"
+        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'education' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
+      >Education</a>
+      <a href="?tab=experience"
+        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'experience' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
+      >Experience</a>
+      <a href="?tab=certificates"
+        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'certificates' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
+      >Certificates</a>
+      <a href="?tab=projects"
+        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'projects' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
+      >Projects</a>
+      <a href="?tab=skills"
+        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'skills' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
+      >Skills</a>
+      <a href="?tab=languages"
+        class={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'languages' ? 'border-primary-500 text-primary-600' : 'border-transparent text-fg-subtle hover:text-fg-base hover:border-fg-muted'}`}
+      >Languages</a>
+    </nav>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="space-y-6">
+    {activeTab === 'basic' && <BasicSection userRow={userRow} />}
+    {activeTab === 'personal' && <PersonalInfoSection pi={pi} />}
+    {activeTab === 'education' && <EducationSection edu={edu} />}
+    {activeTab === 'experience' && <ExperienceSection exp={expItems} availableSkills={availableSkills} />}
+    {activeTab === 'certificates' && <CertificatesSection certs={certs} />}
+    {activeTab === 'projects' && <ProjectsSection projects={projects} />}
+    {activeTab === 'skills' && <SkillsSection userSkills={userSkills} />}
+    {activeTab === 'languages' && <LanguagesSection languages={languages} userLanguages={userLanguages} />}
+  </div>
 </div>
