@@ -6,8 +6,16 @@ interface Props {
 
 const { message, class: className } = Astro.props as Props;
 ---
-{message && (
-  <div class={`p-3 bg-red-100 text-red-800 rounded border border-red-300 ${className ?? ""}`}>
-    Error: {message}
-  </div>
-)}
+
+{
+  message && (
+    <div
+      class:list={[
+        "p-3 bg-red-100 text-red-800 rounded border border-red-300",
+        className,
+      ]}
+    >
+      Error: {message}
+    </div>
+  )
+}
