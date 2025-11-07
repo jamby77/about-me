@@ -8,6 +8,8 @@ const { userId, error } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
 import ErrorBanner from "@/components/ErrorBanner.astro";
+import EditLink from "@/components/EditLink.astro";
+import { formatDateInput } from "@/lib/format";
 import { db, projects as Projects, eq } from "astro:db";
 
 // Fetch projects data
@@ -15,6 +17,8 @@ const projects = await db
   .select()
   .from(Projects)
   .where(eq(Projects.user_id, userId));
+// Helpers
+const editProjId = Number(Astro.url.searchParams.get("editProj") || "");
 ---
 
 <section class="space-y-4">
@@ -43,21 +47,43 @@ const projects = await db
   </form>
   <ul class="divide-y rounded border">
     {
-      projects.map((p) => (
-        <li class="p-4 flex items-center justify-between">
-          <div>
-            <p class="font-medium">{p.name}</p>
-            <p class="text-sm text-fg-subtle">{p.description}</p>
-          </div>
-          <form method="post">
-            <input type="hidden" name="_action" value="delete_project" />
-            <input type="hidden" name="id" value={String(p.id)} />
-            <Button type="submit" variant="danger">
-              Delete
-            </Button>
-          </form>
-        </li>
-      ))
+      projects.map((p) => {
+        const isEditing = p.id === editProjId;
+        return (
+          <li class="p-4">
+            {isEditing ? (
+              <form method="post" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <input type="hidden" name="_action" value="update_project" />
+                <input type="hidden" name="id" value={String(p.id)} />
+                <FormInput id={`proj_name_${p.id}`} name="name" label="Name" value={p.name || ""} />
+                <FormInput id={`proj_description_${p.id}`} name="description" label="Description" value={p.description || ""} />
+                <FormInput id={`proj_url_${p.id}`} name="url" label="URL" value={(p as any).url || ""} />
+                <FormInput id={`proj_repoUrl_${p.id}`} name="repoUrl" label="Repo URL" value={(p as any).repoUrl || ""} />
+                <FormInput id={`proj_date_${p.id}`} name="date" label="Date" type="date" value={formatDateInput((p as any).date)} />
+                <div class="md:col-span-5 flex items-center gap-3">
+                  <Button type="submit" variant="primary">Save</Button>
+                  <a href="?tab=projects" class="text-fg-link hover:underline">Cancel</a>
+                </div>
+              </form>
+            ) : (
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">{p.name}</p>
+                  <p class="text-sm text-fg-subtle">{p.description}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <EditLink href={`?tab=projects&editProj=${p.id}`}>Edit</EditLink>
+                  <form method="post">
+                    <input type="hidden" name="_action" value="delete_project" />
+                    <input type="hidden" name="id" value={String(p.id)} />
+                    <Button type="submit" variant="danger">Delete</Button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })
     }
   </ul>
 </section>

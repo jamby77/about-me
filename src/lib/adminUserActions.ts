@@ -273,6 +273,94 @@ export async function addExperience(
   });
 }
 
+export async function updateExperience(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    id: IdNumber,
+    name: RequiredTrimmed,
+    title: RequiredTrimmed,
+    role: RequiredTrimmed,
+    url: OptionalTrimmed,
+    start_date: RequiredDate,
+    end_date: OptionalDate,
+    description: OptionalTrimmed,
+    location: OptionalTrimmed,
+    location_type: OptionalTrimmed,
+    responsibilities: z
+      .string()
+      .optional()
+      .transform((s) =>
+        s
+          ? s
+              .split(/\r?\n/)
+              .map((x) => x.trim())
+              .filter(Boolean)
+          : undefined,
+      ),
+    achievements: z
+      .string()
+      .optional()
+      .transform((s) =>
+        s
+          ? s
+              .split(/\r?\n/)
+              .map((x) => x.trim())
+              .filter(Boolean)
+          : undefined,
+      ),
+    skills: z
+      .array(z.string())
+      .optional()
+      .transform((a) =>
+        a && a.length ? a.map((x) => x.trim()).filter(Boolean) : undefined,
+      ),
+  });
+  const base = Object.fromEntries(form.entries());
+  const { success, error, data } = schema.safeParse({
+    ...base,
+    skills: form.getAll("skills"),
+  });
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const {
+    id,
+    name,
+    title,
+    role,
+    url,
+    start_date,
+    end_date,
+    description,
+    location,
+    location_type,
+    responsibilities,
+    achievements,
+    skills,
+  } = data;
+  return withTry("update_experience", async () => {
+    await db
+      .update(Experience)
+      .set({
+        name,
+        title,
+        role,
+        url,
+        start_date,
+        end_date,
+        description,
+        location,
+        location_type,
+        skills,
+        responsibilities,
+        achievements,
+      })
+      .where(eq(Experience.id, id));
+  });
+}
+
 export async function deleteExperience(
   _userId: number,
   form: FormData,
@@ -310,6 +398,32 @@ export async function addCertificate(
     await db
       .insert(Certificates)
       .values({ user_id: userId, name, date, description, url });
+  });
+}
+
+export async function updateCertificate(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    id: IdNumber,
+    name: RequiredTrimmed,
+    date: OptionalDate,
+    description: OptionalTrimmed,
+    url: OptionalTrimmed,
+  });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id, name, date, description, url } = data;
+  return withTry("update_certificate", async () => {
+    await db
+      .update(Certificates)
+      .set({ name, date, description, url })
+      .where(eq(Certificates.id, id));
   });
 }
 
@@ -351,6 +465,33 @@ export async function addProject(
     await db
       .insert(Projects)
       .values({ user_id: userId, name, description, url, repoUrl, date });
+  });
+}
+
+export async function updateProject(
+  _userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  const schema = z.object({
+    id: IdNumber,
+    name: RequiredTrimmed,
+    description: OptionalTrimmed,
+    url: OptionalTrimmed,
+    repoUrl: OptionalTrimmed,
+    date: OptionalDate,
+  });
+  const { success, error, data } = schema.safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!success) {
+    return fail(z.prettifyError(error) ?? "Invalid input");
+  }
+  const { id, name, description, url, repoUrl, date } = data;
+  return withTry("update_project", async () => {
+    await db
+      .update(Projects)
+      .set({ name, description, url, repoUrl, date })
+      .where(eq(Projects.id, id));
   });
 }
 
@@ -460,17 +601,26 @@ export async function handleAdminUserPost(
     case "add_experience":
       res = await addExperience(userId, form);
       break;
+    case "update_experience":
+      res = await updateExperience(userId, form);
+      break;
     case "delete_experience":
       res = await deleteExperience(userId, form);
       break;
     case "add_certificate":
       res = await addCertificate(userId, form);
       break;
+    case "update_certificate":
+      res = await updateCertificate(userId, form);
+      break;
     case "delete_certificate":
       res = await deleteCertificate(userId, form);
       break;
     case "add_project":
       res = await addProject(userId, form);
+      break;
+    case "update_project":
+      res = await updateProject(userId, form);
       break;
     case "delete_project":
       res = await deleteProject(userId, form);

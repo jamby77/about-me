@@ -2,9 +2,11 @@
 import type { ExperienceItem } from "@/lib/schemas.ts";
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
-import { db, experience as Experience, eq } from "astro:db";
+import { db, experience as Experience, skills as Skills, eq } from "astro:db";
 import { parseExperienceRows } from "@/lib/schemas";
 import ErrorBanner from "@/components/ErrorBanner.astro";
+import EditLink from "@/components/EditLink.astro";
+import { formatDateInput } from "@/lib/format";
 
 interface Props {
   userId: number;
@@ -17,8 +19,12 @@ const expRaw = await db
   .from(Experience)
   .where(eq(Experience.user_id, userId));
 const exp = parseExperienceRows(expRaw);
-// Placeholder for availableSkills - will be updated later
-const availableSkills: string[] = [];
+// Available skills for the current user
+const skillRows = await db.select().from(Skills).where(eq(Skills.user_id, userId));
+const availableSkills: string[] = skillRows.map((s) => s.name);
+// Helpers
+const joinList = (xs?: string[] | null) => (xs && xs.length ? xs.join("\n") : "");
+const editExpId = Number(Astro.url.searchParams.get("editExp") || "");
 ---
 
 <section class="space-y-4">
@@ -141,23 +147,73 @@ const availableSkills: string[] = [];
   </form>
   <ul class="space-y-4">
     {
-      exp.map((x) => (
-        <li class="p-4 flex items-center justify-between rounded border">
-          <div>
-            <p class="font-medium">
-              {x.name} — {x.title}
-            </p>
-            <p class="text-sm text-fg-subtle">{x.role}</p>
-          </div>
-          <form method="post">
-            <input type="hidden" name="_action" value="delete_experience" />
-            <input type="hidden" name="id" value={String(x.id)} />
-            <Button type="submit" variant="danger">
-              Delete
-            </Button>
-          </form>
-        </li>
-      ))
+      exp.map((x) => {
+        const isEditing = x.id === editExpId;
+        return (
+          <li class="p-4 rounded border">
+            {isEditing ? (
+              <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <input type="hidden" name="_action" value="update_experience" />
+                <input type="hidden" name="id" value={String(x.id)} />
+                <FormInput className="md:col-span-6" id={`exp_company_${x.id}`} name="name" label="Company" value={x.name || ""} />
+                <FormInput className="md:col-span-3" id={`exp_title_${x.id}`} name="title" label="Job title" value={x.title || ""} />
+                <FormInput className="md:col-span-3" id={`exp_role_${x.id}`} name="role" label="Role" value={x.role || ""} />
+                <div class="md:col-span-6">
+                  <label for={`exp_description_${x.id}`} class="text-sm">Description</label>
+                  <textarea id={`exp_description_${x.id}`} name="description" rows="3" class="w-full rounded border px-3 py-2">{x.description || ""}</textarea>
+                </div>
+                <FormInput className="md:col-span-2" id={`exp_url_${x.id}`} name="url" label="Company URL" value={x.url || ""} />
+                <FormInput className="md:col-span-2" id={`exp_start_date_${x.id}`} name="start_date" label="Start date" type="date" value={formatDateInput(x.start_date)} />
+                <FormInput className="md:col-span-2" id={`exp_end_date_${x.id}`} name="end_date" label="End date" type="date" value={formatDateInput(x.end_date)} />
+                <div class="md:col-span-3">
+                  <label for={`exp_responsibilities_${x.id}`} class="text-sm">responsibilities (one per line)</label>
+                  <textarea id={`exp_responsibilities_${x.id}`} name="responsibilities" rows="4" class="w-full rounded border px-3 py-2">{joinList(x.responsibilities)}</textarea>
+                </div>
+                <div class="md:col-span-3">
+                  <label for={`exp_achievements_${x.id}`} class="text-sm">Achievements (one per line)</label>
+                  <textarea id={`exp_achievements_${x.id}`} name="achievements" rows="4" class="w-full rounded border px-3 py-2">{joinList(x.achievements)}</textarea>
+                </div>
+                <FormInput className="md:col-span-2" id={`exp_location_${x.id}`} name="location" label="Location" value={x.location || ""} />
+                <div class="md:col-span-2">
+                  <label for={`exp_location_type_${x.id}`} class="text-sm">Location type</label>
+                  <select id={`exp_location_type_${x.id}`} name="location_type" class="w-full rounded border px-3 py-2">
+                    <option value="Remote" selected={x.location_type === "Remote"}>Remote</option>
+                    <option value="On Site" selected={x.location_type === "On Site"}>On Site</option>
+                    <option value="Hybrid" selected={x.location_type === "Hybrid"}>Hybrid</option>
+                  </select>
+                </div>
+                <div class="md:col-span-2">
+                  <label for={`exp_skills_${x.id}`} class="text-sm">Skills (hold Cmd/Ctrl to select multiple)</label>
+                  <select id={`exp_skills_${x.id}`} name="skills" size="4" multiple class="w-full rounded border px-3 py-2 h-32">
+                    {availableSkills.map((s) => (
+                      <option value={s} selected={Array.isArray(x.skills) && x.skills.includes(s)}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div class="md:col-span-6 flex items-center gap-3">
+                  <Button type="submit" variant="primary">Save</Button>
+                  <a href="?tab=experience" class="text-fg-link hover:underline">Cancel</a>
+                </div>
+              </form>
+            ) : (
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="font-medium">{x.name} — {x.title}</p>
+                  <p class="text-sm text-fg-subtle">{x.role}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <EditLink href={`?tab=experience&editExp=${x.id}`}>Edit</EditLink>
+                  <form method="post">
+                    <input type="hidden" name="_action" value="delete_experience" />
+                    <input type="hidden" name="id" value={String(x.id)} />
+                    <Button type="submit" variant="danger">Delete</Button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })
     }
   </ul>
 </section>
