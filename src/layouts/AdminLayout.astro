@@ -2,6 +2,7 @@
 import "@/styles/global.css";
 import { auth } from "@/lib/auth.ts";
 import UserAvatar from "@/components/UserAvatar.astro";
+import Button from "@/components/Button.astro";
 
 interface Props {
   title: string;
@@ -47,12 +48,13 @@ const currentUser = await user();
                 <div class="flex items-center gap-4">
                   <UserAvatar user={currentUser} />
                   <form action="/auth/signout" method="post">
-                    <button
+                    <Button
+                      variant="secondary"
                       type="submit"
                       class="text-sm text-fg-subtle hover:text-fg-base transition-colors"
                     >
                       Sign out
-                    </button>
+                    </Button>
                   </form>
                 </div>
               )

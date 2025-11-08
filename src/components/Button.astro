@@ -16,10 +16,10 @@ const {
 } = Astro.props as Props;
 
 const base =
-  "px-4 py-2 rounded font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+  "px-4 py-2 rounded font-medium focus:outline-none focus:ring-1 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 const variants: Record<string, string> = {
   primary: "bg-bg-button-accent text-fg-inverted focus:ring-bg-button-accent",
-  secondary: "bg-bg-muted text-fg-base focus:ring-fg-subtle",
+  secondary: "bg-bg-muted text-fg-base focus:ring-fg-subtle border",
   danger: "bg-red-600 text-white focus:ring-red-600",
 };
 ---
