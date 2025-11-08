@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, education as Education, eq } from "astro:db";
-import { type ActionResult, fail, withTry } from "./types";
+import { type ActionResult, fail, withTry } from "./utils";
 import {
   RequiredTrimmed,
   OptionalTrimmed,

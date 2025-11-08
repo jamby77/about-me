@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, experience as Experience, eq } from "astro:db";
-import { type ActionResult, fail, withTry } from "./types";
+import { type ActionResult, fail, withTry } from "./utils";
 import {
   RequiredTrimmed,
   OptionalTrimmed,
