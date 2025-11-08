@@ -13,6 +13,12 @@ function replaceRootFromHTML(html: string) {
     current.replaceWith(next);
   }
 }
+
+if (window) {
+  // @ts-ignore
+  window["replaceRootFromHTML"] = replaceRootFromHTML;
+}
+
 const disable = (el: HTMLButtonElement | HTMLInputElement) => {
   el.disabled = true;
   if (el.tagName === "BUTTON")

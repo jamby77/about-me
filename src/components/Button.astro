@@ -13,6 +13,7 @@ const {
   class: className = "",
   ariaLabel,
   disabled = false,
+  ...rest
 } = Astro.props as Props;
 
 const base =
@@ -29,6 +30,7 @@ const variants: Record<string, string> = {
   class={`${base} ${variants[variant] || variants.primary} ${className}`}
   aria-label={ariaLabel}
   disabled={disabled}
+  {...rest}
 >
   <slot />
 </button>

@@ -153,10 +153,8 @@ const editProjId = Number(Astro.url.searchParams.get("editProj") || "");
                 action="upload_project_image"
                 inputName="project_image_file"
                 inputId={`project_image_file_${p.id}`}
-                label="Upload image"
                 hidden={{ project_id: p.id }}
-                formClass="mt-3 flex items-end gap-3"
-                submitVariant="secondary"
+                formClass="mt-3"
               />
             )}
           </li>
