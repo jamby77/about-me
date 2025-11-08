@@ -8,6 +8,7 @@ const { userId, error } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
 import ErrorBanner from "@/components/ErrorBanner.astro";
+import ImageUploadForm from "@/components/ImageUploadForm.astro";
 import { db, personal_info as PersonalInfo, eq } from "astro:db";
 import { ENABLE_UPLOADS } from "@/lib/flags";
 
@@ -32,27 +33,16 @@ const [pi] = await db
     </div>
   )}
   {ENABLE_UPLOADS && (
-    <form
-      method="post"
-      enctype="multipart/form-data"
-      class="grid grid-cols-1 md:grid-cols-3 gap-4"
-    >
-      <input type="hidden" name="_action" value="upload_user_image" />
-      <div class="md:col-span-2">
-        <label for="image_file" class="text-sm">Upload image</label>
-        <input
-          id="image_file"
-          name="image_file"
-          type="file"
-          accept="image/*"
-          class="w-full rounded border px-3 py-2"
-        />
-        <p class="text-xs text-fg-subtle mt-1">Max 5MB. PNG/JPEG/WebP recommended.</p>
-      </div>
-      <div class="md:col-span-1 flex items-end">
-        <Button type="submit" variant="secondary">Upload</Button>
-      </div>
-    </form>
+    <ImageUploadForm
+      action="upload_user_image"
+      inputName="image_file"
+      label="Upload image"
+      hint="Max 5MB. PNG/JPEG/WebP recommended."
+      formClass="grid grid-cols-1 md:grid-cols-3 gap-4"
+      fieldWrapperClass="md:col-span-2"
+      buttonWrapperClass="md:col-span-1 flex items-end"
+      submitVariant="secondary"
+    />
   )}
   <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <input type="hidden" name="_action" value="upsert_personal_info" />

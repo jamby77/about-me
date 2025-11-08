@@ -1,0 +1,55 @@
+---
+import Button from "@/components/Button.astro";
+
+interface Props {
+  action: string; // _action value
+  inputName: string; // file input name
+  inputId?: string; // file input id
+  label?: string; // label text
+  accept?: string; // accept attribute, default image/*
+  hidden?: Record<string, string | number>; // extra hidden fields
+  submitLabel?: string; // button text, default Upload
+  submitVariant?: "primary" | "secondary" | "danger"; // Button variant
+  formClass?: string; // form wrapper classes
+  fieldWrapperClass?: string; // container classes for the label+input
+  buttonWrapperClass?: string; // container classes for the submit button
+  hint?: string; // small helper text below input
+}
+
+const {
+  action,
+  inputName,
+  inputId,
+  label = "Upload image",
+  accept = "image/*",
+  hidden = {},
+  submitLabel = "Upload",
+  submitVariant = "secondary",
+  formClass = "flex items-end gap-3",
+  fieldWrapperClass = "",
+  buttonWrapperClass = "",
+  hint,
+} = Astro.props as Props;
+---
+<form method="post" enctype="multipart/form-data" class={formClass}>
+  <input type="hidden" name="_action" value={action} />
+  {Object.entries(hidden).map(([name, value]) => (
+    <input type="hidden" name={name} value={String(value)} />
+  ))}
+  <div class={fieldWrapperClass}>
+    {label && (
+      <label for={inputId || inputName} class="text-sm">{label}</label>
+    )}
+    <input
+      id={inputId || inputName}
+      name={inputName}
+      type="file"
+      accept={accept}
+      class="w-full rounded border px-3 py-2"
+    />
+    {hint && <p class="text-xs text-fg-subtle mt-1">{hint}</p>}
+  </div>
+  <div class={buttonWrapperClass}>
+    <Button type="submit" variant={submitVariant}>{submitLabel}</Button>
+  </div>
+</form>
