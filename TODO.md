@@ -7,8 +7,8 @@ The roadmap includes richer editing, async form submissions, image uploads, feat
 and the ability to export a single self-contained HTML file with all assets inlined.
 
 ## Admin side
-- [ ] Change edit screen to be tabbed interface, each section should be a tab
-- [ ] Add edit ability, each entry should be editable
+- [x] Change edit screen to be tabbed interface, each section should be a tab
+- [x] Add edit ability, each entry should be editable
 - [ ] Add progressive enhancement, instead of plain html form, add async http submission
 - [ ] Add image file upload for user image
 - [ ] Add image file upload for projects
