@@ -1,16 +1,17 @@
 ---
-interface Props {
-  userId: number;
-  error?: string;
-}
-
-const { userId, error } = Astro.props as Props;
+import { db, education as Education, eq } from "astro:db";
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
 import ErrorBanner from "@/components/ErrorBanner.astro";
 import EditLink from "@/components/EditLink.astro";
-import { db, education as Education, eq } from "astro:db";
+import { formatDateInput } from "@/lib/format.ts";
 
+const { userId, error } = Astro.props as Props;
+
+interface Props {
+  userId: number;
+  error?: string;
+}
 // Fetch education data
 const edu = await db
   .select()
@@ -26,16 +27,7 @@ const formatMonthYear = (d: unknown) => {
     month: "short",
   });
 };
-// Format for <input type="date">
-const formatDateInput = (d: unknown) => {
-  if (!d) return "";
-  const date = d instanceof Date ? d : new Date(d as any);
-  if (isNaN(date.getTime())) return "";
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-};
+
 // Which education entry is being edited (from URL)
 const editEduId = Number(Astro.url.searchParams.get("editEdu") || "");
 ---
@@ -158,7 +150,9 @@ const editEduId = Number(Astro.url.searchParams.get("editEdu") || "");
                   </div>
                 </div>
                 <div class="flex items-center gap-4">
-                  <EditLink href={`?tab=education&editEdu=${e.id}`}>Edit</EditLink>
+                  <EditLink href={`?tab=education&editEdu=${e.id}`}>
+                    Edit
+                  </EditLink>
                   <form method="post">
                     <input
                       type="hidden"

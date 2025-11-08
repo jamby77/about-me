@@ -1,0 +1,45 @@
+---
+import HTML from "@/icons/html.astro";
+import CSS from "@/icons/css.astro";
+import JavaScript from "@/icons/javascript.astro";
+import TypeScript from "@/icons/type.astro";
+import React from "@/icons/react.astro";
+import Node from "@/icons/node.astro";
+import MySQL from "@/icons/sql.astro";
+import Git from "@/icons/git.astro";
+import GitHub from "@/icons/GitHub.astro";
+import Tailwind from "@/icons/tailwind.astro";
+import Next from "@/icons/next.astro";
+import Swift from "@/icons/swift.astro";
+import SwiftUI from "@/icons/swiftui.astro";
+import Kotlin from "@/icons/kotlin.astro";
+import Flutter from "@/icons/flutter.astro";
+
+interface Props {
+  skill: string;
+}
+
+const { skill } = Astro.props;
+const iconName = skill === "Next.js" ? "Next" : skill;
+---
+
+<li
+  class="bg-bg-button-accent/20 border-hue/20 text-hue print:p-0 print:bg-transparent print:text-zinc-800 flex gap-1 items-center border-solid print:border-none border rounded-md px-2 py-0.5 text-xs"
+>
+  {iconName === "HTML" && <HTML />}
+  {iconName === "CSS" && <CSS />}
+  {iconName === "JavaScript" && <JavaScript />}
+  {iconName === "TypeScript" && <TypeScript />}
+  {iconName === "React" && <React />}
+  {iconName === "Node" && <Node />}
+  {iconName === "MySQL" && <MySQL />}
+  {iconName === "Git" && <Git />}
+  {iconName === "GitHub" && <GitHub />}
+  {iconName === "Next" && <Next />}
+  {iconName === "Tailwind" && <Tailwind />}
+  {iconName === "Swift" && <Swift />}
+  {iconName === "SwiftUI" && <SwiftUI />}
+  {iconName === "Kotlin" && <Kotlin />}
+  {iconName === "Flutter" && <Flutter />}
+  <span>{skill}</span>
+</li>

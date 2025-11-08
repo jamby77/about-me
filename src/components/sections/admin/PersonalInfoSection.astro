@@ -1,16 +1,16 @@
 ---
+import { db, personal_info as PersonalInfo, eq } from "astro:db";
+
+import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
+import { ENABLE_UPLOADS } from "@/lib/flags.ts";
+
 interface Props {
   userId: number;
   error?: string;
 }
-
 const { userId, error } = Astro.props as Props;
-import Button from "@/components/Button.astro";
-import FormInput from "@/components/FormInput.astro";
-import ErrorBanner from "@/components/ErrorBanner.astro";
-import ImageUploadForm from "@/components/ImageUploadForm.astro";
-import { db, personal_info as PersonalInfo, eq } from "astro:db";
-import { ENABLE_UPLOADS } from "@/lib/flags";
 
 // Fetch personal info data
 const [pi] = await db
@@ -22,23 +22,6 @@ const [pi] = await db
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Personal info</h2>
   <ErrorBanner message={error} />
-  {
-    pi?.image && (
-      <div class="flex items-center gap-4">
-        <img
-          src={pi.image}
-          alt="User image"
-          class="h-16 w-16 rounded-full object-cover border"
-        />
-        <span class="text-sm text-fg-subtle">Current image</span>
-      </div>
-    )
-  }
-  {
-    ENABLE_UPLOADS && (
-      <ImageUploadForm action="upload_user_image" inputName="image_file" />
-    )
-  }
   <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <input type="hidden" name="_action" value="upsert_personal_info" />
     {

@@ -1,19 +1,19 @@
 ---
+import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
+import ImageUploadForm from "@/components/ImageUploadForm.astro";
+import EditLink from "@/components/EditLink.astro";
+import { formatDateInput } from "@/lib/format.ts";
+import { db, projects as Projects, eq } from "astro:db";
+import { ENABLE_UPLOADS } from "@/lib/flags.ts";
+
 interface Props {
   userId: number;
   error?: string;
 }
 
 const { userId, error } = Astro.props as Props;
-import Button from "@/components/Button.astro";
-import FormInput from "@/components/FormInput.astro";
-import ErrorBanner from "@/components/ErrorBanner.astro";
-import ImageUploadForm from "@/components/ImageUploadForm.astro";
-import EditLink from "@/components/EditLink.astro";
-import { formatDateInput } from "@/lib/format";
-import { db, projects as Projects, eq } from "astro:db";
-import { ENABLE_UPLOADS } from "@/lib/flags";
-
 // Fetch projects data
 const projects = await db
   .select()

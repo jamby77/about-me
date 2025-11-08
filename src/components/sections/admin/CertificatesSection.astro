@@ -1,17 +1,17 @@
 ---
-interface Props {
-  userId: number;
-  error?: string;
-}
+import { db, certificates as Certificates, eq } from "astro:db";
 
 const { userId, error } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
 import ErrorBanner from "@/components/ErrorBanner.astro";
 import EditLink from "@/components/EditLink.astro";
-import { formatDateInput } from "@/lib/format";
-import { db, certificates as Certificates, eq } from "astro:db";
+import { formatDateInput } from "@/lib/format.ts";
 
+interface Props {
+  userId: number;
+  error?: string;
+}
 // Fetch certificates data
 const certs = await db
   .select()
@@ -20,6 +20,7 @@ const certs = await db
 // Helpers
 const editCertId = Number(Astro.url.searchParams.get("editCert") || "");
 ---
+
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Certificates</h2>
   <ErrorBanner message={error} />
@@ -52,15 +53,48 @@ const editCertId = Number(Astro.url.searchParams.get("editCert") || "");
           <li class="p-4">
             {isEditing ? (
               <form method="post" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <input type="hidden" name="_action" value="update_certificate" />
+                <input
+                  type="hidden"
+                  name="_action"
+                  value="update_certificate"
+                />
                 <input type="hidden" name="id" value={String(c.id)} />
-                <FormInput className="md:col-span-2" id={`cert_name_${c.id}`} name="name" label="Name" value={c.name || ""} />
-                <FormInput id={`cert_date_${c.id}`} name="date" label="Date" type="date" value={formatDateInput((c as any).date)} />
-                <FormInput id={`cert_description_${c.id}`} name="description" label="Issuer / Description" value={c.description || ""} />
-                <FormInput id={`cert_url_${c.id}`} name="url" label="URL" value={(c as any).url || ""} />
+                <FormInput
+                  className="md:col-span-2"
+                  id={`cert_name_${c.id}`}
+                  name="name"
+                  label="Name"
+                  value={c.name || ""}
+                />
+                <FormInput
+                  id={`cert_date_${c.id}`}
+                  name="date"
+                  label="Date"
+                  type="date"
+                  value={formatDateInput((c as any).date)}
+                />
+                <FormInput
+                  id={`cert_description_${c.id}`}
+                  name="description"
+                  label="Issuer / Description"
+                  value={c.description || ""}
+                />
+                <FormInput
+                  id={`cert_url_${c.id}`}
+                  name="url"
+                  label="URL"
+                  value={(c as any).url || ""}
+                />
                 <div class="md:col-span-5 flex items-center gap-3">
-                  <Button type="submit" variant="primary">Save</Button>
-                  <a href="?tab=certificates" class="text-fg-link hover:underline">Cancel</a>
+                  <Button type="submit" variant="primary">
+                    Save
+                  </Button>
+                  <a
+                    href="?tab=certificates"
+                    class="text-fg-link hover:underline"
+                  >
+                    Cancel
+                  </a>
                 </div>
               </form>
             ) : (
@@ -70,11 +104,19 @@ const editCertId = Number(Astro.url.searchParams.get("editCert") || "");
                   <p class="text-sm text-fg-subtle">{c.description}</p>
                 </div>
                 <div class="flex items-center gap-3">
-                  <EditLink href={`?tab=certificates&editCert=${c.id}`}>Edit</EditLink>
+                  <EditLink href={`?tab=certificates&editCert=${c.id}`}>
+                    Edit
+                  </EditLink>
                   <form method="post">
-                    <input type="hidden" name="_action" value="delete_certificate" />
+                    <input
+                      type="hidden"
+                      name="_action"
+                      value="delete_certificate"
+                    />
                     <input type="hidden" name="id" value={String(c.id)} />
-                    <Button type="submit" variant="danger">Delete</Button>
+                    <Button type="submit" variant="danger">
+                      Delete
+                    </Button>
                   </form>
                 </div>
               </div>

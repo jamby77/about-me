@@ -3,15 +3,17 @@ import "@/styles/global.css";
 import { db, users as Users, eq } from "astro:db";
 import { handleAdminUserPost } from "@/lib/admin";
 import AdminLayout from "@/layouts/AdminLayout.astro";
-import BasicSection from "@/components/sections/BasicSection.astro";
-import PersonalInfoSection from "@/components/sections/PersonalInfoSection.astro";
-import EducationSection from "@/components/sections/EducationSection.astro";
-import ExperienceSection from "@/components/sections/ExperienceSection.astro";
-import CertificatesSection from "@/components/sections/CertificatesSection.astro";
-import ProjectsSection from "@/components/sections/ProjectsSection.astro";
-import SkillsSection from "@/components/sections/SkillsSection.astro";
-import LanguagesSection from "@/components/sections/LanguagesSection.astro";
+import BasicSection from "@/components/sections/admin/BasicSection.astro";
+import PersonalInfoSection from "@/components/sections/admin/PersonalInfoSection.astro";
+import EducationSection from "@/components/sections/admin/EducationSection.astro";
+import ExperienceSection from "@/components/sections/admin/ExperienceSection.astro";
+import CertificatesSection from "@/components/sections/admin/CertificatesSection.astro";
+import ProjectsSection from "@/components/sections/admin/ProjectsSection.astro";
+import SkillsSection from "@/components/sections/admin/SkillsSection.astro";
+import LanguagesSection from "@/components/sections/admin/LanguagesSection.astro";
 import TabLink from "@/components/TabLink.astro";
+import { ENABLE_UPLOADS } from "@/lib/flags.ts";
+import UploadImageSection from "@/components/sections/admin/UploadImageSection.astro";
 
 const userId = Number(Astro.params.id);
 const [userRow] = await db.select().from(Users).where(eq(Users.id, userId));
@@ -32,25 +34,26 @@ if (Astro.request.method === "POST") {
   const cl = clHeader ? Number(clHeader) : 0;
   if (Number.isFinite(cl) && cl > MAX_BODY) {
     // Route error to the most likely tab based on current ?tab
-    const tab = redirectTab;
-    const action = tab === "projects" ? "upload_project_image" : "upload_user_image";
+
+    const action =
+      redirectTab === "projects" ? "upload_project_image" : "upload_user_image";
     postError = { action, error: "File too large (max 5MB)" };
   } else {
-  const form = await Astro.request.formData();
-  try {
-    const result = await handleAdminUserPost(userId, form);
-    if (result.error) {
-      postError = result;
-    } else {
-      return Astro.redirect(`${Astro.url.pathname}?tab=${redirectTab}`);
+    const form = await Astro.request.formData();
+    try {
+      const result = await handleAdminUserPost(userId, form);
+      if (result.error) {
+        postError = result;
+      } else {
+        return Astro.redirect(`${Astro.url.pathname}?tab=${redirectTab}`);
+      }
+    } catch (e) {
+      console.error(e);
+      postError = {
+        action: String(form.get("_action") || "unknown"),
+        error: "An unexpected error occurred",
+      };
     }
-  } catch (e) {
-    console.error(e);
-    postError = {
-      action: String(form.get("_action") || "unknown"),
-      error: "An unexpected error occurred",
-    };
-  }
   }
 }
 
@@ -115,14 +118,31 @@ const finalTab = postError ? errorTab : activeTab;
     <!-- Tab Navigation -->
     <div class="border-b border-bg-subtle mb-8">
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-        <TabLink href="?tab=basic" active={finalTab === "basic"}>Basic Info</TabLink>
-        <TabLink href="?tab=personal" active={finalTab === "personal"}>Personal Info</TabLink>
-        <TabLink href="?tab=education" active={finalTab === "education"}>Education</TabLink>
-        <TabLink href="?tab=experience" active={finalTab === "experience"}>Experience</TabLink>
-        <TabLink href="?tab=certificates" active={finalTab === "certificates"}>Certificates</TabLink>
-        <TabLink href="?tab=projects" active={finalTab === "projects"}>Projects</TabLink>
-        <TabLink href="?tab=skills" active={finalTab === "skills"}>Skills</TabLink>
-        <TabLink href="?tab=languages" active={finalTab === "languages"}>Languages</TabLink>
+        <TabLink href="?tab=basic" active={finalTab === "basic"}
+          >Basic Info</TabLink
+        >
+        <TabLink href="?tab=personal" active={finalTab === "personal"}
+          >Personal Info</TabLink
+        >
+        <TabLink href="?tab=image" active={finalTab === "image"}>Image</TabLink>
+        <TabLink href="?tab=education" active={finalTab === "education"}
+          >Education</TabLink
+        >
+        <TabLink href="?tab=experience" active={finalTab === "experience"}
+          >Experience</TabLink
+        >
+        <TabLink href="?tab=certificates" active={finalTab === "certificates"}
+          >Certificates</TabLink
+        >
+        <TabLink href="?tab=projects" active={finalTab === "projects"}
+          >Projects</TabLink
+        >
+        <TabLink href="?tab=skills" active={finalTab === "skills"}
+          >Skills</TabLink
+        >
+        <TabLink href="?tab=languages" active={finalTab === "languages"}
+          >Languages</TabLink
+        >
       </nav>
     </div>
 
@@ -145,7 +165,21 @@ const finalTab = postError ? errorTab : activeTab;
           <PersonalInfoSection
             userId={userId}
             error={
-              postError && (postError.action === "upsert_personal_info" || postError.action === "upload_user_image")
+              postError &&
+              (postError.action === "upsert_personal_info" ||
+                postError.action === "upload_user_image")
+                ? postError.error
+                : undefined
+            }
+          />
+        )
+      }
+      {
+        ENABLE_UPLOADS && finalTab === "image" && (
+          <UploadImageSection
+            userId={userId}
+            error={
+              postError && postError.action === "upload_user_image"
                 ? postError.error
                 : undefined
             }

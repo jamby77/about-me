@@ -1,21 +1,21 @@
 ---
-interface Props {
-  userId: number;
-  error?: string;
-}
-
-const { userId, error } = Astro.props as Props;
 import Button from "@/components/Button.astro";
 import FormInput from "@/components/FormInput.astro";
 import ErrorBanner from "@/components/ErrorBanner.astro";
 import { db, skills as Skills, eq } from "astro:db";
 
+interface Props {
+  userId: number;
+  error?: string;
+}
+const { userId, error } = Astro.props as Props;
 // Fetch skills data
 const userSkills = await db
   .select()
   .from(Skills)
   .where(eq(Skills.user_id, userId));
 ---
+
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Skills</h2>
   <ErrorBanner message={error} />

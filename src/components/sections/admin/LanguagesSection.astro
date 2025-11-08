@@ -1,7 +1,12 @@
 ---
 import Button from "@/components/Button.astro";
 import ErrorBanner from "@/components/ErrorBanner.astro";
-import { db, languages as Languages, user_languages as UserLanguages, eq } from "astro:db";
+import {
+  db,
+  languages as Languages,
+  user_languages as UserLanguages,
+  eq,
+} from "astro:db";
 
 interface Props {
   userId: number;
