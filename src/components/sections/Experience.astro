@@ -49,9 +49,7 @@ const exp = await db.select().from(experience).where(eq(experience.user_id, 1)).
                 name,
                 start_date,
                 end_date,
-                id,
                 role,
-                title,
                 description,
                 responsibilities,
                 achievements,
@@ -79,7 +77,7 @@ const exp = await db.select().from(experience).where(eq(experience.user_id, 1)).
                 <div
                     class="absolute w-2 h-2 bg-muted rounded-full mt-2 -translate-x-[1.71rem] ring print:hidden ring-ring-fill"></div>
                 <h3>
-                  <div
+                  <span
                       class="inline-flex items-center text-lg print:text-base leading-tight group/link focus-visible:text-amber-500"
                       aria-label="{role} - {company}">
                   <span>{role} <span>@</span>
@@ -100,7 +98,7 @@ const exp = await db.select().from(experience).where(eq(experience.user_id, 1)).
                     </span>
                     }
                   </span>
-                  </div>
+                  </span>
                 </h3>
                 {(location || location_type) && (
                     <div class="text-xs text-fg-muted">
@@ -172,11 +170,10 @@ const exp = await db.select().from(experience).where(eq(experience.user_id, 1)).
                 </div>
               </div>
             </div>
-            </div>
           </li>
       )
     })}
   </ul>
 </Section>
-<script is:inline defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-<script is:inline defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script defer is:inline src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+<script defer  is:inline src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
