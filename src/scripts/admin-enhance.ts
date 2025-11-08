@@ -13,6 +13,11 @@ function replaceRootFromHTML(html: string) {
     current.replaceWith(next);
   }
 }
+const disable = (el: HTMLButtonElement | HTMLInputElement) => {
+  el.disabled = true;
+  if (el.tagName === "BUTTON")
+    (el as HTMLButtonElement).textContent = "Saving...";
+};
 
 function enhance() {
   // Intercept form submissions inside admin content and submit via fetch
@@ -30,7 +35,7 @@ function enhance() {
       if (method !== "POST") return;
 
       e.preventDefault();
-      const submitter = (e as SubmitEvent).submitter as
+      const submitter = e.submitter as
         | HTMLButtonElement
         | HTMLInputElement
         | null;
@@ -40,23 +45,6 @@ function enhance() {
         formData.append(submitter.name, submitter.value);
       }
 
-      const disable = (el: HTMLButtonElement | HTMLInputElement) => {
-        (el as any).dataset.prevText =
-          (el as HTMLButtonElement).textContent || "";
-        el.disabled = true;
-        if (el.tagName === "BUTTON")
-          (el as HTMLButtonElement).textContent = "Saving...";
-      };
-      const enable = (el: HTMLButtonElement | HTMLInputElement) => {
-        el.disabled = false;
-        if (
-          el.tagName === "BUTTON" &&
-          (el as any).dataset.prevText !== undefined
-        ) {
-          (el as HTMLButtonElement).textContent = (el as any).dataset.prevText;
-          delete (el as any).dataset.prevText;
-        }
-      };
       const buttons: (HTMLButtonElement | HTMLInputElement)[] = submitter
         ? [submitter]
         : Array.from(
@@ -86,8 +74,6 @@ function enhance() {
       } catch (err) {
         // Fallback to default navigation on failure
         form.submit();
-      } finally {
-        buttons.forEach(enable);
       }
     },
     true,
