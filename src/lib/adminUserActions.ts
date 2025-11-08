@@ -12,6 +12,9 @@ import {
   skills as Skills,
   eq,
 } from "astro:db";
+import { Buffer } from "node:buffer";
+import sharp from "sharp";
+import { ENABLE_UPLOADS } from "@/lib/flags";
 import {
   OptionalDate,
   RequiredDate,
@@ -37,6 +40,52 @@ async function withTry(
     const msg = typeof e?.message === "string" ? e.message : "Unexpected error";
     return fail(msg);
   }
+}
+
+type DataUrlResult = { ok: true; dataUrl: string } | { ok: false; error: string };
+async function imageDataUrlFromForm(
+  form: FormData,
+  fieldName: string,
+  maxBytes = 5 * 1024 * 1024,
+): Promise<DataUrlResult> {
+  const file = form.get(fieldName);
+  if (!file || !(file instanceof File)) {
+    return { ok: false, error: "No file uploaded" };
+  }
+  const size = (file as File).size || 0;
+  if (size > maxBytes) {
+    return { ok: false, error: "Image too large (max 5MB)" };
+  }
+  const arr = new Uint8Array(await (file as File).arrayBuffer());
+  const input = Buffer.from(arr);
+  let meta;
+  try {
+    meta = await sharp(input).metadata();
+  } catch {
+    return { ok: false, error: "Invalid image file" };
+  }
+  // Allow common photo formats; explicitly exclude SVG/GIF and avoid HEIF for compatibility
+  const allowed = new Set(["jpeg", "jpg", "png", "webp", "avif"]);
+  const fmt = (meta.format || "").toLowerCase();
+  if (!allowed.has(fmt)) {
+    return { ok: false, error: "Unsupported image format" };
+  }
+  // Re-encode to WebP for consistency and smaller size
+  let out: Buffer;
+  try {
+    out = await sharp(input)
+      .rotate() // respect EXIF orientation
+      .resize({ width: 800, height: 800, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .withMetadata({ density: 300 }) // cap density metadata to 300 DPI where supported
+      .toBuffer();
+  } catch {
+    return { ok: false, error: "Failed to process image" };
+  }
+  const base64 = out.toString("base64");
+  const mime = "image/webp";
+  const dataUrl = `data:${mime};base64,${base64}`;
+  return { ok: true, dataUrl };
 }
 
 // Action functions
@@ -453,6 +502,7 @@ export async function addProject(
     url: OptionalTrimmed,
     repoUrl: OptionalTrimmed,
     date: OptionalDate,
+    image: OptionalTrimmed,
   });
   const { success, error, data } = schema.safeParse(
     Object.fromEntries(form.entries()),
@@ -460,11 +510,11 @@ export async function addProject(
   if (!success) {
     return fail(z.prettifyError(error) ?? "Invalid input");
   }
-  const { name, description, url, repoUrl, date } = data;
+  const { name, description, url, repoUrl, date, image } = data;
   return withTry("add_project", async () => {
     await db
       .insert(Projects)
-      .values({ user_id: userId, name, description, url, repoUrl, date });
+      .values({ user_id: userId, name, description, url, repoUrl, date, image });
   });
 }
 
@@ -479,6 +529,7 @@ export async function updateProject(
     url: OptionalTrimmed,
     repoUrl: OptionalTrimmed,
     date: OptionalDate,
+    image: OptionalTrimmed,
   });
   const { success, error, data } = schema.safeParse(
     Object.fromEntries(form.entries()),
@@ -486,12 +537,32 @@ export async function updateProject(
   if (!success) {
     return fail(z.prettifyError(error) ?? "Invalid input");
   }
-  const { id, name, description, url, repoUrl, date } = data;
+  const { id, name, description, url, repoUrl, date, image } = data;
   return withTry("update_project", async () => {
     await db
       .update(Projects)
-      .set({ name, description, url, repoUrl, date })
+      .set({ name, description, url, repoUrl, date, image })
       .where(eq(Projects.id, id));
+  });
+}
+
+export async function uploadProjectImage(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  if (!ENABLE_UPLOADS) return fail("Uploads are disabled");
+  const idRes = z.object({ project_id: IdNumber }).safeParse(
+    Object.fromEntries(form.entries()),
+  );
+  if (!idRes.success) return fail("Invalid project id");
+  const { project_id } = idRes.data as any;
+  const res = await imageDataUrlFromForm(form, "project_image_file");
+  if (!res.ok) return res;
+  return withTry("upload_project_image", async () => {
+    await db
+      .update(Projects)
+      .set({ image: res.dataUrl })
+      .where(eq(Projects.id, project_id));
   });
 }
 
@@ -576,6 +647,33 @@ export async function deleteLanguage(
   });
 }
 
+// Upload user image and store it under public/uploads/users/:id
+export async function uploadUserImage(
+  userId: number,
+  form: FormData,
+): Promise<ActionResult> {
+  if (!ENABLE_UPLOADS) {
+    return fail("Uploads are disabled");
+  }
+  const res = await imageDataUrlFromForm(form, "image_file");
+  if (!res.ok) return res;
+  return withTry("upload_user_image", async () => {
+    // Upsert personal_info.image
+    const [existing] = await db
+      .select()
+      .from(PersonalInfo)
+      .where(eq(PersonalInfo.user_id, userId));
+    if (existing) {
+      await db
+        .update(PersonalInfo)
+        .set({ image: res.dataUrl })
+        .where(eq(PersonalInfo.user_id, userId));
+    } else {
+      await db.insert(PersonalInfo).values({ user_id: userId, image: res.dataUrl });
+    }
+  });
+}
+
 export async function handleAdminUserPost(
   userId: number,
   form: FormData,
@@ -625,6 +723,9 @@ export async function handleAdminUserPost(
     case "delete_project":
       res = await deleteProject(userId, form);
       break;
+    case "upload_project_image":
+      res = await uploadProjectImage(userId, form);
+      break;
     case "add_skill":
       res = await addSkill(userId, form);
       break;
@@ -636,6 +737,9 @@ export async function handleAdminUserPost(
       break;
     case "delete_language":
       res = await deleteLanguage(userId, form);
+      break;
+    case "upload_user_image":
+      res = await uploadUserImage(userId, form);
       break;
     default:
       return { action, error: "Invalid action" };

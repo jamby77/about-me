@@ -9,10 +9,10 @@ and the ability to export a single self-contained HTML file with all assets inli
 ## Admin side
 - [x] Change edit screen to be tabbed interface, each section should be a tab
 - [x] Add edit ability, each entry should be editable
-- [ ] Add progressive enhancement, instead of plain html form, add async http submission
-- [ ] Add image file upload for user image
-- [ ] Add image file upload for projects
-- [ ] Add feature flags system, image upload should be behind a feature flag
+- [x] Add progressive enhancement, instead of plain html form, add async http submission
+- [x] Add image file upload for user image
+- [x] Add image file upload for projects
+- [x] Add feature flags system, image upload should be behind a feature flag
 - [ ] Add template option, user should be able to choose from different templates for the resulting CV
 
 ## Client side

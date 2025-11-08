@@ -85,6 +85,7 @@ const projects = defineTable({
     url: column.text({ optional: true }),
     repoUrl: column.text({ optional: true }),
     date: column.date({ optional: true }),
+    image: column.text({ optional: true }),
   },
 });
 

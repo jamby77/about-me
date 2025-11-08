@@ -23,14 +23,26 @@ if (!userRow) {
 
 // Handle POST actions (create/update/delete)
 let postError: { action: string; error?: string } | undefined;
+// Capture current tab to preserve after successful POST
+const redirectTab = Astro.url.searchParams.get("tab") || "basic";
 if (Astro.request.method === "POST") {
+  // Content-Length guard to avoid buffering huge requests
+  const MAX_BODY = 6 * 1024 * 1024; // 6MB to account for multipart overhead (file max is 5MB)
+  const clHeader = Astro.request.headers.get("content-length");
+  const cl = clHeader ? Number(clHeader) : 0;
+  if (Number.isFinite(cl) && cl > MAX_BODY) {
+    // Route error to the most likely tab based on current ?tab
+    const tab = redirectTab;
+    const action = tab === "projects" ? "upload_project_image" : "upload_user_image";
+    postError = { action, error: "File too large (max 5MB)" };
+  } else {
   const form = await Astro.request.formData();
   try {
     const result = await handleAdminUserPost(userId, form);
     if (result.error) {
       postError = result;
     } else {
-      return Astro.redirect(Astro.url.pathname);
+      return Astro.redirect(`${Astro.url.pathname}?tab=${redirectTab}`);
     }
   } catch (e) {
     console.error(e);
@@ -38,6 +50,7 @@ if (Astro.request.method === "POST") {
       action: String(form.get("_action") || "unknown"),
       error: "An unexpected error occurred",
     };
+  }
   }
 }
 
@@ -51,6 +64,9 @@ if (postError) {
       errorTab = "basic";
       break;
     case "upsert_personal_info":
+      errorTab = "personal";
+      break;
+    case "upload_user_image":
       errorTab = "personal";
       break;
     case "add_education":
@@ -71,6 +87,7 @@ if (postError) {
     case "add_project":
     case "update_project":
     case "delete_project":
+    case "upload_project_image":
       errorTab = "projects";
       break;
     case "add_skill":
@@ -128,7 +145,7 @@ const finalTab = postError ? errorTab : activeTab;
           <PersonalInfoSection
             userId={userId}
             error={
-              postError && postError.action === "upsert_personal_info"
+              postError && (postError.action === "upsert_personal_info" || postError.action === "upload_user_image")
                 ? postError.error
                 : undefined
             }
@@ -185,7 +202,9 @@ const finalTab = postError ? errorTab : activeTab;
             error={
               postError &&
               (postError.action === "add_project" ||
-                postError.action === "delete_project")
+                postError.action === "update_project" ||
+                postError.action === "delete_project" ||
+                postError.action === "upload_project_image")
                 ? postError.error
                 : undefined
             }

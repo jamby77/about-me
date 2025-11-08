@@ -11,6 +11,7 @@ import ErrorBanner from "@/components/ErrorBanner.astro";
 import EditLink from "@/components/EditLink.astro";
 import { formatDateInput } from "@/lib/format";
 import { db, projects as Projects, eq } from "astro:db";
+import { ENABLE_UPLOADS } from "@/lib/flags";
 
 // Fetch projects data
 const projects = await db
@@ -20,11 +21,10 @@ const projects = await db
 // Helpers
 const editProjId = Number(Astro.url.searchParams.get("editProj") || "");
 ---
-
 <section class="space-y-4">
   <h2 class="text-xl font-semibold">Projects</h2>
   <ErrorBanner message={error} />
-  <form method="post" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+  <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
     <input type="hidden" name="_action" value="add_project" />
     <FormInput id="proj_name" name="name" label="Name" placeholder="Name" />
     <FormInput
@@ -41,7 +41,10 @@ const editProjId = Number(Astro.url.searchParams.get("editProj") || "");
       placeholder="Repo URL"
     />
     <FormInput id="proj_date" name="date" label="Date" type="date" />
-    <div class="md:col-span-5">
+    {!ENABLE_UPLOADS && (
+      <FormInput id="proj_image" name="image" label="Image URL" placeholder="https://..." />
+    )}
+    <div class="md:col-span-6">
       <Button type="submit" variant="primary">Add project</Button>
     </div>
   </form>
@@ -52,7 +55,7 @@ const editProjId = Number(Astro.url.searchParams.get("editProj") || "");
         return (
           <li class="p-4">
             {isEditing ? (
-              <form method="post" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
                 <input type="hidden" name="_action" value="update_project" />
                 <input type="hidden" name="id" value={String(p.id)} />
                 <FormInput id={`proj_name_${p.id}`} name="name" label="Name" value={p.name || ""} />
@@ -60,16 +63,24 @@ const editProjId = Number(Astro.url.searchParams.get("editProj") || "");
                 <FormInput id={`proj_url_${p.id}`} name="url" label="URL" value={(p as any).url || ""} />
                 <FormInput id={`proj_repoUrl_${p.id}`} name="repoUrl" label="Repo URL" value={(p as any).repoUrl || ""} />
                 <FormInput id={`proj_date_${p.id}`} name="date" label="Date" type="date" value={formatDateInput((p as any).date)} />
-                <div class="md:col-span-5 flex items-center gap-3">
+                {!ENABLE_UPLOADS && (
+                  <FormInput id={`proj_image_${p.id}`} name="image" label="Image URL" value={(p as any).image || ""} />
+                )}
+                <div class="md:col-span-6 flex items-center gap-3">
                   <Button type="submit" variant="primary">Save</Button>
                   <a href="?tab=projects" class="text-fg-link hover:underline">Cancel</a>
                 </div>
               </form>
             ) : (
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="font-medium">{p.name}</p>
-                  <p class="text-sm text-fg-subtle">{p.description}</p>
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                  {(p as any).image && (
+                    <img src={(p as any).image} alt="Project image" class="h-12 w-12 object-cover rounded border" />
+                  )}
+                  <div>
+                    <p class="font-medium">{p.name}</p>
+                    <p class="text-sm text-fg-subtle">{p.description}</p>
+                  </div>
                 </div>
                 <div class="flex items-center gap-3">
                   <EditLink href={`?tab=projects&editProj=${p.id}`}>Edit</EditLink>
@@ -81,9 +92,19 @@ const editProjId = Number(Astro.url.searchParams.get("editProj") || "");
                 </div>
               </div>
             )}
+            {ENABLE_UPLOADS && !isEditing && (
+              <form method="post" enctype="multipart/form-data" class="mt-3 flex items-end gap-3">
+                <input type="hidden" name="_action" value="upload_project_image" />
+                <input type="hidden" name="project_id" value={String(p.id)} />
+                <div>
+                  <label for={`project_image_file_${p.id}`} class="text-sm">Upload image</label>
+                  <input id={`project_image_file_${p.id}`} name="project_image_file" type="file" accept="image/*" class="block rounded border px-3 py-2" />
+                </div>
+                <Button type="submit" variant="secondary">Upload</Button>
+              </form>
+            )}
           </li>
         );
       })
     }
   </ul>
-</section>
