@@ -61,49 +61,59 @@ if (Astro.request.method === "POST") {
 const activeTab = Astro.url.searchParams.get("tab") || "basic";
 // Determine active tab based on post error if applicable
 let errorTab = activeTab;
+
+// Tab configuration
+const tabs = [
+  { id: "basic", label: "Basic Info", actions: ["update_user_basic"] },
+  { id: "personal", label: "Personal Info", actions: ["upsert_personal_info"] },
+  {
+    id: "image",
+    label: "Image",
+    enabled: ENABLE_UPLOADS,
+    actions: ["upload_user_image"],
+  },
+  {
+    id: "education",
+    label: "Education",
+    actions: ["add_education", "update_education", "delete_education"],
+  },
+  {
+    id: "experience",
+    label: "Experience",
+    actions: ["add_experience", "update_experience", "delete_experience"],
+  },
+  {
+    id: "certificates",
+    label: "Certificates",
+    actions: ["add_certificate", "update_certificate", "delete_certificate"],
+  },
+  {
+    id: "projects",
+    label: "Projects",
+    actions: [
+      "add_project",
+      "update_project",
+      "delete_project",
+      "upload_project_image",
+    ],
+  },
+  { id: "skills", label: "Skills", actions: ["add_skill", "delete_skill"] },
+  {
+    id: "languages",
+    label: "Languages",
+    actions: ["add_language", "delete_language"],
+  },
+].filter((tab) => tab.enabled !== false);
+
 if (postError) {
-  switch (postError.action) {
-    case "update_user_basic":
-      errorTab = "basic";
-      break;
-    case "upsert_personal_info":
-      errorTab = "personal";
-      break;
-    case "upload_user_image":
-      errorTab = "personal";
-      break;
-    case "add_education":
-    case "update_education":
-    case "delete_education":
-      errorTab = "education";
-      break;
-    case "add_experience":
-    case "update_experience":
-    case "delete_experience":
-      errorTab = "experience";
-      break;
-    case "add_certificate":
-    case "update_certificate":
-    case "delete_certificate":
-      errorTab = "certificates";
-      break;
-    case "add_project":
-    case "update_project":
-    case "delete_project":
-    case "upload_project_image":
-      errorTab = "projects";
-      break;
-    case "add_skill":
-    case "delete_skill":
-      errorTab = "skills";
-      break;
-    case "add_language":
-    case "delete_language":
-      errorTab = "languages";
-      break;
-  }
+  errorTab =
+    tabs.find((tab) => tab.actions.includes(postError.action))?.id || activeTab;
 }
 const finalTab = postError ? errorTab : activeTab;
+
+const getError = (tabId: string) => {
+  return postError && errorTab === tabId ? postError.error : undefined;
+};
 ---
 
 <AdminLayout title=`User #${userRow.id}`>
@@ -118,31 +128,13 @@ const finalTab = postError ? errorTab : activeTab;
     <!-- Tab Navigation -->
     <div class="border-b border-bg-subtle mb-8">
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-        <TabLink href="?tab=basic" active={finalTab === "basic"}
-          >Basic Info</TabLink
-        >
-        <TabLink href="?tab=personal" active={finalTab === "personal"}
-          >Personal Info</TabLink
-        >
-        <TabLink href="?tab=image" active={finalTab === "image"}>Image</TabLink>
-        <TabLink href="?tab=education" active={finalTab === "education"}
-          >Education</TabLink
-        >
-        <TabLink href="?tab=experience" active={finalTab === "experience"}
-          >Experience</TabLink
-        >
-        <TabLink href="?tab=certificates" active={finalTab === "certificates"}
-          >Certificates</TabLink
-        >
-        <TabLink href="?tab=projects" active={finalTab === "projects"}
-          >Projects</TabLink
-        >
-        <TabLink href="?tab=skills" active={finalTab === "skills"}
-          >Skills</TabLink
-        >
-        <TabLink href="?tab=languages" active={finalTab === "languages"}
-          >Languages</TabLink
-        >
+        {
+          tabs.map((tab) => (
+            <TabLink href={`?tab=${tab.id}`} active={finalTab === tab.id}>
+              {tab.label}
+            </TabLink>
+          ))
+        }
       </nav>
     </div>
 
@@ -150,127 +142,50 @@ const finalTab = postError ? errorTab : activeTab;
     <div class="space-y-6">
       {
         finalTab === "basic" && (
-          <BasicSection
-            userRow={userRow}
-            error={
-              postError && postError.action === "update_user_basic"
-                ? postError.error
-                : undefined
-            }
-          />
+          <BasicSection userRow={userRow} error={getError("basic")} />
         )
       }
       {
         finalTab === "personal" && (
-          <PersonalInfoSection
-            userId={userId}
-            error={
-              postError &&
-              (postError.action === "upsert_personal_info" ||
-                postError.action === "upload_user_image")
-                ? postError.error
-                : undefined
-            }
-          />
+          <PersonalInfoSection userId={userId} error={getError("personal")} />
         )
       }
       {
         ENABLE_UPLOADS && finalTab === "image" && (
-          <UploadImageSection
-            userId={userId}
-            error={
-              postError && postError.action === "upload_user_image"
-                ? postError.error
-                : undefined
-            }
-          />
+          <UploadImageSection userId={userId} error={getError("image")} />
         )
       }
       {
         finalTab === "education" && (
-          <EducationSection
-            userId={userId}
-            error={
-              postError &&
-              (postError.action === "add_education" ||
-                postError.action === "update_education" ||
-                postError.action === "delete_education")
-                ? postError.error
-                : undefined
-            }
-          />
+          <EducationSection userId={userId} error={getError("education")} />
         )
       }
       {
         finalTab === "experience" && (
-          <ExperienceSection
-            userId={userId}
-            error={
-              postError &&
-              (postError.action === "add_experience" ||
-                postError.action === "delete_experience")
-                ? postError.error
-                : undefined
-            }
-          />
+          <ExperienceSection userId={userId} error={getError("experience")} />
         )
       }
       {
         finalTab === "certificates" && (
           <CertificatesSection
             userId={userId}
-            error={
-              postError &&
-              (postError.action === "add_certificate" ||
-                postError.action === "delete_certificate")
-                ? postError.error
-                : undefined
-            }
+            error={getError("certificates")}
           />
         )
       }
       {
         finalTab === "projects" && (
-          <ProjectsSection
-            userId={userId}
-            error={
-              postError &&
-              (postError.action === "add_project" ||
-                postError.action === "update_project" ||
-                postError.action === "delete_project" ||
-                postError.action === "upload_project_image")
-                ? postError.error
-                : undefined
-            }
-          />
+          <ProjectsSection userId={userId} error={getError("projects")} />
         )
       }
       {
         finalTab === "skills" && (
-          <SkillsSection
-            userId={userId}
-            error={
-              postError &&
-              (postError.action === "add_skill" ||
-                postError.action === "delete_skill")
-                ? postError.error
-                : undefined
-            }
-          />
+          <SkillsSection userId={userId} error={getError("skills")} />
         )
       }
       {
         finalTab === "languages" && (
-          <LanguagesSection
-            userId={userId}
-            error={
-              postError &&
-              (postError.action === "add_language" ||
-                postError.action === "delete_language")
-                ? postError.error
-                : undefined
-            }
-          />
+          <LanguagesSection userId={userId} error={getError("languages")} />
         )
       }
     </div>
