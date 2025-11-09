@@ -1,0 +1,79 @@
+---
+import "@/styles/global.css";
+import { auth } from "@/lib/auth.ts";
+import UserAvatar from "@/components/UserAvatar.astro";
+import Button from "@/components/Button.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+const user = async () => {
+  if (Astro.locals.user) {
+    return Astro.locals.user;
+  }
+  const sessionData = await auth.api.getSession({
+    headers: Astro.request.headers,
+  });
+  return sessionData?.user || null;
+};
+
+const currentUser = await user();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} - Admin</title>
+  </head>
+  <body class="min-h-screen bg-bg-base text-fg-base">
+    <div class="min-h-screen">
+      {/* Header */}
+      <header class="border-b border-bg-subtle bg-bg-surface">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="flex h-16 items-center justify-between">
+            <div class="flex items-center">
+              <h1 class="text-xl font-semibold">
+                <a href="/admin">Admin Panel</a>
+              </h1>
+            </div>
+            {
+              currentUser && (
+                <div class="flex items-center gap-4">
+                  <UserAvatar user={currentUser} />
+                  <form action="/auth/signout" method="post">
+                    <Button
+                      variant="secondary"
+                      type="submit"
+                      class="text-sm text-fg-subtle hover:text-fg-base transition-colors"
+                    >
+                      Sign out
+                    </Button>
+                  </form>
+                </div>
+              )
+            }
+          </div>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main
+        id="admin-content"
+        class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8"
+      >
+        <slot />
+      </main>
+    </div>
+    <script>
+      import initAdminEnhance from "../scripts/admin-enhance.ts";
+      initAdminEnhance();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+---
+interface Props {
+  href: string;
+  class?: string;
+  ariaLabel?: string;
+}
+
+const { href, class: className, ariaLabel = "Edit" } = Astro.props as Props;
+---
+
+<a
+  href={href}
+  aria-label={ariaLabel}
+  class:list={[
+    "px-3.5 py-1.5 border rounded font-medium focus:outline-none focus:ring-2 focus:ring-offset-2",
+    className,
+  ]}
+>
+  <slot />
+</a>

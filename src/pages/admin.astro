@@ -1,0 +1,41 @@
+---
+import { auth } from "@/lib/auth.ts";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+
+const user = async () => {
+  if (Astro.locals.user) {
+    return Astro.locals.user;
+  }
+  const { user } = await auth.api.getSession({
+    headers: Astro.request.headers,
+  });
+  if (user) {
+    return user;
+  }
+  // Redirect to login page if the user is not authenticated
+  //       return Astro.redirect("/login");
+  return null;
+};
+
+const currentUser = await user();
+---
+
+<AdminLayout title="Dashboard">
+  {
+    currentUser ? (
+      <div class="flex flex-col gap-6">
+        <div class="flex justify-center">
+          <a href="/admin/users" class="text-fg-link hover:underline text-2xl">
+            Manage Users
+          </a>
+        </div>
+      </div>
+    ) : (
+      <div class="text-center">
+        <a href="/login" class="text-fg-link hover:underline">
+          Sign in
+        </a>
+      </div>
+    )
+  }
+</AdminLayout>

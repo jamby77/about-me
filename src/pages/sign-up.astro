@@ -1,0 +1,170 @@
+---
+import "@/styles/global.css";
+import FormInput from "@/components/FormInput.astro";
+---
+
+<div class="flex h-screen w-screen items-center justify-center p-4">
+  <form id="signup-form" class="flex-1">
+    <div
+      class="container w-full max-w-lg mx-auto space-y-8 rounded-lg p-6 shadow-lg"
+    >
+      <h1
+        class="text-2xl font-semibold uppercase text-center mb-8! flex items-center justify-center"
+      >
+        <svg
+          id="loading-spinner"
+          style="visibility: hidden"
+          class="mr-3 -ml-1 size-5 animate-spin text-fg-base"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          ><circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"></circle><path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        <span class="mr-3">Create your account</span>
+      </h1>
+
+      <FormInput
+        className="flex flex-col gap-2"
+        id="name"
+        name="name"
+        label="Name"
+        type="text"
+        placeholder="Jane Doe"
+        required={true}
+      />
+
+      <FormInput
+        className="flex flex-col gap-2"
+        id="email"
+        name="email"
+        label="Email"
+        type="email"
+        placeholder="jane@example.com"
+        required={true}
+      />
+
+      <FormInput
+        className="flex flex-col gap-2"
+        id="password"
+        name="password"
+        label="Password"
+        type="password"
+        minLength={8}
+        placeholder="Minimum 8 characters"
+        required={true}
+      />
+
+      <FormInput
+        id="image"
+        name="image"
+        label="Image URL (optional)"
+        type="url"
+        placeholder="https://..."
+      />
+
+      <div id="form-error" class="text-sm text-red-600" hidden></div>
+      <div id="form-success" class="text-sm text-green-600" hidden></div>
+
+      <div class="flex justify-center">
+        <button
+          type="submit"
+          class="w-1/2 rounded-full bg-bg-button-accent px-4 py-2 text-base hover:opacity-90 cursor-pointer"
+        >
+          Sign up
+        </button>
+      </div>
+      <p class="mt-4 text-center text-sm text-fg-subtle">
+        Already have an account?
+        <a href="/login" class="text-fg-link hover:underline">Sign in</a>
+      </p>
+    </div>
+  </form>
+</div>
+
+<script>
+  import { authClient } from "@/lib/auth-client";
+  const form = document.getElementById("signup-form") as HTMLFormElement;
+  const errorEl = document.getElementById("form-error");
+  const successEl = document.getElementById("form-success");
+  const loadingSpinnerEl = document.getElementById("loading-spinner");
+
+  const showSpinner = () => {
+    if (loadingSpinnerEl) {
+      loadingSpinnerEl.style.visibility = "visible";
+    }
+  };
+  const hideSpinner = () => {
+    if (loadingSpinnerEl) {
+      loadingSpinnerEl.style.visibility = "hidden";
+    }
+  };
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!errorEl || !successEl) return;
+
+    errorEl.textContent = "";
+    errorEl.hidden = true;
+    successEl.textContent = "";
+    successEl.hidden = true;
+
+    const formData = new FormData(form);
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
+    const image = String(formData.get("image") || "").trim() || undefined;
+
+    if (password.length < 8) {
+      errorEl.textContent = "Password must be at least 8 characters.";
+      errorEl.hidden = false;
+      return;
+    }
+
+    try {
+      const { data, error } = await authClient.signUp.email(
+        {
+          email,
+          password,
+          name,
+          image,
+          callbackURL: "/login",
+        },
+        {
+          onRequest: () => {
+            showSpinner();
+          },
+          onSuccess: () => {
+            hideSpinner();
+            //redirect to the dashboard or sign in page
+            setTimeout(() => (window.location.href = "/login"), 500);
+          },
+          onError: () => {
+            hideSpinner();
+          },
+        },
+      );
+      console.log({ data, error });
+
+      if (error) {
+        errorEl.textContent = error.message ?? "Failed to sign up.";
+        errorEl.hidden = false;
+        return;
+      }
+
+      successEl.textContent = "Account created successfully. Redirecting...";
+      successEl.hidden = false;
+    } catch (err) {
+      errorEl.textContent = (err as Error).message ?? "Unexpected error.";
+      errorEl.hidden = false;
+    }
+  });
+</script>

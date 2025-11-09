@@ -1,0 +1,46 @@
+---
+interface UserLike {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+interface Props {
+  user: UserLike;
+  class?: string;
+}
+
+const { user, class: className = "" } = Astro.props as Props;
+
+const getInitials = (name?: string | null) => {
+  if (!name) return "?";
+  const parts = String(name).trim().split(/\s+/).slice(0, 2);
+  const initials = parts.map((p) => p[0]?.toUpperCase() || "").join("");
+  return initials || "?";
+};
+---
+
+<div class={`flex items-center gap-4 ${className}`}>
+  {user?.image ? (
+    <img
+      src={user.image}
+      alt={user.name || user.email || "User avatar"}
+      width="40"
+      height="40"
+      class="h-10 w-10 rounded-full object-cover border"
+      loading="eager"
+      decoding="async"
+    />
+  ) : (
+    <div
+      class="h-10 w-10 rounded-full bg-bg-muted text-fg-base grid place-items-center border"
+      aria-label="User avatar"
+    >
+      <span class="text-sm font-medium">{getInitials(user?.name || user?.email)}</span>
+    </div>
+  )}
+  <div>
+    <p class="text-sm font-medium">{user?.name || "User"}</p>
+    <p class="text-xs text-fg-subtle">{user?.email}</p>
+  </div>
+</div>

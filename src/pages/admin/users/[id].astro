@@ -1,0 +1,193 @@
+---
+import "@/styles/global.css";
+import { db, users as Users, eq } from "astro:db";
+import { handleAdminUserPost } from "@/lib/admin";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import BasicSection from "@/components/sections/admin/BasicSection.astro";
+import PersonalInfoSection from "@/components/sections/admin/PersonalInfoSection.astro";
+import EducationSection from "@/components/sections/admin/EducationSection.astro";
+import ExperienceSection from "@/components/sections/admin/ExperienceSection.astro";
+import CertificatesSection from "@/components/sections/admin/CertificatesSection.astro";
+import ProjectsSection from "@/components/sections/admin/ProjectsSection.astro";
+import SkillsSection from "@/components/sections/admin/SkillsSection.astro";
+import LanguagesSection from "@/components/sections/admin/LanguagesSection.astro";
+import TabLink from "@/components/TabLink.astro";
+import { ENABLE_UPLOADS } from "@/lib/flags.ts";
+import UploadImageSection from "@/components/sections/admin/UploadImageSection.astro";
+
+const userId = Number(Astro.params.id);
+const [userRow] = await db.select().from(Users).where(eq(Users.id, userId));
+
+// Fetch only the user row to verify existence
+if (!userRow) {
+  return Astro.redirect("/admin/users");
+}
+
+// Handle POST actions (create/update/delete)
+let postError: { action: string; error?: string } | undefined;
+// Capture current tab to preserve after successful POST
+const redirectTab = Astro.url.searchParams.get("tab") || "basic";
+if (Astro.request.method === "POST") {
+  // Content-Length guard to avoid buffering huge requests
+  const MAX_BODY = 6 * 1024 * 1024; // 6MB to account for multipart overhead (file max is 5MB)
+  const clHeader = Astro.request.headers.get("content-length");
+  const cl = clHeader ? Number(clHeader) : 0;
+  if (Number.isFinite(cl) && cl > MAX_BODY) {
+    // Route error to the most likely tab based on current ?tab
+
+    const action =
+      redirectTab === "projects" ? "upload_project_image" : "upload_user_image";
+    postError = { action, error: "File too large (max 5MB)" };
+  } else {
+    const form = await Astro.request.formData();
+    try {
+      const result = await handleAdminUserPost(userId, form);
+      if (result.error) {
+        postError = result;
+      } else {
+        return Astro.redirect(`${Astro.url.pathname}?tab=${redirectTab}`);
+      }
+    } catch (e) {
+      console.error(e);
+      postError = {
+        action: String(form.get("_action") || "unknown"),
+        error: "An unexpected error occurred",
+      };
+    }
+  }
+}
+
+// Get the active tab from URL search params or default to 'basic'
+const activeTab = Astro.url.searchParams.get("tab") || "basic";
+// Determine active tab based on post error if applicable
+let errorTab = activeTab;
+
+// Tab configuration
+const tabs = [
+  { id: "basic", label: "Basic Info", actions: ["update_user_basic"] },
+  { id: "personal", label: "Personal Info", actions: ["upsert_personal_info"] },
+  {
+    id: "image",
+    label: "Image",
+    enabled: ENABLE_UPLOADS,
+    actions: ["upload_user_image"],
+  },
+  {
+    id: "education",
+    label: "Education",
+    actions: ["add_education", "update_education", "delete_education"],
+  },
+  {
+    id: "experience",
+    label: "Experience",
+    actions: ["add_experience", "update_experience", "delete_experience"],
+  },
+  {
+    id: "certificates",
+    label: "Certificates",
+    actions: ["add_certificate", "update_certificate", "delete_certificate"],
+  },
+  {
+    id: "projects",
+    label: "Projects",
+    actions: [
+      "add_project",
+      "update_project",
+      "delete_project",
+      "upload_project_image",
+    ],
+  },
+  { id: "skills", label: "Skills", actions: ["add_skill", "delete_skill"] },
+  {
+    id: "languages",
+    label: "Languages",
+    actions: ["add_language", "delete_language"],
+  },
+].filter((tab) => tab.enabled !== false);
+
+if (postError) {
+  errorTab =
+    tabs.find((tab) => tab.actions.includes(postError.action))?.id || activeTab;
+}
+const finalTab = postError ? errorTab : activeTab;
+
+const getError = (tabId: string) => {
+  return postError && errorTab === tabId ? postError.error : undefined;
+};
+---
+
+<AdminLayout title=`User #${userRow.id}`>
+  <div class="p-6 max-w-5xl mx-auto">
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-semibold">Manage user #{userRow.id}</h1>
+      <a href="/admin/users" class="text-fg-link hover:underline"
+        >Back to users</a
+      >
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="border-b border-bg-subtle mb-8">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        {
+          tabs.map((tab) => (
+            <TabLink href={`?tab=${tab.id}`} active={finalTab === tab.id}>
+              {tab.label}
+            </TabLink>
+          ))
+        }
+      </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="space-y-6">
+      {
+        finalTab === "basic" && (
+          <BasicSection userRow={userRow} error={getError("basic")} />
+        )
+      }
+      {
+        finalTab === "personal" && (
+          <PersonalInfoSection userId={userId} error={getError("personal")} />
+        )
+      }
+      {
+        ENABLE_UPLOADS && finalTab === "image" && (
+          <UploadImageSection userId={userId} error={getError("image")} />
+        )
+      }
+      {
+        finalTab === "education" && (
+          <EducationSection userId={userId} error={getError("education")} />
+        )
+      }
+      {
+        finalTab === "experience" && (
+          <ExperienceSection userId={userId} error={getError("experience")} />
+        )
+      }
+      {
+        finalTab === "certificates" && (
+          <CertificatesSection
+            userId={userId}
+            error={getError("certificates")}
+          />
+        )
+      }
+      {
+        finalTab === "projects" && (
+          <ProjectsSection userId={userId} error={getError("projects")} />
+        )
+      }
+      {
+        finalTab === "skills" && (
+          <SkillsSection userId={userId} error={getError("skills")} />
+        )
+      }
+      {
+        finalTab === "languages" && (
+          <LanguagesSection userId={userId} error={getError("languages")} />
+        )
+      }
+    </div>
+  </div>
+</AdminLayout>

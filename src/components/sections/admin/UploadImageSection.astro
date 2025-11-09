@@ -1,0 +1,45 @@
+---
+import { db, personal_info as PersonalInfo, eq } from "astro:db";
+
+import ErrorBanner from "@/components/ErrorBanner.astro";
+import ImageUploadForm from "@/components/ImageUploadForm.astro";
+import { ENABLE_UPLOADS } from "@/lib/flags.ts";
+
+interface Props {
+  userId: number;
+  error?: string;
+}
+const { userId, error } = Astro.props as Props;
+
+// Fetch personal info data
+const [pi] = await db
+  .select()
+  .from(PersonalInfo)
+  .where(eq(PersonalInfo.user_id, userId));
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">CV image</h2>
+  <ErrorBanner message={error} />
+  <div class="flex items-stretch gap-4">
+    {
+      ENABLE_UPLOADS && (
+        <div class="grow-2">
+          <ImageUploadForm action="upload_user_image" inputName="image_file" />
+        </div>
+      )
+    }
+    {
+      pi?.image && (
+        <div class="flex items-center flex-col justify-center gap-4 grow-0">
+          <img
+            src={pi.image}
+            alt="User image"
+            class="h-auto w-48 rounded object-cover border"
+          />
+          <span class="text-sm text-fg-subtle">Current image</span>
+        </div>
+      )
+    }
+  </div>
+</section>

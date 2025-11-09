@@ -9,6 +9,10 @@ import {
   skills,
   user_languages,
   projects,
+  user,
+  session,
+  account,
+  verification,
 } from "astro:db";
 
 // https://astro.build/db/seed
@@ -18,6 +22,81 @@ export default async function seed() {
     first_name: "John",
     last_name: "Doe",
     email: "pKj9w@example.com",
+  });
+
+  await db.insert(user).values({
+    id: "1",
+    name: "John Doe",
+    email: "pKj9w@example.com",
+    image: "/assets/images/me.jpeg",
+    role: "user",
+    emailVerified: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(user).values({
+    id: "s079WDJVTLf5izUvYu3EbY9Y8i0rAO4G",
+    name: "PETAR DZHAMBAZOV",
+    email: "petar.dev@gmail.com",
+    emailVerified: true,
+    role: "admin",
+    image: "/assets/images/me.jpeg",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(account).values({
+    id: "1",
+    userId: "1",
+    accountId: "1",
+    providerId: "1",
+    accessToken: "1",
+    refreshToken: "1",
+    accessTokenExpiresAt: new Date(),
+    refreshTokenExpiresAt: new Date(),
+    scope: "1",
+    idToken: "1",
+    password: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(account).values({
+    id: "RsaRkPjC4ZUbwFS6NqSexqmkTOUnAJbR",
+    userId: "s079WDJVTLf5izUvYu3EbY9Y8i0rAO4G",
+    accountId: "s079WDJVTLf5izUvYu3EbY9Y8i0rAO4G",
+    providerId: "credential",
+    accessToken: null,
+    refreshToken: null,
+    accessTokenExpiresAt: null,
+    refreshTokenExpiresAt: null,
+    scope: null,
+    idToken: null,
+    password:
+      "30c4dc9b26372887ba53e8714f9da3ec:3fac461bd7f62814ddfbd405d6f0ac94c05ff9b1680b9bb685557ff112ff1273e58cda397cd020dc3dbec9d1dd7b1fbf437b32326496d295cea2ce480f0e2575",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(session).values({
+    id: "1",
+    userId: "1",
+    token: "1",
+    expiresAt: new Date(),
+    ipAddress: "1",
+    userAgent: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  await db.insert(verification).values({
+    id: "1",
+    identifier: "1",
+    value: "1",
+    expiresAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   await db.insert(personal_info).values({

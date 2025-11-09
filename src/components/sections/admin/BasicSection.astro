@@ -1,0 +1,46 @@
+---
+import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
+interface Props {
+  userRow: {
+    id: number;
+    first_name: string | null;
+    last_name: string | null;
+    email: string | null;
+  };
+  error?: string;
+}
+
+const { userRow, error } = Astro.props as Props;
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Basic info</h2>
+  <ErrorBanner message={error} />
+  <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <input type="hidden" name="_action" value="update_user_basic" />
+    <FormInput
+      id="first_name"
+      name="first_name"
+      label="First name"
+      value={userRow.first_name || ""}
+    />
+    <FormInput
+      id="last_name"
+      name="last_name"
+      label="Last name"
+      value={userRow.last_name || ""}
+    />
+    <FormInput
+      id="email"
+      name="email"
+      label="Email"
+      type="email"
+      value={userRow.email || ""}
+    />
+    <div class="md:col-span-3">
+      <Button type="submit" variant="primary">Save basic</Button>
+    </div>
+  </form>
+</section>

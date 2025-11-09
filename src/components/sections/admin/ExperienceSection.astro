@@ -1,0 +1,346 @@
+---
+import { db, experience as Experience, skills as Skills, eq } from "astro:db";
+import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
+import EditLink from "@/components/EditLink.astro";
+import { parseExperienceRows } from "@/lib/schemas.ts";
+import { formatDateInput } from "@/lib/format.ts";
+
+interface Props {
+  userId: number;
+  error?: string;
+}
+
+const { userId, error } = Astro.props as Props;
+const expRaw = await db
+  .select()
+  .from(Experience)
+  .where(eq(Experience.user_id, userId));
+const exp = parseExperienceRows(expRaw);
+// Available skills for the current user
+const skillRows = await db
+  .select()
+  .from(Skills)
+  .where(eq(Skills.user_id, userId));
+const availableSkills: string[] = skillRows.map((s) => s.name);
+// Helpers
+const joinList = (xs?: string[] | null) =>
+  xs && xs.length ? xs.join("\n") : "";
+const editExpId = Number(Astro.url.searchParams.get("editExp") || "");
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Experience</h2>
+  <ErrorBanner message={error} />
+  <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+    <input type="hidden" name="_action" value="add_experience" />
+    <FormInput
+      className="md:col-span-6"
+      id="exp_company"
+      name="name"
+      label="Company"
+      placeholder="Company"
+    />
+    <FormInput
+      className="md:col-span-3"
+      id="exp_title"
+      name="title"
+      label="Job title"
+      placeholder="Title"
+    />
+    <FormInput
+      className="md:col-span-3"
+      id="exp_role"
+      name="role"
+      label="Role"
+      placeholder="Role"
+    />
+    <div class="md:col-span-6">
+      <label for="exp_description" class="text-sm">Description</label>
+      <textarea
+        id="exp_description"
+        name="description"
+        rows="3"
+        placeholder="Description"
+        class="w-full rounded border px-3 py-2"></textarea>
+    </div>
+
+    <FormInput
+      className="md:col-span-2"
+      id="exp_url"
+      name="url"
+      label="Company URL"
+      placeholder="URL"
+    />
+    <FormInput
+      className="md:col-span-2"
+      id="exp_start_date"
+      name="start_date"
+      label="Start date"
+      type="date"
+    />
+    <FormInput
+      className="md:col-span-2"
+      id="exp_end_date"
+      name="end_date"
+      label="End date"
+      type="date"
+    />
+    <div class="md:col-span-3">
+      <label for="exp_responsibilities" class="text-sm"
+        >responsibilities (one per line)</label
+      >
+      <textarea
+        id="exp_responsibilities"
+        name="responsibilities"
+        rows="4"
+        class="w-full rounded border px-3 py-2"
+        placeholder="Lead feature X\nMentor team members\n..."></textarea>
+    </div>
+    <div class="md:col-span-3">
+      <label for="exp_achievements" class="text-sm"
+        >Achievements (one per line)</label
+      >
+      <textarea
+        id="exp_achievements"
+        name="achievements"
+        rows="4"
+        class="w-full rounded border px-3 py-2"
+        placeholder="Increased performance by 30%\nLaunched product Y\n..."
+      ></textarea>
+    </div>
+
+    <FormInput
+      className="md:col-span-2"
+      id="exp_location"
+      name="location"
+      label="Location"
+      placeholder="Location"
+    />
+    <div class="md:col-span-2">
+      <label for="exp_location_type" class="text-sm">Location type</label>
+      <select
+        id="exp_location_type"
+        name="location_type"
+        class="w-full rounded border px-3 py-2"
+      >
+        <option value="Remote">Remote</option>
+        <option value="On Site">On Site</option>
+        <option value="Hybrid">Hybrid</option>
+      </select>
+    </div>
+    <div class="md:col-span-2">
+      <label for="exp_skills" class="text-sm"
+        >Skills (hold Cmd/Ctrl to select multiple)</label
+      >
+      <select
+        id="exp_skills"
+        name="skills"
+        size="4"
+        multiple
+        class="w-full rounded border px-3 py-2 h-32"
+      >
+        {availableSkills.map((s) => <option value={s}>{s}</option>)}
+      </select>
+    </div>
+    <div class="md:col-span-6">
+      <Button type="submit" variant="primary">Add experience</Button>
+    </div>
+  </form>
+  <ul class="space-y-4">
+    {
+      exp.map((x) => {
+        const isEditing = x.id === editExpId;
+        return (
+          <li class="p-4 rounded border">
+            {isEditing ? (
+              <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <input type="hidden" name="_action" value="update_experience" />
+                <input type="hidden" name="id" value={String(x.id)} />
+                <FormInput
+                  className="md:col-span-6"
+                  id={`exp_company_${x.id}`}
+                  name="name"
+                  label="Company"
+                  value={x.name || ""}
+                />
+                <FormInput
+                  className="md:col-span-3"
+                  id={`exp_title_${x.id}`}
+                  name="title"
+                  label="Job title"
+                  value={x.title || ""}
+                />
+                <FormInput
+                  className="md:col-span-3"
+                  id={`exp_role_${x.id}`}
+                  name="role"
+                  label="Role"
+                  value={x.role || ""}
+                />
+                <div class="md:col-span-6">
+                  <label for={`exp_description_${x.id}`} class="text-sm">
+                    Description
+                  </label>
+                  <textarea
+                    id={`exp_description_${x.id}`}
+                    name="description"
+                    rows="3"
+                    class="w-full rounded border px-3 py-2"
+                  >
+                    {x.description || ""}
+                  </textarea>
+                </div>
+                <FormInput
+                  className="md:col-span-2"
+                  id={`exp_url_${x.id}`}
+                  name="url"
+                  label="Company URL"
+                  value={x.url || ""}
+                />
+                <FormInput
+                  className="md:col-span-2"
+                  id={`exp_start_date_${x.id}`}
+                  name="start_date"
+                  label="Start date"
+                  type="date"
+                  value={formatDateInput(x.start_date)}
+                />
+                <FormInput
+                  className="md:col-span-2"
+                  id={`exp_end_date_${x.id}`}
+                  name="end_date"
+                  label="End date"
+                  type="date"
+                  value={formatDateInput(x.end_date)}
+                />
+                <div class="md:col-span-3">
+                  <label for={`exp_responsibilities_${x.id}`} class="text-sm">
+                    responsibilities (one per line)
+                  </label>
+                  <textarea
+                    id={`exp_responsibilities_${x.id}`}
+                    name="responsibilities"
+                    rows="4"
+                    class="w-full rounded border px-3 py-2"
+                  >
+                    {joinList(x.responsibilities)}
+                  </textarea>
+                </div>
+                <div class="md:col-span-3">
+                  <label for={`exp_achievements_${x.id}`} class="text-sm">
+                    Achievements (one per line)
+                  </label>
+                  <textarea
+                    id={`exp_achievements_${x.id}`}
+                    name="achievements"
+                    rows="4"
+                    class="w-full rounded border px-3 py-2"
+                  >
+                    {joinList(x.achievements)}
+                  </textarea>
+                </div>
+                <FormInput
+                  className="md:col-span-2"
+                  id={`exp_location_${x.id}`}
+                  name="location"
+                  label="Location"
+                  value={x.location || ""}
+                />
+                <div class="md:col-span-2">
+                  <label for={`exp_location_type_${x.id}`} class="text-sm">
+                    Location type
+                  </label>
+                  <select
+                    id={`exp_location_type_${x.id}`}
+                    name="location_type"
+                    class="w-full rounded border px-3 py-2"
+                  >
+                    <option
+                      value="Remote"
+                      selected={x.location_type === "Remote"}
+                    >
+                      Remote
+                    </option>
+                    <option
+                      value="On Site"
+                      selected={x.location_type === "On Site"}
+                    >
+                      On Site
+                    </option>
+                    <option
+                      value="Hybrid"
+                      selected={x.location_type === "Hybrid"}
+                    >
+                      Hybrid
+                    </option>
+                  </select>
+                </div>
+                <div class="md:col-span-2">
+                  <label for={`exp_skills_${x.id}`} class="text-sm">
+                    Skills (hold Cmd/Ctrl to select multiple)
+                  </label>
+                  <select
+                    id={`exp_skills_${x.id}`}
+                    name="skills"
+                    size="4"
+                    multiple
+                    class="w-full rounded border px-3 py-2 h-32"
+                  >
+                    {availableSkills.map((s) => (
+                      <option
+                        value={s}
+                        selected={
+                          Array.isArray(x.skills) && x.skills.includes(s)
+                        }
+                      >
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div class="md:col-span-6 flex items-center gap-3">
+                  <Button type="submit" variant="primary">
+                    Save
+                  </Button>
+                  <a
+                    href="?tab=experience"
+                    class="text-fg-link hover:underline"
+                  >
+                    Cancel
+                  </a>
+                </div>
+              </form>
+            ) : (
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="font-medium">
+                    {x.name} — {x.title}
+                  </p>
+                  <p class="text-sm text-fg-subtle">{x.role}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <EditLink href={`?tab=experience&editExp=${x.id}`}>
+                    Edit
+                  </EditLink>
+                  <form method="post">
+                    <input
+                      type="hidden"
+                      name="_action"
+                      value="delete_experience"
+                    />
+                    <input type="hidden" name="id" value={String(x.id)} />
+                    <Button type="submit" variant="danger">
+                      Delete
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

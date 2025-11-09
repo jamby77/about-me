@@ -1,0 +1,21 @@
+---
+interface Props {
+  message?: string;
+  class?: string;
+}
+
+const { message, class: className } = Astro.props as Props;
+---
+
+{
+  message && (
+    <div
+      class:list={[
+        "p-3 bg-red-100 text-red-800 rounded border border-red-300",
+        className,
+      ]}
+    >
+      Error: <pre>{message}</pre>
+    </div>
+  )
+}

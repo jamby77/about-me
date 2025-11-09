@@ -1,0 +1,49 @@
+---
+import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
+import { db, skills as Skills, eq } from "astro:db";
+
+interface Props {
+  userId: number;
+  error?: string;
+}
+const { userId, error } = Astro.props as Props;
+// Fetch skills data
+const userSkills = await db
+  .select()
+  .from(Skills)
+  .where(eq(Skills.user_id, userId));
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Skills</h2>
+  <ErrorBanner message={error} />
+  <form method="post" class="flex gap-3 items-end">
+    <input type="hidden" name="_action" value="add_skill" />
+    <FormInput
+      className="flex-1"
+      id="skill_name"
+      name="name"
+      label="Skill name"
+      placeholder="e.g. React"
+    />
+    <Button type="submit" variant="primary">Add skill</Button>
+  </form>
+  <ul class="flex flex-wrap gap-2">
+    {
+      userSkills.map((s) => (
+        <li class="px-3 py-1 rounded border flex items-center gap-2">
+          <span>{s.name}</span>
+          <form method="post">
+            <input type="hidden" name="_action" value="delete_skill" />
+            <input type="hidden" name="id" value={String(s.id)} />
+            <button class="text-red-600" aria-label={`Delete skill ${s.name}`}>
+              ×
+            </button>
+          </form>
+        </li>
+      ))
+    }
+  </ul>
+</section>

@@ -1,0 +1,165 @@
+---
+import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
+import ImageUploadForm from "@/components/ImageUploadForm.astro";
+import EditLink from "@/components/EditLink.astro";
+import { formatDateInput } from "@/lib/format.ts";
+import { db, projects as Projects, eq } from "astro:db";
+import { ENABLE_UPLOADS } from "@/lib/flags.ts";
+
+interface Props {
+  userId: number;
+  error?: string;
+}
+
+const { userId, error } = Astro.props as Props;
+// Fetch projects data
+const projects = await db
+  .select()
+  .from(Projects)
+  .where(eq(Projects.user_id, userId));
+// Helpers
+const editProjId = Number(Astro.url.searchParams.get("editProj") || "");
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Projects</h2>
+  <ErrorBanner message={error} />
+  <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <input type="hidden" name="_action" value="add_project" />
+    <FormInput id="proj_name" name="name" label="Name" placeholder="Name" />
+    <FormInput
+      id="proj_description"
+      name="description"
+      label="Description"
+      placeholder="Description"
+    />
+    <FormInput id="proj_url" name="url" label="URL" placeholder="URL" />
+    <FormInput
+      id="proj_repoUrl"
+      name="repoUrl"
+      label="Repo URL"
+      placeholder="Repo URL"
+    />
+    <FormInput id="proj_date" name="date" label="Date" type="date" />
+    {
+      !ENABLE_UPLOADS && (
+        <FormInput
+          id="proj_image"
+          name="image"
+          label="Image URL"
+          placeholder="https://..."
+        />
+      )
+    }
+    <div class="md:col-span-6">
+      <Button type="submit" variant="primary">Add project</Button>
+    </div>
+  </form>
+  <ul class="divide-y rounded border">
+    {
+      projects.map((p) => {
+        const isEditing = p.id === editProjId;
+        return (
+          <li class="p-4">
+            {isEditing ? (
+              <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <input type="hidden" name="_action" value="update_project" />
+                <input type="hidden" name="id" value={String(p.id)} />
+                <FormInput
+                  id={`proj_name_${p.id}`}
+                  name="name"
+                  label="Name"
+                  value={p.name || ""}
+                />
+                <FormInput
+                  id={`proj_description_${p.id}`}
+                  name="description"
+                  label="Description"
+                  value={p.description || ""}
+                />
+                <FormInput
+                  id={`proj_url_${p.id}`}
+                  name="url"
+                  label="URL"
+                  value={(p as any).url || ""}
+                />
+                <FormInput
+                  id={`proj_repoUrl_${p.id}`}
+                  name="repoUrl"
+                  label="Repo URL"
+                  value={(p as any).repoUrl || ""}
+                />
+                <FormInput
+                  id={`proj_date_${p.id}`}
+                  name="date"
+                  label="Date"
+                  type="date"
+                  value={formatDateInput((p as any).date)}
+                />
+                {!ENABLE_UPLOADS && (
+                  <FormInput
+                    id={`proj_image_${p.id}`}
+                    name="image"
+                    label="Image URL"
+                    value={(p as any).image || ""}
+                  />
+                )}
+                <div class="md:col-span-6 flex items-center gap-3">
+                  <Button type="submit" variant="primary">
+                    Save
+                  </Button>
+                  <a href="?tab=projects" class="text-fg-link hover:underline">
+                    Cancel
+                  </a>
+                </div>
+              </form>
+            ) : (
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                  {(p as any).image && (
+                    <img
+                      src={(p as any).image}
+                      alt="Project image"
+                      class="h-12 w-12 object-cover rounded border"
+                    />
+                  )}
+                  <div>
+                    <p class="font-medium">{p.name}</p>
+                    <p class="text-sm text-fg-subtle">{p.description}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <EditLink href={`?tab=projects&editProj=${p.id}`}>
+                    Edit
+                  </EditLink>
+                  <form method="post">
+                    <input
+                      type="hidden"
+                      name="_action"
+                      value="delete_project"
+                    />
+                    <input type="hidden" name="id" value={String(p.id)} />
+                    <Button type="submit" variant="danger">
+                      Delete
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            )}
+            {ENABLE_UPLOADS && isEditing && (
+              <ImageUploadForm
+                action="upload_project_image"
+                inputName="project_image_file"
+                inputId={`project_image_file_${p.id}`}
+                hidden={{ project_id: p.id }}
+                formClass="mt-3"
+              />
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

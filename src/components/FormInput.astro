@@ -1,0 +1,39 @@
+---
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  type?: HTMLInputTypeAttribute;
+  value?: string;
+  placeholder?: string;
+  className?: string;
+  required?: boolean;
+  minLength?: number;
+}
+
+const {
+  id,
+  name,
+  label,
+  type = "text",
+  value = "",
+  placeholder,
+  className,
+  required,
+  minLength,
+} = Astro.props as Props;
+---
+
+<div class={className}>
+  <label for={id} class="text-sm">{label}</label>
+  <input
+    id={id}
+    name={name}
+    type={type}
+    value={value}
+    placeholder={placeholder}
+    class={`w-full rounded border px-3 py-2 ${className ?? ""}`}
+    required={required}
+    minlength={minLength}
+  />
+</div>

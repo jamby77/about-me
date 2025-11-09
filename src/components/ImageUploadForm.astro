@@ -1,0 +1,397 @@
+---
+import Button from "@/components/Button.astro";
+
+interface Props {
+  action: string; // _action value
+  inputName: string; // file input name
+  inputId?: string; // file input id
+  label?: string; // label text
+  accept?: string; // accept attribute, default image/*
+  hidden?: Record<string, string | number>; // extra hidden fields
+  submitLabel?: string; // button text, default Upload
+  submitVariant?: "primary" | "secondary" | "danger"; // Button variant
+  formClass?: string; // form wrapper classes
+  fieldWrapperClass?: string; // container classes for the label+input
+  buttonWrapperClass?: string; // container classes for the submit button
+  hint?: string; // small helper text below input
+  title?: string; // optional title above dropzone
+}
+
+const {
+  action,
+  inputName,
+  inputId,
+  accept = "image/*",
+  hidden = {},
+  submitLabel = "Upload",
+  submitVariant = "primary",
+  formClass = "flex items-end gap-3",
+  fieldWrapperClass = "",
+  buttonWrapperClass = "",
+  hint = "Max 5MB. PNG/JPEG/WebP recommended.",
+  title = "Upload image",
+} = Astro.props as Props;
+const resolvedId = inputId || inputName;
+// 1x1 transparent GIF placeholder
+const previewPlaceholder =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+---
+
+<image-upload-form
+  data-resolved-id={resolvedId}
+  data-preview-placeholder={previewPlaceholder}
+>
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    data-sync="true"
+    class:list={[formClass, "grid grid-cols-1 gap-4"]}
+  >
+    <input type="hidden" name="_action" value={action} />
+    {
+      Object.entries(hidden).map(([name, value]) => (
+        <input type="hidden" name={name} value={String(value)} />
+      ))
+    }
+    <div class={fieldWrapperClass}>
+      {
+        title && (
+          <div class="mb-4">
+            <h3 class="text-center text-2xl font-semibold capitalize">
+              {title}
+            </h3>
+          </div>
+        )
+      }
+      <div
+        data-el="dropzone"
+        class={`rounded-lg border border-dashed border-fg-muted/30 bg-bg-muted/20 
+        p-8 text-center transition-colors hover:border-fg-muted/60 focus:outline-none 
+        focus:ring-1 focus:ring-hue/40 cursor-pointer`}
+        tabindex="0"
+      >
+        <div
+          class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-bg-muted/50"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            class="text-fg-muted"
+          >
+            <path
+              d="M12 5v14M5 12h14"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <p class="text-base text-fg-muted text-center">
+          Drag and drop or
+          <button
+            type="button"
+            data-el="browse"
+            class="text-fg-link underline ml-1">browse</button
+          >
+          your files
+        </p>
+        {hint && <p class="mt-2 text-xs text-fg-muted text-center">{hint}</p>}
+        <input
+          id={resolvedId}
+          name={inputName}
+          type="file"
+          accept={accept}
+          class="sr-only"
+        />
+      </div>
+
+      <div data-el="fileRow" class="mt-4 hidden">
+        <div class="flex items-center gap-3">
+          <div
+            class="relative flex h-20 w-20 items-center justify-center rounded border bg-bg-muted/40"
+          >
+            <img
+              data-el="preview"
+              alt="Selected image preview"
+              class="h-20 w-20 rounded object-cover border hidden"
+              src={previewPlaceholder}
+            />
+            <div
+              data-el="extChip"
+              class="absolute bottom-[-1px] right-[-1px] flex h-8 w-8 text-xs items-center justify-center bg-muted/80"
+            >
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <p data-el="filename" class="truncate text-sm font-medium">
+                filename
+              </p>
+              <span data-el="status" class="text-xs text-fg-muted">Waiting</span
+              >
+            </div>
+            <div class="mt-1 h-1.5 w-full rounded bg-fg-muted/20">
+              <div
+                data-el="progressFill"
+                class="h-1.5 rounded bg-hue"
+                style="width: 0"
+              >
+              </div>
+            </div>
+            <p data-el="filesize" class="mt-1 text-xs text-fg-muted">
+              0 MB of 0 MB
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class:list={[
+        buttonWrapperClass,
+        "flex items-center justify-center gap-3",
+      ]}
+    >
+      <Button data-el="uploadBtn" type="submit" variant={submitVariant} disabled
+        >{submitLabel}</Button
+      >
+      <Button data-el="doneBtn" type="button" variant="primary" class="hidden"
+        >Done</Button
+      >
+    </div>
+  </form>
+</image-upload-form>
+<script>
+  const toMB = (bytes: number) => (bytes / (1024 * 1024)).toFixed(1);
+
+  function setPreview(
+    file: File,
+    img: HTMLImageElement,
+    previewPlaceholder: string,
+    lastUrl: string | null,
+  ) {
+    if (!img) {
+      return null;
+    }
+    if (lastUrl) {
+      URL.revokeObjectURL(lastUrl);
+      lastUrl = null;
+    }
+    if (!file.type || !file.type.startsWith("image/")) {
+      img.src = previewPlaceholder;
+      img.classList.add("hidden");
+      return lastUrl;
+    }
+    const url = URL.createObjectURL(file);
+    lastUrl = url;
+    img.src = url;
+    img.classList.remove("hidden");
+    return lastUrl;
+  }
+
+  function setFileInfo(file: File | null, root: HTMLElement) {
+    const fileRow = root.querySelector('[data-el="fileRow"]');
+
+    if (!fileRow) {
+      return;
+    }
+
+    const filenameEl = root.querySelector('[data-el="filename"]');
+    const extChip = root.querySelector('[data-el="extChip"]');
+    const filesizeEl = root.querySelector('[data-el="filesize"]');
+    const statusEl = root.querySelector('[data-el="status"]');
+    const progressFill = root.querySelector(
+      '[data-el="progressFill"]',
+    ) as HTMLDivElement;
+    const uploadBtn = root.querySelector('[data-el="uploadBtn"]');
+
+    fileRow.classList.remove("hidden");
+    if (filenameEl) {
+      filenameEl.textContent = file ? file.name || "selected file" : "";
+    }
+    const ext = file && file.name && file.name.split(".").pop();
+    if (extChip && ext) {
+      extChip.textContent = ext.toUpperCase();
+    }
+    const fileSizeMB = file ? toMB(file.size) : "0.0";
+    if (filesizeEl) {
+      filesizeEl.textContent = file ? `0.0 MB of ${fileSizeMB} MB` : "";
+    }
+    if (statusEl) {
+      statusEl.textContent = "Waiting";
+    }
+    if (progressFill) {
+      progressFill.style.width = "0%";
+    }
+    if (uploadBtn) {
+      uploadBtn.removeAttribute("disabled");
+    }
+  }
+
+  class ImageUploadForm extends HTMLElement {
+    connectedCallback() {
+      const previewPlaceholder = this.dataset.previewPlaceholder || "";
+      const form = this.querySelector("form");
+      const input: HTMLInputElement | null = this.querySelector(
+        "input[type='file']",
+      ) as HTMLInputElement | null;
+      const img: HTMLImageElement | null = this.querySelector(
+        '[data-el="preview"]',
+      ) as HTMLImageElement | null;
+      const dropZone: HTMLElement | null = this.querySelector(
+        '[data-el="dropzone"]',
+      ) as HTMLDivElement | null;
+      const browse: HTMLButtonElement | null = this.querySelector(
+        '[data-el="browse"]',
+      ) as HTMLButtonElement | null;
+      const filesizeEl = this.querySelector('[data-el="filesize"]');
+      const statusEl = this.querySelector('[data-el="status"]');
+      const progressFill = this.querySelector(
+        '[data-el="progressFill"]',
+      ) as HTMLDivElement;
+      const uploadBtn = this.querySelector('[data-el="uploadBtn"]');
+      const doneBtn = this.querySelector('[data-el="doneBtn"]');
+
+      let lastUrl: string | null = null;
+      let fileSizeMB = "0.0";
+
+      // Drag & drop
+      if (dropZone && input) {
+        ["dragenter", "dragover"].forEach((ev) =>
+          dropZone.addEventListener(ev, (e) => {
+            e.preventDefault();
+            dropZone.classList.add("ring", "ring-hue/40");
+          }),
+        );
+        ["dragleave", "drop"].forEach((ev) =>
+          dropZone.addEventListener(ev, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("ring", "ring-hue/40");
+          }),
+        );
+        dropZone.addEventListener("drop", (e) => {
+          const de = e as DragEvent;
+          const file =
+            de.dataTransfer &&
+            de.dataTransfer.files &&
+            de.dataTransfer.files[0];
+          if (!file) return;
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          input.files = dt.files;
+          lastUrl = setPreview(
+            file,
+            img as HTMLImageElement,
+            previewPlaceholder,
+            lastUrl,
+          );
+          setFileInfo(file, this);
+        });
+        // Click and keyboard to open file dialog
+        dropZone.addEventListener("click", () => input.click());
+        dropZone.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            input.click();
+          }
+        });
+      }
+      if (browse && input) {
+        browse.addEventListener("click", () => input.click());
+      }
+      if (input) {
+        input.addEventListener("change", () => {
+          const file = input.files && input.files[0];
+          if (!file) {
+            return;
+          }
+          lastUrl = setPreview(
+            file,
+            img as HTMLImageElement,
+            previewPlaceholder,
+            lastUrl,
+          );
+          setFileInfo(file, this);
+        });
+        input?.form?.addEventListener("reset", () => {
+          if (img) {
+            img.src = previewPlaceholder;
+            img.classList.add("hidden");
+          }
+        });
+      }
+
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const file = input && input.files && input.files[0];
+          if (!file && statusEl) {
+            statusEl.textContent = "No file selected";
+            return;
+          }
+          const fd = new FormData(form);
+          const targetUrl = form.action || window.location.href;
+          if (uploadBtn) {
+            uploadBtn.setAttribute("disabled", "true");
+          }
+          if (statusEl) {
+            statusEl.textContent = "Uploading… 0%";
+          }
+          const xhr = new XMLHttpRequest();
+          xhr.upload.onprogress = (ev) => {
+            if (!ev.lengthComputable) return;
+            const pct = Math.round((ev.loaded / ev.total) * 100);
+            if (progressFill) progressFill.style.width = pct + "%";
+            if (filesizeEl)
+              filesizeEl.textContent = `${toMB(ev.loaded)} MB of ${fileSizeMB} MB`;
+            if (statusEl) statusEl.textContent = `Uploading… ${pct}%`;
+          };
+          xhr.onload = async () => {
+            const success = xhr.status >= 200 && xhr.status < 300;
+            if (progressFill) progressFill.style.width = "100%";
+            if (statusEl)
+              statusEl.textContent = success ? "Uploaded" : "Failed";
+            if (success) {
+              try {
+                const res = await fetch(xhr.responseURL || targetUrl, {
+                  credentials: "same-origin",
+                });
+                const html = await res.text();
+                if (
+                  typeof window !== "undefined" &&
+                  "replaceRootFromHTML" in window &&
+                  typeof (window as any).replaceRootFromHTML === "function"
+                ) {
+                  (window as any).replaceRootFromHTML(html);
+                }
+              } catch {}
+              if (doneBtn) {
+                doneBtn.classList.remove("hidden");
+                doneBtn.addEventListener("click", () => {
+                  /* noop; page already updated */
+                });
+              }
+              if (uploadBtn) {
+                uploadBtn.classList.add("hidden");
+              }
+            } else {
+              if (uploadBtn) {
+                uploadBtn.removeAttribute("disabled");
+              }
+            }
+          };
+          xhr.onerror = () => {
+            if (statusEl) statusEl.textContent = "Upload failed";
+            if (uploadBtn) {
+              uploadBtn.removeAttribute("disabled");
+            }
+          };
+          xhr.open("POST", targetUrl, true);
+          xhr.withCredentials = true;
+          xhr.send(fd);
+        });
+      }
+    }
+  }
+
+  customElements.define("image-upload-form", ImageUploadForm);
+</script>

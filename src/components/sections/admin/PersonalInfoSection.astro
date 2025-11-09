@@ -1,0 +1,93 @@
+---
+import { db, personal_info as PersonalInfo, eq } from "astro:db";
+
+import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
+import { ENABLE_UPLOADS } from "@/lib/flags.ts";
+
+interface Props {
+  userId: number;
+  error?: string;
+}
+const { userId, error } = Astro.props as Props;
+
+// Fetch personal info data
+const [pi] = await db
+  .select()
+  .from(PersonalInfo)
+  .where(eq(PersonalInfo.user_id, userId));
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Personal info</h2>
+  <ErrorBanner message={error} />
+  <form method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <input type="hidden" name="_action" value="upsert_personal_info" />
+    {
+      !ENABLE_UPLOADS && (
+        <FormInput
+          id="image"
+          name="image"
+          label="Image"
+          value={pi?.image || ""}
+        />
+      )
+    }
+    <FormInput id="title" name="title" label="Title" value={pi?.title || ""} />
+    <FormInput
+      id="phone"
+      name="phone"
+      label="Phone"
+      type="tel"
+      value={pi?.phone || ""}
+    />
+    <FormInput
+      id="location"
+      name="location"
+      label="Location"
+      value={pi?.location || ""}
+    />
+    <FormInput
+      id="website"
+      name="website"
+      label="Website"
+      type="url"
+      value={pi?.website || ""}
+    />
+    <FormInput
+      id="linkedin"
+      name="linkedin"
+      label="LinkedIn"
+      type="url"
+      value={pi?.linkedin || ""}
+    />
+    <FormInput
+      id="github"
+      name="github"
+      label="GitHub"
+      type="url"
+      value={pi?.github || ""}
+    />
+    <FormInput
+      id="twitter"
+      name="twitter"
+      label="Twitter"
+      type="url"
+      value={pi?.twitter || ""}
+    />
+    <div class="md:col-span-3">
+      <label for="description" class="text-sm">Description</label>
+      <textarea
+        id="description"
+        name="description"
+        rows="4"
+        class="w-full rounded border px-3 py-2"
+        >{pi?.description || ""}</textarea
+      >
+    </div>
+    <div class="md:col-span-3">
+      <Button type="submit" variant="primary">Save personal info</Button>
+    </div>
+  </form>
+</section>

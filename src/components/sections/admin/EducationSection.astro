@@ -1,0 +1,175 @@
+---
+import { db, education as Education, eq } from "astro:db";
+import Button from "@/components/Button.astro";
+import FormInput from "@/components/FormInput.astro";
+import ErrorBanner from "@/components/ErrorBanner.astro";
+import EditLink from "@/components/EditLink.astro";
+import { formatDateInput } from "@/lib/format.ts";
+
+const { userId, error } = Astro.props as Props;
+
+interface Props {
+  userId: number;
+  error?: string;
+}
+// Fetch education data
+const edu = await db
+  .select()
+  .from(Education)
+  .where(eq(Education.user_id, userId));
+// Pretty date formatter (e.g., 'Nov 2025')
+const formatMonthYear = (d: unknown) => {
+  if (!d) return "";
+  const date = d instanceof Date ? d : new Date(d as any);
+  if (isNaN(date.getTime())) return "";
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+  });
+};
+
+// Which education entry is being edited (from URL)
+const editEduId = Number(Astro.url.searchParams.get("editEdu") || "");
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold">Education</h2>
+  <ErrorBanner message={error} />
+  <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+    <input type="hidden" name="_action" value="add_education" />
+    <FormInput
+      className="md:col-span-2"
+      id="edu_name"
+      name="name"
+      label="School"
+      placeholder="School"
+    />
+    <FormInput
+      id="eduDegree"
+      name="degree"
+      label="Degree"
+      placeholder="Degree"
+    />
+    <FormInput
+      id="edu_field"
+      name="field"
+      label="Field of study"
+      placeholder="Field"
+    />
+    <FormInput
+      id="edu_start_date"
+      name="start_date"
+      label="Start date"
+      type="date"
+    />
+    <FormInput id="edu_end_date" name="end_date" label="End date" type="date" />
+    <FormInput
+      className="md:col-span-3"
+      id="edu_url"
+      name="url"
+      label="URL"
+      placeholder="URL"
+    />
+    <div class="md:col-span-6">
+      <Button type="submit" variant="primary">Add education</Button>
+    </div>
+  </form>
+  <ul class="space-y-4">
+    {
+      edu.map((e) => {
+        const isEditing = e.id === editEduId;
+        return (
+          <li class="p-4 rounded border gap-4">
+            {isEditing ? (
+              <form method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <input type="hidden" name="_action" value="update_education" />
+                <input type="hidden" name="id" value={String(e.id)} />
+                <FormInput
+                  className="md:col-span-2"
+                  id={`edu_name_${e.id}`}
+                  name="name"
+                  label="School"
+                  value={e.name || ""}
+                />
+                <FormInput
+                  id={`edu_degree_${e.id}`}
+                  name="degree"
+                  label="Degree"
+                  value={e.degree || ""}
+                />
+                <FormInput
+                  id={`edu_field_${e.id}`}
+                  name="field"
+                  label="Field of study"
+                  value={e.field || ""}
+                />
+                <FormInput
+                  id={`edu_start_date_${e.id}`}
+                  name="start_date"
+                  label="Start date"
+                  type="date"
+                  value={formatDateInput(e.start_date)}
+                />
+                <FormInput
+                  id={`edu_end_date_${e.id}`}
+                  name="end_date"
+                  label="End date"
+                  type="date"
+                  value={formatDateInput(e.end_date)}
+                />
+                <FormInput
+                  className="md:col-span-3"
+                  id={`edu_url_${e.id}`}
+                  name="url"
+                  label="URL"
+                  value={(e as any).url || ""}
+                />
+                <div class="md:col-span-6 flex items-center gap-3">
+                  <Button type="submit" variant="primary">
+                    Save
+                  </Button>
+                  <a href="?tab=education" class="text-fg-link hover:underline">
+                    Cancel
+                  </a>
+                </div>
+              </form>
+            ) : (
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 justify-between">
+                    <div class="flex flex-col gap-2">
+                      <p class="font-medium">
+                        {e.name} — {e.degree}
+                      </p>
+                      <p class="text-sm text-fg-subtle">{e.field}</p>
+                    </div>
+                    <p class="text-sm text-fg-subtle">
+                      {formatMonthYear(e.start_date)}
+                      {e.end_date && ` - ${formatMonthYear(e.end_date)}`}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <EditLink href={`?tab=education&editEdu=${e.id}`}>
+                    Edit
+                  </EditLink>
+                  <form method="post">
+                    <input
+                      type="hidden"
+                      name="_action"
+                      value="delete_education"
+                    />
+                    <input type="hidden" name="id" value={String(e.id)} />
+                    <Button type="submit" variant="danger">
+                      Delete
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>
