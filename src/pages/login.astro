@@ -1,6 +1,8 @@
 ---
-import "@/styles/global.css";
+import AuthLayout from "@/layouts/AuthLayout.astro";
 import { AuthForm } from "@/components/react/auth-form";
 ---
 
-<AuthForm mode="login" client:load />
+<AuthLayout title="Login">
+  <AuthForm mode="login" client:load />
+</AuthLayout>

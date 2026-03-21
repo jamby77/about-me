@@ -1,6 +1,6 @@
 import type { AdminUserSummary } from "@/types/view-models";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { initials } from "@/components/react/admin/shared";
 
 export function AdminUsersList({ users }: { users: AdminUserSummary[] }) {
@@ -38,9 +38,12 @@ export function AdminUsersList({ users }: { users: AdminUserSummary[] }) {
                     <p className="text-xs text-fg-subtle">{user.email}</p>
                   </div>
                 </div>
-                <Button asChild variant="outline">
-                  <a href={`/admin/users/${user.id}`}>Edit</a>
-                </Button>
+                <a
+                  href={`/admin/users/${user.id}`}
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  Edit
+                </a>
               </li>
             ))}
           </ul>

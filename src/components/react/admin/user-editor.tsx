@@ -12,7 +12,7 @@ import {
   ProjectsTab,
   SkillsTab,
 } from "@/components/react/admin/editor-sections";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function readEditStateFromUrl() {
@@ -83,12 +83,13 @@ export function AdminUserEditor({ model }: { model: AdminUserEditorViewModel }) 
     <div className="mx-auto max-w-5xl p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Manage user #{model.user.id}</h1>
-        <Button asChild variant="ghost">
-          <a href="/admin/users">
-            <IconChevronLeft className="size-4" />
-            Back to users
-          </a>
-        </Button>
+        <a
+          href="/admin/users"
+          className={buttonVariants({ variant: "ghost" })}
+        >
+          <IconChevronLeft className="size-4" />
+          Back to users
+        </a>
       </div>
 
       <Tabs value={activeTab} onValueChange={onTabChange}>
