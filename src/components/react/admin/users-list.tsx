@@ -40,7 +40,9 @@ export function AdminUsersList({ users }: { users: AdminUserSummary[] }) {
                 </div>
                 <a
                   href={`/admin/users/${user.id}`}
-                  className={buttonVariants({ variant: "outline" })}
+                  className={buttonVariants({
+                    variant: "outline",
+                  })}
                 >
                   Edit
                 </a>
