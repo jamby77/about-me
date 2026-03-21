@@ -11,17 +11,32 @@
   },
   "dependencies": {
     "@astrojs/db": "^0.20.1",
+    "@astrojs/react": "^5.0.1",
     "@astrojs/vercel": "^10.0.2",
+    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@tabler/icons-react": "^3.40.0",
     "astro": "^6.0.8",
     "better-auth": "^1.5.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "radix-ui": "^1.4.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "shadcn": "^4.1.0",
     "sharp": "^0.34.5",
+    "tailwind-merge": "^3.5.0",
+    "tw-animate-css": "^1.4.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.8",
     "@tailwindcss/vite": "4.1.17",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "tailwindcss": "4.1.17"
+    "tailwindcss": "4.1.17",
+    "typescript": "^5.9.3"
   }
 }

@@ -1,19 +1,24 @@
 ---
 import "@/styles/global.css";
-import { db, users as Users, eq } from "astro:db";
+import {
+  certificates as Certificates,
+  db,
+  education as Education,
+  eq,
+  languages as Languages,
+  personal_info as PersonalInfo,
+  projects as Projects,
+  skills as Skills,
+  user_languages as UserLanguages,
+  users as Users,
+  experience as Experience,
+} from "astro:db";
 import { handleAdminUserPost } from "@/lib/admin";
 import AdminLayout from "@/layouts/AdminLayout.astro";
-import BasicSection from "@/components/sections/admin/BasicSection.astro";
-import PersonalInfoSection from "@/components/sections/admin/PersonalInfoSection.astro";
-import EducationSection from "@/components/sections/admin/EducationSection.astro";
-import ExperienceSection from "@/components/sections/admin/ExperienceSection.astro";
-import CertificatesSection from "@/components/sections/admin/CertificatesSection.astro";
-import ProjectsSection from "@/components/sections/admin/ProjectsSection.astro";
-import SkillsSection from "@/components/sections/admin/SkillsSection.astro";
-import LanguagesSection from "@/components/sections/admin/LanguagesSection.astro";
-import TabLink from "@/components/TabLink.astro";
 import { ENABLE_UPLOADS } from "@/lib/flags.ts";
-import UploadImageSection from "@/components/sections/admin/UploadImageSection.astro";
+import { buildAdminUserEditorViewModel, getAdminTabs } from "@/lib/view-models";
+import { AdminUserEditor } from "@/components/react/admin";
+import type { AdminTabId } from "@/types/view-models";
 
 const userId = Number(Astro.params.id);
 const [userRow] = await db.select().from(Users).where(eq(Users.id, userId));
@@ -62,132 +67,117 @@ const activeTab = Astro.url.searchParams.get("tab") || "basic";
 // Determine active tab based on post error if applicable
 let errorTab = activeTab;
 
-// Tab configuration
-const tabs = [
-  { id: "basic", label: "Basic Info", actions: ["update_user_basic"] },
-  { id: "personal", label: "Personal Info", actions: ["upsert_personal_info"] },
-  {
-    id: "image",
-    label: "Image",
-    enabled: ENABLE_UPLOADS,
-    actions: ["upload_user_image"],
-  },
-  {
-    id: "education",
-    label: "Education",
-    actions: ["add_education", "update_education", "delete_education"],
-  },
-  {
-    id: "experience",
-    label: "Experience",
-    actions: ["add_experience", "update_experience", "delete_experience"],
-  },
-  {
-    id: "certificates",
-    label: "Certificates",
-    actions: ["add_certificate", "update_certificate", "delete_certificate"],
-  },
+const tabActions = [
+  { id: "basic", actions: ["update_user_basic"] },
+  { id: "personal", actions: ["upsert_personal_info"] },
+  { id: "image", actions: ["upload_user_image"] },
+  { id: "education", actions: ["add_education", "update_education", "delete_education"] },
+  { id: "experience", actions: ["add_experience", "update_experience", "delete_experience"] },
+  { id: "certificates", actions: ["add_certificate", "update_certificate", "delete_certificate"] },
   {
     id: "projects",
-    label: "Projects",
-    actions: [
-      "add_project",
-      "update_project",
-      "delete_project",
-      "upload_project_image",
-    ],
+    actions: ["add_project", "update_project", "delete_project", "upload_project_image"],
   },
-  { id: "skills", label: "Skills", actions: ["add_skill", "delete_skill"] },
-  {
-    id: "languages",
-    label: "Languages",
-    actions: ["add_language", "delete_language"],
-  },
-].filter((tab) => tab.enabled !== false);
+  { id: "skills", actions: ["add_skill", "delete_skill"] },
+  { id: "languages", actions: ["add_language", "delete_language"] },
+];
+const tabs = getAdminTabs(ENABLE_UPLOADS);
 
 if (postError) {
   errorTab =
-    tabs.find((tab) => tab.actions.includes(postError.action))?.id || activeTab;
+    tabActions.find((tab) => tab.actions.includes(postError.action))?.id || activeTab;
 }
 const finalTab = postError ? errorTab : activeTab;
 
 const getError = (tabId: string) => {
   return postError && errorTab === tabId ? postError.error : undefined;
 };
+
+const [personalInfo] = await db
+  .select()
+  .from(PersonalInfo)
+  .where(eq(PersonalInfo.user_id, userId));
+const educationRows = await db
+  .select()
+  .from(Education)
+  .where(eq(Education.user_id, userId));
+const experienceRows = await db
+  .select()
+  .from(Experience)
+  .where(eq(Experience.user_id, userId));
+const certificateRows = await db
+  .select()
+  .from(Certificates)
+  .where(eq(Certificates.user_id, userId));
+const projectRows = await db
+  .select()
+  .from(Projects)
+  .where(eq(Projects.user_id, userId));
+const skillRows = await db
+  .select()
+  .from(Skills)
+  .where(eq(Skills.user_id, userId));
+const languageOptions = await db.select().from(Languages);
+const userLanguageRows = await db
+  .select()
+  .from(UserLanguages)
+  .where(eq(UserLanguages.user_id, userId));
+
+const model = buildAdminUserEditorViewModel({
+  userId,
+  user: {
+    id: userRow.id,
+    firstName: userRow.first_name,
+    lastName: userRow.last_name,
+    email: userRow.email,
+  },
+  tabs,
+  activeTab: finalTab as AdminTabId,
+  errorByTab: {
+    basic: getError("basic"),
+    personal: getError("personal"),
+    image: getError("image"),
+    education: getError("education"),
+    experience: getError("experience"),
+    certificates: getError("certificates"),
+    projects: getError("projects"),
+    skills: getError("skills"),
+    languages: getError("languages"),
+  },
+  enableUploads: ENABLE_UPLOADS,
+  personalInfo: personalInfo
+    ? {
+        title: personalInfo.title,
+        image: personalInfo.image,
+        phone: personalInfo.phone,
+        location: personalInfo.location,
+        website: personalInfo.website,
+        linkedin: personalInfo.linkedin,
+        github: personalInfo.github,
+        twitter: personalInfo.twitter,
+        description: personalInfo.description,
+      }
+    : null,
+  education: educationRows,
+  experience: experienceRows,
+  certificates: certificateRows,
+  projects: projectRows,
+  skills: skillRows.map((skill) => ({ id: skill.id, name: skill.name })),
+  languageOptions: languageOptions.map((language) => ({
+    id: language.id,
+    language: language.language,
+    abbr: language.abbr,
+  })),
+  userLanguages: userLanguageRows,
+  editIds: {
+    education: Number(Astro.url.searchParams.get("editEdu") || "") || undefined,
+    experience: Number(Astro.url.searchParams.get("editExp") || "") || undefined,
+    certificates: Number(Astro.url.searchParams.get("editCert") || "") || undefined,
+    projects: Number(Astro.url.searchParams.get("editProj") || "") || undefined,
+  },
+});
 ---
 
 <AdminLayout title=`User #${userRow.id}`>
-  <div class="p-6 max-w-5xl mx-auto">
-    <div class="mb-6 flex items-center justify-between">
-      <h1 class="text-2xl font-semibold">Manage user #{userRow.id}</h1>
-      <a href="/admin/users" class="text-fg-link hover:underline"
-        >Back to users</a
-      >
-    </div>
-
-    <!-- Tab Navigation -->
-    <div class="border-b border-bg-subtle mb-8">
-      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-        {
-          tabs.map((tab) => (
-            <TabLink href={`?tab=${tab.id}`} active={finalTab === tab.id}>
-              {tab.label}
-            </TabLink>
-          ))
-        }
-      </nav>
-    </div>
-
-    <!-- Tab Content -->
-    <div class="space-y-6">
-      {
-        finalTab === "basic" && (
-          <BasicSection userRow={userRow} error={getError("basic")} />
-        )
-      }
-      {
-        finalTab === "personal" && (
-          <PersonalInfoSection userId={userId} error={getError("personal")} />
-        )
-      }
-      {
-        ENABLE_UPLOADS && finalTab === "image" && (
-          <UploadImageSection userId={userId} error={getError("image")} />
-        )
-      }
-      {
-        finalTab === "education" && (
-          <EducationSection userId={userId} error={getError("education")} />
-        )
-      }
-      {
-        finalTab === "experience" && (
-          <ExperienceSection userId={userId} error={getError("experience")} />
-        )
-      }
-      {
-        finalTab === "certificates" && (
-          <CertificatesSection
-            userId={userId}
-            error={getError("certificates")}
-          />
-        )
-      }
-      {
-        finalTab === "projects" && (
-          <ProjectsSection userId={userId} error={getError("projects")} />
-        )
-      }
-      {
-        finalTab === "skills" && (
-          <SkillsSection userId={userId} error={getError("skills")} />
-        )
-      }
-      {
-        finalTab === "languages" && (
-          <LanguagesSection userId={userId} error={getError("languages")} />
-        )
-      }
-    </div>
-  </div>
+  <AdminUserEditor model={model} client:load />
 </AdminLayout>

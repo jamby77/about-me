@@ -1,0 +1,9 @@
+export { BasicTab } from "@/components/react/admin/sections/basic-tab";
+export { PersonalTab } from "@/components/react/admin/sections/personal-tab";
+export { ImageTab } from "@/components/react/admin/sections/image-tab";
+export { EducationTab } from "@/components/react/admin/sections/education-tab";
+export { ExperienceTab } from "@/components/react/admin/sections/experience-tab";
+export { CertificatesTab } from "@/components/react/admin/sections/certificates-tab";
+export { ProjectsTab } from "@/components/react/admin/sections/projects-tab";
+export { SkillsTab } from "@/components/react/admin/sections/skills-tab";
+export { LanguagesTab } from "@/components/react/admin/sections/languages-tab";

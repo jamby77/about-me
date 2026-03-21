@@ -3,7 +3,15 @@ interface Props {
   id: string;
   name: string;
   label: string;
-  type?: HTMLInputTypeAttribute;
+  type?:
+    | "text"
+    | "email"
+    | "password"
+    | "url"
+    | "date"
+    | "tel"
+    | "number"
+    | "hidden";
   value?: string;
   placeholder?: string;
   className?: string;
