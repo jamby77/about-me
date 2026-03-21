@@ -11,15 +11,15 @@
   },
   "dependencies": {
     "@astrojs/db": "^0.18.3",
-    "@astrojs/vercel": "^9.0.2",
-    "astro": "^5.16.6",
-    "better-auth": "^1.4.7",
+    "@astrojs/vercel": "^9.0.5",
+    "astro": "^5.18.1",
+    "better-auth": "^1.5.5",
     "sharp": "^0.34.5",
-    "zod": "^4.2.1"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.17",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "4.1.17"
