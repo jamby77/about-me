@@ -1,8 +1,31 @@
-import { useState, type FormEvent } from "react"
+import { useState, type FormEventHandler } from "react"
 import { IconLoader2 } from "@tabler/icons-react"
 import { authClient } from "@/lib/auth-client"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 
 type Mode = "login" | "sign-up"
+
+function Field({
+  id,
+  label,
+  className,
+  ...props
+}: React.ComponentProps<typeof Input> & {
+  id: string
+  label: string
+  className?: string
+}) {
+  return (
+    <div className={cn("flex flex-col gap-2", className)}>
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} {...props} />
+    </div>
+  )
+}
 
 export function AuthForm({ mode }: { mode: Mode }) {
   const isLogin = mode === "login"
@@ -10,7 +33,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+  const onSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
     setError("")
     setSuccess("")
@@ -104,68 +127,42 @@ export function AuthForm({ mode }: { mode: Mode }) {
           </h1>
 
           {!isLogin ? (
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name">Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Jane Doe"
-                required
-                className="w-full rounded border px-3 py-2"
-              />
-            </div>
+            <Field id="name" name="name" label="Name" type="text" placeholder="Jane Doe" required />
           ) : null}
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="jane@example.com"
-              required
-              className="w-full rounded border px-3 py-2"
-            />
-          </div>
+          <Field id="email" name="email" label="Email" type="email" placeholder="jane@example.com" required />
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              minLength={8}
-              placeholder={isLogin ? "Your password" : "Minimum 8 characters"}
-              required
-              className="w-full rounded border px-3 py-2"
-            />
-          </div>
+          <Field
+            id="password"
+            name="password"
+            label="Password"
+            type="password"
+            minLength={8}
+            placeholder={isLogin ? "Your password" : "Minimum 8 characters"}
+            required
+          />
 
           {!isLogin ? (
-            <div className="flex flex-col gap-2">
-              <label htmlFor="image">Image URL (optional)</label>
-              <input
-                id="image"
-                name="image"
-                type="url"
-                placeholder="https://..."
-                className="w-full rounded border px-3 py-2"
-              />
-            </div>
+            <Field id="image" name="image" label="Image URL (optional)" type="url" placeholder="https://..." />
           ) : null}
 
-          {error ? <div className="text-sm text-red-600">{error}</div> : null}
-          {success ? <div className="text-sm text-green-600">{success}</div> : null}
+          {error ? (
+            <Alert variant="destructive">
+              <AlertTitle>{isLogin ? "Sign in failed" : "Sign up failed"}</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
+          {success ? (
+            <Alert>
+              <AlertTitle>{isLogin ? "Signed in" : "Account created"}</AlertTitle>
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          ) : null}
 
           <div className="flex justify-center">
-            <button
-              type="submit"
-              className="w-1/2 cursor-pointer rounded-full bg-bg-button-accent px-4 py-2 text-base hover:opacity-90"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-1/2 rounded-full text-base" disabled={loading}>
               {isLogin ? "Sign in" : "Sign up"}
-            </button>
+            </Button>
           </div>
 
           <p className="mt-4 text-center text-sm text-fg-subtle">

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react"
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type FormEventHandler } from "react"
 import { IconPhoto, IconUpload, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -34,6 +34,14 @@ export function ImageUploadForm({
   const [uploading, setUploading] = useState(false)
   const previewUrl = useMemo(() => (file && file.type.startsWith("image/") ? URL.createObjectURL(file) : null), [file])
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
+
   function onFileChange(event: ChangeEvent<HTMLInputElement>) {
     setFile(event.target.files?.[0] ?? null)
     setProgress(0)
@@ -53,7 +61,7 @@ export function ImageUploadForm({
     setStatus("Waiting")
   }
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
     if (!file) return
 

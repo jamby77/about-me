@@ -4,7 +4,13 @@ import "@/styles/global.css";
 import Layout from "@/layouts/Layout.astro";
 import { db, users, projects, education, certificates, skills } from "astro:db";
 import { buildPortfolioViewModel } from "@/lib/view-models";
-import { PortfolioPage } from "@/components/react/site";
+import {
+  PortfolioEducationSection,
+  PortfolioProjectsSection,
+  PortfolioSidebar,
+  PortfolioSkillsSection,
+} from "@/components/react/site";
+import { PortfolioExperienceSection } from "@/components/react/site-experience";
 
 const [user] = await db.select().from(users).where(eq(users.id, 1));
 const [info] = await db.select().from(personal_info).limit(1);
@@ -46,7 +52,33 @@ const cv = buildPortfolioViewModel({
   summary={info.description}
   url={info.website}
 >
-  <PortfolioPage cv={cv} client:idle />
+  <main
+    class="relative grid max-w-7xl gap-12 p-8 max-sm:py-16 md:grid-cols-6 md:p-16 xl:gap-24 print:max-w-none print:grid-cols-1 print:gap-6"
+  >
+    <div
+      class="space-y-6 md:col-span-2 print:col-span-1 print:grid print:grid-cols-2 print:gap-5 print:space-y-0"
+    >
+      <PortfolioSidebar basics={cv.basics} />
+    </div>
+    <div
+      class="space-y-12 md:col-span-4 print:col-span-1 print:grid print:grid-cols-4 print:gap-2 print:space-y-0"
+    >
+      <PortfolioExperienceSection
+        work={cv.work}
+        className="print:col-span-3"
+        client:load
+      />
+      <PortfolioProjectsSection projects={cv.projects} className="print:hidden" />
+      <PortfolioSkillsSection skills={cv.skills} className="print:hidden" />
+      <PortfolioEducationSection
+        education={cv.education}
+        certificates={cv.certificates}
+        className="order-first"
+      />
+    </div>
+    <div class="flex w-full max-w-7xl justify-center md:col-span-6 print:hidden">
+    </div>
+  </main>
 </Layout>
 <style>
   @page {
