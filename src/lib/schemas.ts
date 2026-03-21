@@ -44,7 +44,6 @@ export const OptionalDate = z.preprocess(
   z.coerce
     .date()
     .min(hundredYearsAgo, { message: "Date is too far in the past" })
-    .max(new Date(), { message: "Date is in the future" })
     .optional(),
 );
 
@@ -52,8 +51,7 @@ export const RequiredDate = z.preprocess(
   (value) => (value === "" ? undefined : value),
   z.coerce
     .date()
-    .min(hundredYearsAgo, { message: "Date is too far in the past" })
-    .max(new Date(), { message: "Date is in the future" }),
+    .min(hundredYearsAgo, { message: "Date is too far in the past" }),
 );
 
 export const IdNumber = z.coerce
