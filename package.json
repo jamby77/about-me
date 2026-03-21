@@ -10,9 +10,9 @@
     "as": "astro"
   },
   "dependencies": {
-    "@astrojs/db": "^0.18.3",
-    "@astrojs/vercel": "^9.0.5",
-    "astro": "^5.18.1",
+    "@astrojs/db": "^0.20.1",
+    "@astrojs/vercel": "^10.0.2",
+    "astro": "^6.0.8",
     "better-auth": "^1.5.5",
     "sharp": "^0.34.5",
     "zod": "^4.3.6"
