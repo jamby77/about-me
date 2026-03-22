@@ -106,7 +106,7 @@ export function AdminUserEditor({
     <div className="mx-auto max-w-5xl p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Manage user #{model.user.id}</h1>
-        <a href="/admin/users" className={buttonVariants({ variant: "ghost" })}>
+        <a href="/admin" className={buttonVariants({ variant: "ghost" })}>
           <IconChevronLeft className="size-4" />
           Back to users
         </a>

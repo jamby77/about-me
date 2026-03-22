@@ -1,14 +1,15 @@
 ---
 import "@/styles/global.css";
 import { auth } from "@/lib/auth.ts";
-import UserAvatar from "@/components/UserAvatar.astro";
 import Button from "@/components/Button.astro";
+import UserAvatar from "@/components/UserAvatar.astro";
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+const pathname = Astro.url.pathname;
 
 const user = async () => {
   if (Astro.locals.user) {
@@ -32,26 +33,57 @@ const currentUser = await user();
     <meta name="generator" content={Astro.generator} />
     <title>{title} - Admin</title>
   </head>
-  <body class="min-h-screen bg-bg-base text-fg-base">
-    <div class="min-h-screen">
-      {/* Header */}
-      <header class="border-b border-bg-subtle bg-bg-surface">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div class="flex h-16 items-center justify-between">
-            <div class="flex items-center">
-              <h1 class="text-xl font-semibold">
-                <a href="/admin">Admin Panel</a>
-              </h1>
+  <body class="min-h-screen bg-background text-foreground">
+    <div class="relative min-h-screen overflow-hidden">
+      <div class="absolute inset-0 -z-10 bg-[#0d0d0f]" />
+      <div class="absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:36px_36px] opacity-20" />
+
+      <header class="sticky top-0 z-20 border-b border-white/6 bg-black/72 backdrop-blur-xl">
+        <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex items-start gap-4">
+              <a
+                href="/admin"
+                class="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.035] text-base font-semibold tracking-[0.2em] text-white shadow-[0_18px_60px_rgba(0,0,0,0.35)]"
+              >
+                AP
+              </a>
+              <div class="space-y-2">
+                <div>
+                  <p class="text-[0.7rem] font-medium uppercase tracking-[0.28em] text-white/45">
+                    Control Room
+                  </p>
+                  <h1 class="text-2xl font-semibold tracking-tight text-white">
+                    {title}
+                  </h1>
+                </div>
+                <nav class="flex flex-wrap gap-2">
+                  <a
+                    href="/admin"
+                    class:list={[
+                      "rounded-xl border px-3 py-1.5 text-sm font-medium transition",
+                      pathname === "/admin" || pathname.startsWith("/admin/users")
+                        ? "border-sky-400/30 bg-sky-500/15 text-white shadow-[0_0_0_1px_rgba(56,189,248,0.16)_inset]"
+                        : "border-white/8 bg-white/4 text-white/65 hover:border-white/16 hover:bg-white/8 hover:text-white",
+                    ]}
+                  >
+                    Users
+                  </a>
+                </nav>
+              </div>
             </div>
+
             {
               currentUser && (
-                <div class="flex items-center gap-4">
-                  <UserAvatar user={currentUser} />
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div class="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
+                    <UserAvatar user={currentUser} class="gap-3" />
+                  </div>
                   <form action="/auth/signout" method="post">
                     <Button
                       variant="secondary"
                       type="submit"
-                      class="text-sm text-fg-subtle hover:text-fg-base transition-colors"
+                      class="rounded-xl border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-white transition hover:bg-white/[0.1]"
                     >
                       Sign out
                     </Button>
@@ -63,10 +95,9 @@ const currentUser = await user();
         </div>
       </header>
 
-      {/* Main content */}
       <main
         id="admin-content"
-        class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8"
+        class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10"
       >
         <slot />
       </main>
