@@ -1,13 +1,10 @@
-import { IconPlus } from "@tabler/icons-react";
-import { formatDateInput } from "@/lib/format";
 import type { SectionProps } from "@/components/react/admin/sections/types";
 import {
   ActionButtons,
   ErrorBanner,
-  InputField,
   monthYear,
 } from "@/components/react/admin/shared";
-import { Button } from "@/components/ui/button";
+import { EducationForm } from "@/components/react/admin/forms/education-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
 
@@ -25,53 +22,8 @@ export function EducationTab({
         </CardHeader>
         <CardContent className="space-y-6">
           <ErrorBanner message={model.errorByTab.education} />
-          <form method="post" className="grid grid-cols-1 gap-4 md:grid-cols-6">
-            <input type="hidden" name="_action" value="add_education" />
-            <InputField
-              className="md:col-span-2"
-              id="edu_name"
-              name="name"
-              label="School"
-              placeholder="School"
-            />
-            <InputField
-              id="edu_degree"
-              name="degree"
-              label="Degree"
-              placeholder="Degree"
-            />
-            <InputField
-              id="edu_field"
-              name="field"
-              label="InputField of study"
-              placeholder="InputField"
-            />
-            <InputField
-              id="edu_start_date"
-              name="start_date"
-              label="Start date"
-              type="date"
-            />
-            <InputField
-              id="edu_end_date"
-              name="end_date"
-              label="End date"
-              type="date"
-            />
-            <InputField
-              className="md:col-span-3"
-              id="edu_url"
-              name="url"
-              label="URL"
-              placeholder="URL"
-            />
-            <div className="md:col-span-6">
-              <Button type="submit">
-                <IconPlus className="size-4" />
-                Add education
-              </Button>
-            </div>
-          </form>
+
+          <EducationForm mode={{ kind: "add" }} idPrefix="edu_new" />
 
           <div className="space-y-4">
             {model.education.map((item) => {
@@ -80,71 +32,14 @@ export function EducationTab({
                 <Card key={item.id}>
                   <CardContent className="pt-6">
                     {editing ? (
-                      <form
-                        method="post"
-                        className="grid grid-cols-1 gap-4 md:grid-cols-6"
-                      >
-                        <input
-                          type="hidden"
-                          name="_action"
-                          value="update_education"
-                        />
-                        <input
-                          type="hidden"
-                          name="id"
-                          value={String(item.id)}
-                        />
-                        <InputField
-                          className="md:col-span-2"
-                          id={`edu_name_${item.id}`}
-                          name="name"
-                          label="School"
-                          defaultValue={item.name}
-                        />
-                        <InputField
-                          id={`edu_degree_${item.id}`}
-                          name="degree"
-                          label="Degree"
-                          defaultValue={item.degree}
-                        />
-                        <InputField
-                          id={`edu_field_${item.id}`}
-                          name="field"
-                          label="InputField of study"
-                          defaultValue={item.field}
-                        />
-                        <InputField
-                          id={`edu_start_${item.id}`}
-                          name="start_date"
-                          label="Start date"
-                          type="date"
-                          defaultValue={formatDateInput(item.startDate)}
-                        />
-                        <InputField
-                          id={`edu_end_${item.id}`}
-                          name="end_date"
-                          label="End date"
-                          type="date"
-                          defaultValue={formatDateInput(item.endDate)}
-                        />
-                        <InputField
-                          className="md:col-span-3"
-                          id={`edu_url_${item.id}`}
-                          name="url"
-                          label="URL"
-                          defaultValue={item.url}
-                        />
-                        <div className="flex items-center gap-3 md:col-span-6">
-                          <Button type="submit">Save</Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onTabChange("education")}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </form>
+                      <EducationForm
+                        mode={{
+                          kind: "edit",
+                          item,
+                          onCancel: () => onTabChange("education"),
+                        }}
+                        idPrefix={`edu_${item.id}`}
+                      />
                     ) : (
                       <div className="flex items-center justify-between gap-4">
                         <div>
@@ -154,9 +49,7 @@ export function EducationTab({
                           <p className="text-sm text-fg-subtle">{item.field}</p>
                           <p className="text-sm text-fg-subtle">
                             {monthYear(item.startDate)}
-                            {item.endDate
-                              ? ` - ${monthYear(item.endDate)}`
-                              : ""}
+                            {item.endDate ? ` - ${monthYear(item.endDate)}` : ""}
                           </p>
                         </div>
                         <ActionButtons
