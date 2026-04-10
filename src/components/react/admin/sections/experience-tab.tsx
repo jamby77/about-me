@@ -62,6 +62,7 @@ export function ExperienceTab({
                           <ActionButtons
                             entityId={item.id}
                             deleteAction="delete_experience"
+                            itemLabel={item.name ?? item.title}
                             onEdit={() =>
                               onEditState(
                                 "experience",

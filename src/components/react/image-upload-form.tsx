@@ -3,6 +3,8 @@ import { IconPhoto, IconUpload, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+const MAX_BYTES = 5 * 1024 * 1024
+
 interface Props {
   action: string
   inputName: string
@@ -29,6 +31,7 @@ export function ImageUploadForm({
   const resolvedId = inputId ?? inputName
   const inputRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
+  const [sizeError, setSizeError] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState("Waiting")
   const [uploading, setUploading] = useState(false)
@@ -42,10 +45,29 @@ export function ImageUploadForm({
     }
   }, [previewUrl])
 
-  function onFileChange(event: ChangeEvent<HTMLInputElement>) {
-    setFile(event.target.files?.[0] ?? null)
+  function acceptFile(candidate: File | null | undefined) {
     setProgress(0)
     setStatus("Waiting")
+    if (!candidate) {
+      setFile(null)
+      setSizeError(null)
+      return false
+    }
+    if (candidate.size > MAX_BYTES) {
+      setFile(null)
+      setSizeError(
+        `File is ${(candidate.size / 1024 / 1024).toFixed(1)} MB — the 5 MB limit is enforced on the server.`,
+      )
+      if (inputRef.current) inputRef.current.value = ""
+      return false
+    }
+    setFile(candidate)
+    setSizeError(null)
+    return true
+  }
+
+  function onFileChange(event: ChangeEvent<HTMLInputElement>) {
+    acceptFile(event.target.files?.[0] ?? null)
   }
 
   function onDrop(event: DragEvent<HTMLDivElement>) {
@@ -53,12 +75,11 @@ export function ImageUploadForm({
     const droppedFile = event.dataTransfer.files?.[0]
     if (!droppedFile || !inputRef.current) return
 
+    if (!acceptFile(droppedFile)) return
+
     const dataTransfer = new DataTransfer()
     dataTransfer.items.add(droppedFile)
     inputRef.current.files = dataTransfer.files
-    setFile(droppedFile)
-    setProgress(0)
-    setStatus("Waiting")
   }
 
   const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
@@ -147,6 +168,15 @@ export function ImageUploadForm({
           />
         </div>
 
+        {sizeError ? (
+          <p
+            className="mt-2 text-center text-xs text-destructive"
+            role="alert"
+          >
+            {sizeError}
+          </p>
+        ) : null}
+
         {file ? (
           <div className="mt-4">
             <div className="flex items-center gap-3">
@@ -175,7 +205,7 @@ export function ImageUploadForm({
       </div>
 
       <div className="flex items-center justify-center gap-3">
-        <Button type="submit" disabled={!file || uploading}>
+        <Button type="submit" disabled={!file || !!sizeError || uploading}>
           {uploading ? <IconLoader2 className="size-4 animate-spin" /> : <IconUpload className="size-4" />}
           {submitLabel}
         </Button>

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Field, FieldLabel } from "@/components/ui/field.tsx";
 import { NativeSelect } from "@/components/ui/native-select.tsx";
+import { AppAlertDialog } from "@/components/react/app-alert-dialog";
 
 export function initials(value?: string | null) {
   if (!value) return "?";
@@ -143,26 +144,49 @@ export function ActionButtons({
   deleteAction,
   entityId,
   editLabel = "Edit",
+  itemLabel,
 }: {
   onEdit: () => void;
   deleteAction: string;
   entityId: number;
   editLabel?: string;
+  itemLabel?: string | null;
 }) {
+  const dialogTitle = itemLabel
+    ? `Delete "${itemLabel}"?`
+    : "Delete this item?";
+  const formId = `delete-form-${deleteAction}-${entityId}`;
+
   return (
     <div className="flex items-center gap-3">
       <Button type="button" variant="outline" onClick={onEdit}>
         <IconEdit className="size-4" />
         {editLabel}
       </Button>
-      <form method="post">
+
+      {/*
+        The actual delete form is a sibling of the dialog so the confirm
+        button can submit it via the HTML5 `form="…"` attribute (works even
+        when the button is portaled out of the form's DOM ancestry).
+      */}
+      <form id={formId} method="post">
         <input type="hidden" name="_action" value={deleteAction} />
         <input type="hidden" name="id" value={String(entityId)} />
-        <Button type="submit" variant="destructive">
-          <IconTrash className="size-4" />
-          Delete
-        </Button>
       </form>
+
+      <AppAlertDialog
+        trigger={
+          <Button type="button" variant="destructive">
+            <IconTrash className="size-4" />
+            Delete
+          </Button>
+        }
+        title={dialogTitle}
+        description="This action cannot be undone."
+        actionLabel="Delete"
+        actionVariant="destructive"
+        submitForm={formId}
+      />
     </div>
   );
 }
