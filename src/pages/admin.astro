@@ -1,7 +1,9 @@
 ---
 import { auth } from "@/lib/auth.ts";
-import AdminLayout from "@/layouts/AdminLayout.astro";
+import { db, personal_info as PersonalInfo, users } from "astro:db";
+import { buildAdminUsers } from "@/lib/view-models";
 import { AdminDashboardHome } from "@/components/react/admin";
+import AdminLayout from "@/layouts/AdminLayout.astro";
 
 const user = async () => {
   if (Astro.locals.user) {
@@ -14,14 +16,35 @@ const user = async () => {
   if (user) {
     return user;
   }
-  // Redirect to login page if the user is not authenticated
-  //       return Astro.redirect("/login");
   return null;
 };
 
 const currentUser = await user();
+
+const rows = await db.select().from(users);
+const piRows = await db.select().from(PersonalInfo);
+const imageByUserId = new Map(piRows.map((pi) => [pi.user_id, pi.image]));
+
+const usersList = buildAdminUsers(
+  rows.map((u) => ({
+    id: u.id,
+    name: `${u.first_name ?? ""} ${u.last_name ?? ""}`.trim() || "(no name)",
+    email: u.email,
+    image: imageByUserId.get(u.id) || null,
+  })),
+);
+const recentUsers = [...usersList].sort((a, b) => b.id - a.id).slice(0, 5);
+const usersWithImages = usersList.filter((item) => item.image).length;
+const usersWithEmail = usersList.filter((item) => item.email).length;
 ---
 
 <AdminLayout title="Dashboard">
-  <AdminDashboardHome currentUser={currentUser} />
+  <AdminDashboardHome
+    currentUser={currentUser}
+    totalUsers={usersList.length}
+    usersWithImages={usersWithImages}
+    usersWithEmail={usersWithEmail}
+    users={usersList}
+    recentUsers={recentUsers}
+  />
 </AdminLayout>
