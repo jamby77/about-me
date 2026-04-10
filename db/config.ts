@@ -1,5 +1,19 @@
 import { column, defineDb, defineTable } from "astro:db";
 
+// NOTE: @astrojs/db v0.20 does not expose ON DELETE CASCADE on foreign-key
+// columns or in the table-level `foreignKeys` array. The schema below
+// declares the FK relationships, but the database itself will not cascade
+// delete child rows when a parent is removed.
+//
+// If a user-deletion flow is added later, the implementation MUST manually
+// delete the dependent rows in the correct order before removing the
+// parent. For the numeric `users` table that means:
+//   personal_info, education, experience, skills, certificates, projects,
+//   user_languages
+// For the better-auth `user` table:
+//   session, account
+// (`verification` doesn't reference user.)
+
 const users = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),

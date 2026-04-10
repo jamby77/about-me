@@ -38,19 +38,24 @@ export async function upsertPersonalInfo(
     description,
   } = data;
   return withTry("upsert_personal_info", async () => {
-    await db.delete(PersonalInfo).where(eq(PersonalInfo.user_id, userId));
-    await db.insert(PersonalInfo).values({
-      user_id: userId,
-      image,
-      title,
-      phone,
-      location,
-      website,
-      linkedin,
-      github,
-      twitter,
-      description,
-    });
+    // Atomic delete-then-insert via libsql batch. If the insert fails the
+    // delete is rolled back, so the user never ends up with no personal_info
+    // row mid-flight.
+    await db.batch([
+      db.delete(PersonalInfo).where(eq(PersonalInfo.user_id, userId)),
+      db.insert(PersonalInfo).values({
+        user_id: userId,
+        image,
+        title,
+        phone,
+        location,
+        website,
+        linkedin,
+        github,
+        twitter,
+        description,
+      }),
+    ]);
   });
 }
 
