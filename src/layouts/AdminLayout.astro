@@ -79,7 +79,7 @@ const currentUser = await user();
                   <div class="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
                     <UserAvatar user={currentUser} class="gap-3" />
                   </div>
-                  <form action="/auth/signout" method="post">
+                  <form action="/api/signout" method="post">
                     <Button
                       variant="secondary"
                       type="submit"
