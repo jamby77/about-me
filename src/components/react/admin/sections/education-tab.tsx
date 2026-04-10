@@ -55,6 +55,7 @@ export function EducationTab({
                         <ActionButtons
                           entityId={item.id}
                           deleteAction="delete_education"
+                          itemLabel={item.name}
                           onEdit={() =>
                             onEditState(
                               "education",

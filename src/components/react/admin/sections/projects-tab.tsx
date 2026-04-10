@@ -64,6 +64,7 @@ export function ProjectsTab({
                         <ActionButtons
                           entityId={item.id}
                           deleteAction="delete_project"
+                          itemLabel={item.name}
                           onEdit={() =>
                             onEditState(
                               "projects",

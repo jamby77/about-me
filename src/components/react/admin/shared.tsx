@@ -143,19 +143,32 @@ export function ActionButtons({
   deleteAction,
   entityId,
   editLabel = "Edit",
+  itemLabel,
 }: {
   onEdit: () => void;
   deleteAction: string;
   entityId: number;
   editLabel?: string;
+  itemLabel?: string | null;
 }) {
+  const confirmMessage = itemLabel
+    ? `Delete "${itemLabel}"? This cannot be undone.`
+    : "Delete this item? This cannot be undone.";
+
   return (
     <div className="flex items-center gap-3">
       <Button type="button" variant="outline" onClick={onEdit}>
         <IconEdit className="size-4" />
         {editLabel}
       </Button>
-      <form method="post">
+      <form
+        method="post"
+        onSubmit={(event) => {
+          if (!window.confirm(confirmMessage)) {
+            event.preventDefault();
+          }
+        }}
+      >
         <input type="hidden" name="_action" value={deleteAction} />
         <input type="hidden" name="id" value={String(entityId)} />
         <Button type="submit" variant="destructive">

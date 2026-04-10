@@ -50,6 +50,7 @@ export function CertificatesTab({
                         <ActionButtons
                           entityId={item.id}
                           deleteAction="delete_certificate"
+                          itemLabel={item.name}
                           onEdit={() =>
                             onEditState(
                               "certificates",
