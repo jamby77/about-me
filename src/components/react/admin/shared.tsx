@@ -49,6 +49,27 @@ function FieldErrorMessage({ id, error }: { id: string; error?: string }) {
   );
 }
 
+function FieldLabelWithRequired({
+  htmlFor,
+  label,
+  required,
+}: {
+  htmlFor: string;
+  label: string;
+  required?: boolean;
+}) {
+  return (
+    <FieldLabel htmlFor={htmlFor}>
+      {label}
+      {required ? (
+        <span aria-hidden="true" className="ml-0.5 text-destructive">
+          *
+        </span>
+      ) : null}
+    </FieldLabel>
+  );
+}
+
 export function InputField({
   id,
   name,
@@ -72,7 +93,7 @@ export function InputField({
 }) {
   return (
     <Field className={cn("InputField", className)}>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <FieldLabelWithRequired htmlFor={id} label={label} required={required} />
       <Input
         id={id}
         name={name}
@@ -96,6 +117,7 @@ export function SelectField({
   className,
   children,
   multiple,
+  required,
   error,
   ...props
 }: {
@@ -106,16 +128,18 @@ export function SelectField({
   className?: string;
   children: ReactNode;
   multiple?: boolean;
+  required?: boolean;
   error?: string;
 }) {
   return (
     <Field className={cn("SelectField", className)}>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <FieldLabelWithRequired htmlFor={id} label={label} required={required} />
       <NativeSelect
         id={id}
         name={name}
         defaultValue={defaultValue}
         multiple={multiple}
+        required={required}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
         {...props}
@@ -135,6 +159,7 @@ export function TextAreaField({
   rows = 4,
   className,
   placeholder,
+  required,
   error,
 }: {
   id: string;
@@ -144,17 +169,19 @@ export function TextAreaField({
   rows?: number;
   className?: string;
   placeholder?: string;
+  required?: boolean;
   error?: string;
 }) {
   return (
     <Field className={cn("TextAreaField", className)}>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <FieldLabelWithRequired htmlFor={id} label={label} required={required} />
       <Textarea
         id={id}
         name={name}
         defaultValue={defaultValue ?? ""}
         rows={rows}
         placeholder={placeholder}
+        required={required}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
       />

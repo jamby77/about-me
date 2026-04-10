@@ -28,6 +28,7 @@ export function LanguagesTab({
               name="language_id"
               label="Select language"
               error={tabError?.fieldErrors?.language_id}
+              required
             >
               {model.languageOptions.map((language) => (
                 <NativeSelectOption key={language.id} value={language.id}>

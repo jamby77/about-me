@@ -44,6 +44,7 @@ export function EducationForm({
         placeholder="School"
         defaultValue={item?.name}
         error={fieldErrors?.name}
+        required
       />
       <InputField
         id={fieldId("degree")}
@@ -52,6 +53,7 @@ export function EducationForm({
         placeholder="Degree"
         defaultValue={item?.degree}
         error={fieldErrors?.degree}
+        required
       />
       <InputField
         id={fieldId("field")}
@@ -68,6 +70,7 @@ export function EducationForm({
         type="date"
         defaultValue={item ? formatDateInput(item.startDate) : undefined}
         error={fieldErrors?.start_date}
+        required
       />
       <InputField
         id={fieldId("end_date")}

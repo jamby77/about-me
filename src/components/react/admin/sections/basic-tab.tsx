@@ -30,6 +30,7 @@ export function BasicTab({ model }: Pick<SectionProps, "model">) {
               label="First name"
               defaultValue={model.user.firstName}
               error={fieldErrors?.first_name}
+              required
             />
             <InputField
               id="last_name"
@@ -37,6 +38,7 @@ export function BasicTab({ model }: Pick<SectionProps, "model">) {
               label="Last name"
               defaultValue={model.user.lastName}
               error={fieldErrors?.last_name}
+              required
             />
             <InputField
               id="email"
@@ -45,6 +47,7 @@ export function BasicTab({ model }: Pick<SectionProps, "model">) {
               type="email"
               defaultValue={model.user.email}
               error={fieldErrors?.email}
+              required
             />
             <div className="md:col-span-3">
               <Button type="submit">Save basic</Button>

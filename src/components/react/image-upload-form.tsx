@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type FormEventHandler } from "react"
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react"
 import { IconPhoto, IconUpload, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -82,7 +82,7 @@ export function ImageUploadForm({
     inputRef.current.files = dataTransfer.files
   }
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!file) return
 

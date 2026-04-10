@@ -43,6 +43,7 @@ export function CertificatesForm({
         label="Name"
         defaultValue={item?.name}
         error={fieldErrors?.name}
+        required
       />
       <InputField
         id={fieldId("date")}

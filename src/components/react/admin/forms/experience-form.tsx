@@ -55,6 +55,7 @@ export function ExperienceForm({
         label="Company"
         defaultValue={item?.name ?? undefined}
         error={fieldErrors?.name}
+        required
       />
       <InputField
         className="md:col-span-3"
@@ -63,6 +64,7 @@ export function ExperienceForm({
         label="Job title"
         defaultValue={item?.title ?? undefined}
         error={fieldErrors?.title}
+        required
       />
       <InputField
         className="md:col-span-3"
@@ -71,6 +73,7 @@ export function ExperienceForm({
         label="Role"
         defaultValue={item?.role ?? undefined}
         error={fieldErrors?.role}
+        required
       />
       <TextAreaField
         className="md:col-span-6"
@@ -97,6 +100,7 @@ export function ExperienceForm({
         type="date"
         defaultValue={item ? formatDateInput(item.startDate) : undefined}
         error={fieldErrors?.start_date}
+        required
       />
       <InputField
         className="md:col-span-2"
