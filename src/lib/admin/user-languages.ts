@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, user_languages as UserLanguages, eq } from "astro:db";
-import { type ActionResult, fail, withTry } from "./utils.ts";
+import { type ActionResult, failValidation, withTry } from "./utils.ts";
 import { IdNumber } from "@/lib/schemas.ts";
 
 export async function addUserLanguage(
@@ -10,7 +10,7 @@ export async function addUserLanguage(
   const { success, error, data } = z
     .object({ language_id: IdNumber })
     .safeParse(Object.fromEntries(form.entries()));
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { language_id } = data;
   return withTry("add_language", async () => {
     await db.insert(UserLanguages).values({ user_id: userId, language_id });
@@ -24,7 +24,7 @@ export async function deleteUserLanguage(
   const { success, error, data } = z
     .object({ id: IdNumber })
     .safeParse(Object.fromEntries(form.entries()));
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { id } = data;
   return withTry("delete_language", async () => {
     await db.delete(UserLanguages).where(eq(UserLanguages.id, id));

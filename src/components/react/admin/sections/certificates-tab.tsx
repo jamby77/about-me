@@ -13,6 +13,7 @@ export function CertificatesTab({
   onTabChange,
   onEditState,
 }: SectionProps) {
+  const tabError = model.errorByTab.certificates;
   return (
     <TabsContent value="certificates">
       <Card>
@@ -20,9 +21,13 @@ export function CertificatesTab({
           <CardTitle>Certificates</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <ErrorBanner message={model.errorByTab.certificates} />
+          <ErrorBanner message={tabError?.message} />
 
-          <CertificatesForm mode={{ kind: "add" }} idPrefix="cert_new" />
+          <CertificatesForm
+            mode={{ kind: "add" }}
+            idPrefix="cert_new"
+            fieldErrors={tabError?.fieldErrors}
+          />
 
           <div className="space-y-4">
             {model.certificates.map((item) => {
@@ -38,6 +43,7 @@ export function CertificatesTab({
                           onCancel: () => onTabChange("certificates"),
                         }}
                         idPrefix={`cert_${item.id}`}
+                        fieldErrors={tabError?.fieldErrors}
                       />
                     ) : (
                       <div className="flex items-center justify-between gap-4">

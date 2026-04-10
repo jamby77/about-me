@@ -2,7 +2,7 @@ import { z } from "zod";
 import { db, personal_info as PersonalInfo, eq } from "astro:db";
 import { ENABLE_UPLOADS } from "@/lib/flags.ts";
 import { imageDataUrlFromForm } from "./images.ts";
-import { type ActionResult, fail, withTry } from "./utils.ts";
+import { type ActionResult, fail, failValidation, withTry } from "./utils.ts";
 import { OptionalTrimmed, RequiredTrimmed } from "@/lib/schemas.ts";
 
 export async function upsertPersonalInfo(
@@ -24,7 +24,7 @@ export async function upsertPersonalInfo(
     Object.fromEntries(form.entries()),
   );
   if (!success) {
-    return fail(z.prettifyError(error) ?? "Invalid input");
+    return failValidation(z.flattenError(error));
   }
   const {
     image,

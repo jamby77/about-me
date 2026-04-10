@@ -33,7 +33,9 @@ if (!userRow) {
 }
 
 // Handle POST actions (create/update/delete)
-let postError: { action: string; error?: string } | undefined;
+let postError:
+  | { action: string; error: string; fieldErrors?: Record<string, string> }
+  | undefined;
 // Capture current tab to preserve after successful POST
 const redirectTab = Astro.url.searchParams.get("tab") || "basic";
 if (Astro.request.method === "POST") {
@@ -57,7 +59,11 @@ if (Astro.request.method === "POST") {
     try {
       const result = await handleAdminUserPost(userId, form);
       if (result.error) {
-        postError = result;
+        postError = {
+          action: result.action,
+          error: result.error,
+          fieldErrors: result.fieldErrors,
+        };
       } else {
         return Astro.redirect(`${Astro.url.pathname}?tab=${redirectTab}`);
       }
@@ -85,7 +91,8 @@ if (postError) {
 const finalTab = postError ? errorTab : activeTab;
 
 const getError = (tabId: string) => {
-  return postError && errorTab === tabId ? postError.error : undefined;
+  if (!postError || errorTab !== tabId) return undefined;
+  return { message: postError.error, fieldErrors: postError.fieldErrors };
 };
 
 const [

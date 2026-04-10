@@ -140,7 +140,7 @@ export function buildAdminUserEditorViewModel(input: {
   user: AdminUserRow
   tabs: AdminTab[]
   activeTab: AdminTabId
-  errorByTab: Partial<Record<AdminTabId, string>>
+  errorByTab: AdminUserEditorViewModel["errorByTab"]
   enableUploads: boolean
   personalInfo: AdminUserEditorViewModel["personalInfo"]
   education: Array<{

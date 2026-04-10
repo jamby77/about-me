@@ -11,6 +11,8 @@ import {
 import { TabsContent } from "@/components/ui/tabs";
 
 export function BasicTab({ model }: Pick<SectionProps, "model">) {
+  const tabError = model.errorByTab.basic;
+  const fieldErrors = tabError?.fieldErrors;
   return (
     <TabsContent value="basic">
       <Card>
@@ -19,7 +21,7 @@ export function BasicTab({ model }: Pick<SectionProps, "model">) {
           <CardDescription>Core user account fields.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ErrorBanner message={model.errorByTab.basic} />
+          <ErrorBanner message={tabError?.message} />
           <form method="post" className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <input type="hidden" name="_action" value="update_user_basic" />
             <InputField
@@ -27,12 +29,14 @@ export function BasicTab({ model }: Pick<SectionProps, "model">) {
               name="first_name"
               label="First name"
               defaultValue={model.user.firstName}
+              error={fieldErrors?.first_name}
             />
             <InputField
               id="last_name"
               name="last_name"
               label="Last name"
               defaultValue={model.user.lastName}
+              error={fieldErrors?.last_name}
             />
             <InputField
               id="email"
@@ -40,6 +44,7 @@ export function BasicTab({ model }: Pick<SectionProps, "model">) {
               label="Email"
               type="email"
               defaultValue={model.user.email}
+              error={fieldErrors?.email}
             />
             <div className="md:col-span-3">
               <Button type="submit">Save basic</Button>

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, users as Users, eq } from "astro:db";
-import { type ActionResult, fail, withTry } from "./utils.ts";
+import { type ActionResult, failValidation, withTry } from "./utils.ts";
 import { RequiredTrimmed } from "@/lib/schemas.ts";
 
 export async function updateUserBasic(
@@ -16,7 +16,7 @@ export async function updateUserBasic(
     Object.fromEntries(form.entries()),
   );
   if (!success) {
-    return fail(z.prettifyError(error) ?? "Invalid input");
+    return failValidation(z.flattenError(error));
   }
   const { first_name, last_name, email } = data;
   return withTry("update_user_basic", async () => {

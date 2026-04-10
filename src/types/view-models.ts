@@ -161,12 +161,17 @@ export interface AdminUserLanguageItem {
   languageId: number
 }
 
+export interface AdminTabError {
+  message?: string
+  fieldErrors?: Record<string, string>
+}
+
 export interface AdminUserEditorViewModel {
   userId: number
   user: AdminUserRow
   tabs: AdminTab[]
   activeTab: AdminTabId
-  errorByTab: Partial<Record<AdminTabId, string>>
+  errorByTab: Partial<Record<AdminTabId, AdminTabError>>
   enableUploads: boolean
   personalInfo: AdminPersonalInfo | null
   education: AdminEducationItem[]

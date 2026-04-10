@@ -1,6 +1,29 @@
-export type ActionResult = { ok: true } | { ok: false; error: string };
+export type ActionResult =
+  | { ok: true }
+  | { ok: false; error: string; fieldErrors?: Record<string, string> };
+
 export const ok = (): ActionResult => ({ ok: true });
 export const fail = (msg: string): ActionResult => ({ ok: false, error: msg });
+
+/**
+ * Build a validation-failure ActionResult from a flattened zod error.
+ * Pass `z.flattenError(error)` from the call site so this module stays
+ * zod-free.
+ */
+export function failValidation(
+  flat: {
+    formErrors: string[];
+    fieldErrors: Record<string, string[] | undefined>;
+  },
+  fallback = "Some fields need attention",
+): ActionResult {
+  const fieldErrors: Record<string, string> = {};
+  for (const [key, errs] of Object.entries(flat.fieldErrors)) {
+    if (errs && errs.length > 0) fieldErrors[key] = errs[0];
+  }
+  const message = flat.formErrors[0] || fallback;
+  return { ok: false, error: message, fieldErrors };
+}
 
 function humanizeDbError(raw: string): string {
   if (/UNIQUE constraint failed/i.test(raw)) {

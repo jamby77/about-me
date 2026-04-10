@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, certificates as Certificates, eq } from "astro:db";
-import { type ActionResult, fail, withTry } from "./utils";
+import { type ActionResult, failValidation, withTry } from "./utils";
 import {
   RequiredTrimmed,
   OptionalTrimmed,
@@ -21,7 +21,7 @@ export async function addCertificate(
   const { success, error, data } = schema.safeParse(
     Object.fromEntries(form.entries()),
   );
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { name, date, description, url } = data;
   return withTry("add_certificate", async () => {
     await db
@@ -44,7 +44,7 @@ export async function updateCertificate(
   const { success, error, data } = schema.safeParse(
     Object.fromEntries(form.entries()),
   );
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { id, name, date, description, url } = data;
   return withTry("update_certificate", async () => {
     await db
@@ -61,7 +61,7 @@ export async function deleteCertificate(
   const { success, error, data } = z
     .object({ id: IdNumber })
     .safeParse(Object.fromEntries(form.entries()));
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { id } = data;
   return withTry("delete_certificate", async () => {
     await db.delete(Certificates).where(eq(Certificates.id, id));

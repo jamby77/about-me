@@ -13,6 +13,7 @@ export function ProjectsTab({
   onTabChange,
   onEditState,
 }: SectionProps) {
+  const tabError = model.errorByTab.projects;
   return (
     <TabsContent value="projects">
       <Card>
@@ -20,12 +21,13 @@ export function ProjectsTab({
           <CardTitle>Projects</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <ErrorBanner message={model.errorByTab.projects} />
+          <ErrorBanner message={tabError?.message} />
 
           <ProjectsForm
             mode={{ kind: "add" }}
             idPrefix="proj_new"
             enableUploads={model.enableUploads}
+            fieldErrors={tabError?.fieldErrors}
           />
 
           <div className="space-y-4">
@@ -43,6 +45,7 @@ export function ProjectsTab({
                         }}
                         idPrefix={`proj_${item.id}`}
                         enableUploads={model.enableUploads}
+                        fieldErrors={tabError?.fieldErrors}
                       />
                     ) : (
                       <div className="flex items-center justify-between gap-4">
