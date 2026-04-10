@@ -1,6 +1,17 @@
 import type { ReactNode } from "react";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -151,9 +162,10 @@ export function ActionButtons({
   editLabel?: string;
   itemLabel?: string | null;
 }) {
-  const confirmMessage = itemLabel
-    ? `Delete "${itemLabel}"? This cannot be undone.`
-    : "Delete this item? This cannot be undone.";
+  const dialogTitle = itemLabel
+    ? `Delete "${itemLabel}"?`
+    : "Delete this item?";
+  const formId = `delete-form-${deleteAction}-${entityId}`;
 
   return (
     <div className="flex items-center gap-3">
@@ -161,21 +173,46 @@ export function ActionButtons({
         <IconEdit className="size-4" />
         {editLabel}
       </Button>
-      <form
-        method="post"
-        onSubmit={(event) => {
-          if (!window.confirm(confirmMessage)) {
-            event.preventDefault();
-          }
-        }}
-      >
+
+      {/*
+        The actual delete form is a sibling of the dialog so it can persist
+        across re-renders. The dialog's confirm button submits it via the
+        HTML5 `form="…"` attribute, which works even when the button is
+        portaled out of the form's DOM ancestry.
+      */}
+      <form id={formId} method="post">
         <input type="hidden" name="_action" value={deleteAction} />
         <input type="hidden" name="id" value={String(entityId)} />
-        <Button type="submit" variant="destructive">
-          <IconTrash className="size-4" />
-          Delete
-        </Button>
       </form>
+
+      <AlertDialog>
+        <AlertDialogTrigger
+          render={
+            <Button type="button" variant="destructive">
+              <IconTrash className="size-4" />
+              Delete
+            </Button>
+          }
+        />
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dialogTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              type="submit"
+              form={formId}
+              variant="destructive"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
