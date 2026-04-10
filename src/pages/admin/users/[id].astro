@@ -178,6 +178,8 @@ const model = buildAdminUserEditorViewModel({
 });
 ---
 
-<AdminLayout title=`User #${userRow.id}`>
+<AdminLayout
+  title={`${userRow.first_name} ${userRow.last_name} (${userRow.email})`}
+>
   <AdminUserEditor model={model} client:load />
 </AdminLayout>

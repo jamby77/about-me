@@ -105,7 +105,13 @@ export function AdminUserEditor({
   return (
     <div className="mx-auto max-w-5xl p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Manage user #{model.user.id}</h1>
+        <h1 className="text-2xl font-semibold">
+          {model.user.firstName} {model.user.lastName}
+          <br />
+          <span className="text-base font-normal text-muted-foreground">
+            ({model.user.email})
+          </span>
+        </h1>
         <a href="/admin" className={buttonVariants({ variant: "ghost" })}>
           <IconChevronLeft className="size-4" />
           Back to users
