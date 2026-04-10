@@ -58,17 +58,18 @@ function SocialLink({
 }: {
   href: string
   title: string
-  Icon: ComponentType<{ className?: string }>
+  Icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>
 }) {
   return (
     <a
       className="inline-flex size-8 items-center justify-center rounded-md p-1 text-hue transition-all duration-500 ease-linear hover:bg-bg-button-accent hover:text-fg-inverted"
       href={href}
       title={title}
+      aria-label={title}
       target="_blank"
       rel="noopener noreferrer"
     >
-      <Icon className="size-5" />
+      <Icon className="size-5" aria-hidden />
     </a>
   )
 }
@@ -195,9 +196,8 @@ export function PortfolioProjectsSection({
     <Section className={className} title="Projects">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 print:flex print:flex-col">
         {projects.map((project) => (
-          <div
+          <article
             key={project.id}
-            role="contentinfo"
             className="relative flex flex-col rounded-md bg-bg-button-muted/50 p-5 shadow-sm ring-1 ring-muted"
           >
             <div className="flex items-center justify-between space-x-[10px]">
@@ -214,7 +214,7 @@ export function PortfolioProjectsSection({
                     >
                       {project.name}
                       <span className="text-hue transition ease-linear group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
-                        <IconExternalLink className="size-4" />
+                        <IconExternalLink className="size-4" aria-hidden />
                       </span>
                     </a>
                   ) : (
@@ -226,18 +226,19 @@ export function PortfolioProjectsSection({
               {project.repoUrl ? (
                 <a
                   href={project.repoUrl}
-                  title="View repository"
+                  title={`View ${project.name} repository`}
+                  aria-label={`View ${project.name} repository`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="opacity-75 transition-opacity duration-100 hover:opacity-100"
                 >
-                  <IconBrandGithub className="size-5" />
+                  <IconBrandGithub className="size-5" aria-hidden />
                 </a>
               ) : null}
             </div>
 
             <p className="py-3 text-sm text-fg-base">{project.description}</p>
-          </div>
+          </article>
         ))}
       </div>
     </Section>
@@ -271,17 +272,21 @@ function EducationList({ education }: { education: PortfolioEducationItem[] }) {
 
         return (
           <div key={item.id} className="flex items-baseline">
-            <IconSchool className="mr-2 size-5 text-hue" />
+            <IconSchool className="mr-2 size-5 text-hue" aria-hidden />
             <div className="relative w-full items-baseline justify-between gap-2">
               <h3 className="mr-6 items-baseline gap-x-2 gap-y-0.5 font-medium">
-                <a
-                  target="_blank"
-                  className="group flex items-center gap-[6px] decoration-dotted underline-offset-[5px] hover:text-hue hover:underline"
-                  href={item.url ?? "#"}
-                  rel="noreferrer"
-                >
-                  {item.name}
-                </a>
+                {item.url ? (
+                  <a
+                    target="_blank"
+                    className="group flex items-center gap-[6px] decoration-dotted underline-offset-[5px] hover:text-hue hover:underline"
+                    href={item.url}
+                    rel="noreferrer"
+                  >
+                    {item.name}
+                  </a>
+                ) : (
+                  <span>{item.name}</span>
+                )}
               </h3>
               <div className="text-sm text-fg-muted">{item.field}</div>
               <time className="right-0 top-0 text-xs text-fg-muted md:absolute md:block">
@@ -307,17 +312,21 @@ function CertificatesList({ certificates }: { certificates: PortfolioCertificate
 
           return (
             <div key={item.id} className="flex items-baseline">
-              <IconCertificate className="mr-2 size-5 text-hue" />
+              <IconCertificate className="mr-2 size-5 text-hue" aria-hidden />
               <div className="relative w-full items-baseline justify-between gap-2">
                 <h3 className="mr-6 items-baseline gap-x-2 gap-y-0.5 font-medium">
-                  <a
-                    className="group flex items-center gap-[6px] text-fg-base decoration-dotted underline-offset-[5px] hover:text-hue hover:underline"
-                    href={item.url ?? "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {item.name}
-                  </a>
+                  {item.url ? (
+                    <a
+                      className="group flex items-center gap-[6px] text-fg-base decoration-dotted underline-offset-[5px] hover:text-hue hover:underline"
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {item.name}
+                    </a>
+                  ) : (
+                    <span>{item.name}</span>
+                  )}
                 </h3>
                 <div className="text-sm text-fg-muted">{item.description}</div>
                 <time className="right-0 top-0 text-xs text-fg-muted md:absolute md:block">{year}</time>

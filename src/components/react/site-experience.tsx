@@ -38,7 +38,12 @@ function ExperienceItem({
                 ) : (
                   <span>{item.name}</span>
                 )}
-                {item.url ? <IconExternalLink className="ml-1 inline-block size-4 text-hue print:hidden" /> : null}
+                {item.url ? (
+                  <IconExternalLink
+                    className="ml-1 inline-block size-4 text-hue print:hidden"
+                    aria-hidden
+                  />
+                ) : null}
               </span>
             </span>
           </h3>
@@ -105,6 +110,7 @@ function ExperienceItem({
                     "ml-1 size-4 rotate-45 transition-transform duration-200 ease-out",
                     expanded ? "rotate-[225deg]" : "",
                   )}
+                  aria-hidden
                 />
               </button>
             ) : null}
