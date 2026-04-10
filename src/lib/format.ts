@@ -4,7 +4,7 @@
  */
 export function formatDateInput(d: unknown): string {
   if (!d) return "";
-  const date = d instanceof Date ? d : new Date(d as any);
+  const date = d instanceof Date ? d : new Date(d as string | number);
   if (isNaN(date.getTime())) return "";
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
