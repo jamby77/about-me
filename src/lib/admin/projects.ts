@@ -89,7 +89,7 @@ export async function uploadProjectImage(
     .object({ project_id: IdNumber })
     .safeParse(Object.fromEntries(form.entries()));
   if (!idRes.success) return fail("Invalid project id");
-  const { project_id } = idRes.data as any;
+  const { project_id } = idRes.data;
   const res = await imageDataUrlFromForm(form, "project_image_file");
   if (!res.ok) return res;
   return withTry("upload_project_image", async () => {
