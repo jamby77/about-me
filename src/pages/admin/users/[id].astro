@@ -33,6 +33,11 @@ let postError: { action: string; error?: string } | undefined;
 // Capture current tab to preserve after successful POST
 const redirectTab = Astro.url.searchParams.get("tab") || "basic";
 if (Astro.request.method === "POST") {
+  // CSRF: reject cross-origin form POSTs by comparing Origin to our URL origin.
+  const originHeader = Astro.request.headers.get("origin");
+  if (!originHeader || originHeader !== Astro.url.origin) {
+    return new Response("Forbidden", { status: 403 });
+  }
   // Content-Length guard to avoid buffering huge requests
   const MAX_BODY = 6 * 1024 * 1024; // 6MB to account for multipart overhead (file max is 5MB)
   const clHeader = Astro.request.headers.get("content-length");
