@@ -24,6 +24,7 @@ export function SkillsTab({ model }: Pick<SectionProps, "model">) {
               label="Skill name"
               placeholder="e.g. React"
               error={tabError?.fieldErrors?.name}
+              required
             />
             <Button type="submit">
               <IconPlus className="size-4" />

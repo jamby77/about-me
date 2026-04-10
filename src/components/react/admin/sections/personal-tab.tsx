@@ -43,6 +43,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               label="Title"
               defaultValue={model.personalInfo?.title}
               error={fieldErrors?.title}
+              required
             />
             <InputField
               id="phone"
@@ -51,6 +52,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               type="tel"
               defaultValue={model.personalInfo?.phone}
               error={fieldErrors?.phone}
+              required
             />
             <InputField
               id="location"
@@ -58,6 +60,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               label="Location"
               defaultValue={model.personalInfo?.location}
               error={fieldErrors?.location}
+              required
             />
             <InputField
               id="website"
@@ -98,6 +101,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               className="md:col-span-3"
               defaultValue={model.personalInfo?.description}
               error={fieldErrors?.description}
+              required
             />
             <div className="md:col-span-3">
               <Button type="submit">Save personal info</Button>

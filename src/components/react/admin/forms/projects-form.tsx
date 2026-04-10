@@ -47,6 +47,7 @@ export function ProjectsForm({
           label="Name"
           defaultValue={item?.name}
           error={fieldErrors?.name}
+          required
         />
         <InputField
           id={fieldId("description")}
