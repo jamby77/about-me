@@ -1,10 +1,11 @@
 import type { SectionProps } from "@/components/react/admin/sections/types";
-import { ErrorBanner, NativeSelect } from "@/components/react/admin/shared";
+import { ErrorBanner, SelectField } from "@/components/react/admin/shared";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { IconPlus } from "@tabler/icons-react";
+import { NativeSelectOption } from "@/components/ui/native-select.tsx";
 
 export function LanguagesTab({
   model,
@@ -20,13 +21,18 @@ export function LanguagesTab({
           <ErrorBanner message={model.errorByTab.languages} />
           <form method="post" className="flex items-end gap-3">
             <input type="hidden" name="_action" value="add_language" />
-            <NativeSelect className="flex-1" id="language_id" name="language_id" label="Select language">
+            <SelectField
+              className="flex-1"
+              id="language_id"
+              name="language_id"
+              label="Select language"
+            >
               {model.languageOptions.map((language) => (
-                <option key={language.id} value={language.id}>
+                <NativeSelectOption key={language.id} value={language.id}>
                   {language.language} ({language.abbr})
-                </option>
+                </NativeSelectOption>
               ))}
-            </NativeSelect>
+            </SelectField>
             <Button type="submit">
               <IconPlus className="size-4" />
               Add language
@@ -43,15 +49,25 @@ export function LanguagesTab({
                 : `#${item.languageId}`;
 
               return (
-                <li key={item.id} className="flex items-center gap-2 rounded border px-3 py-1">
+                <li
+                  key={item.id}
+                  className="flex items-center gap-2 rounded border px-3 py-1"
+                >
                   <span>{label}</span>
                   {selectedLanguageIds.has(item.languageId) ? (
                     <Badge variant="secondary">Added</Badge>
                   ) : null}
                   <form method="post">
-                    <input type="hidden" name="_action" value="delete_language" />
+                    <input
+                      type="hidden"
+                      name="_action"
+                      value="delete_language"
+                    />
                     <input type="hidden" name="id" value={String(item.id)} />
-                    <button className="text-red-600" aria-label={`Remove language ${label}`}>
+                    <button
+                      className="text-red-600"
+                      aria-label={`Remove language ${label}`}
+                    >
                       x
                     </button>
                   </form>

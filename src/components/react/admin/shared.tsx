@@ -3,9 +3,10 @@ import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { Field, FieldLabel } from "@/components/ui/field.tsx";
+import { NativeSelect } from "@/components/ui/native-select.tsx";
 
 export function initials(value?: string | null) {
   if (!value) return "?";
@@ -38,7 +39,7 @@ export function ErrorBanner({ message }: { message?: string }) {
   );
 }
 
-export function Field({
+export function InputField({
   id,
   name,
   label,
@@ -58,8 +59,8 @@ export function Field({
   required?: boolean;
 }) {
   return (
-    <div className={cn("grid gap-2", className)}>
-      <Label htmlFor={id}>{label}</Label>
+    <Field className={cn("InputField", className)}>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Input
         id={id}
         name={name}
@@ -68,11 +69,11 @@ export function Field({
         placeholder={placeholder}
         required={required}
       />
-    </div>
+    </Field>
   );
 }
 
-export function NativeSelect({
+export function SelectField({
   id,
   name,
   label,
@@ -80,7 +81,7 @@ export function NativeSelect({
   className,
   children,
   multiple,
-  size,
+  ...props
 }: {
   id: string;
   name: string;
@@ -89,22 +90,20 @@ export function NativeSelect({
   className?: string;
   children: ReactNode;
   multiple?: boolean;
-  size?: number;
 }) {
   return (
-    <div className={cn("grid gap-2", className)}>
-      <Label htmlFor={id}>{label}</Label>
-      <select
+    <Field className={cn("SelectField", className)}>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <NativeSelect
         id={id}
         name={name}
         defaultValue={defaultValue}
         multiple={multiple}
-        size={size}
-        className="flex min-h-8 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm"
+        {...props}
       >
         {children}
-      </select>
-    </div>
+      </NativeSelect>
+    </Field>
   );
 }
 
@@ -126,8 +125,8 @@ export function TextAreaField({
   placeholder?: string;
 }) {
   return (
-    <div className={cn("grid gap-2", className)}>
-      <Label htmlFor={id}>{label}</Label>
+    <Field className={cn("TextAreaField", className)}>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Textarea
         id={id}
         name={name}
@@ -135,7 +134,7 @@ export function TextAreaField({
         rows={rows}
         placeholder={placeholder}
       />
-    </div>
+    </Field>
   );
 }
 

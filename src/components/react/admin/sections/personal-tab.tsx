@@ -1,5 +1,9 @@
 import type { SectionProps } from "@/components/react/admin/sections/types";
-import { ErrorBanner, Field, TextAreaField } from "@/components/react/admin/shared";
+import {
+  ErrorBanner,
+  InputField,
+  TextAreaField,
+} from "@/components/react/admin/shared";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,54 +27,54 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
           <form method="post" className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <input type="hidden" name="_action" value="upsert_personal_info" />
             {!model.enableUploads ? (
-              <Field
+              <InputField
                 id="image"
                 name="image"
                 label="Image"
                 defaultValue={model.personalInfo?.image}
               />
             ) : null}
-            <Field
+            <InputField
               id="title"
               name="title"
               label="Title"
               defaultValue={model.personalInfo?.title}
             />
-            <Field
+            <InputField
               id="phone"
               name="phone"
               label="Phone"
               type="tel"
               defaultValue={model.personalInfo?.phone}
             />
-            <Field
+            <InputField
               id="location"
               name="location"
               label="Location"
               defaultValue={model.personalInfo?.location}
             />
-            <Field
+            <InputField
               id="website"
               name="website"
               label="Website"
               type="url"
               defaultValue={model.personalInfo?.website}
             />
-            <Field
+            <InputField
               id="linkedin"
               name="linkedin"
               label="LinkedIn"
               type="url"
               defaultValue={model.personalInfo?.linkedin}
             />
-            <Field
+            <InputField
               id="github"
               name="github"
               label="GitHub"
               type="url"
               defaultValue={model.personalInfo?.github}
             />
-            <Field
+            <InputField
               id="twitter"
               name="twitter"
               label="Twitter"

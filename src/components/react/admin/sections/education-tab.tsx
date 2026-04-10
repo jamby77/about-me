@@ -4,7 +4,7 @@ import type { SectionProps } from "@/components/react/admin/sections/types";
 import {
   ActionButtons,
   ErrorBanner,
-  Field,
+  InputField,
   monthYear,
 } from "@/components/react/admin/shared";
 import { Button } from "@/components/ui/button";
@@ -27,12 +27,44 @@ export function EducationTab({
           <ErrorBanner message={model.errorByTab.education} />
           <form method="post" className="grid grid-cols-1 gap-4 md:grid-cols-6">
             <input type="hidden" name="_action" value="add_education" />
-            <Field className="md:col-span-2" id="edu_name" name="name" label="School" placeholder="School" />
-            <Field id="edu_degree" name="degree" label="Degree" placeholder="Degree" />
-            <Field id="edu_field" name="field" label="Field of study" placeholder="Field" />
-            <Field id="edu_start_date" name="start_date" label="Start date" type="date" />
-            <Field id="edu_end_date" name="end_date" label="End date" type="date" />
-            <Field className="md:col-span-3" id="edu_url" name="url" label="URL" placeholder="URL" />
+            <InputField
+              className="md:col-span-2"
+              id="edu_name"
+              name="name"
+              label="School"
+              placeholder="School"
+            />
+            <InputField
+              id="edu_degree"
+              name="degree"
+              label="Degree"
+              placeholder="Degree"
+            />
+            <InputField
+              id="edu_field"
+              name="field"
+              label="InputField of study"
+              placeholder="InputField"
+            />
+            <InputField
+              id="edu_start_date"
+              name="start_date"
+              label="Start date"
+              type="date"
+            />
+            <InputField
+              id="edu_end_date"
+              name="end_date"
+              label="End date"
+              type="date"
+            />
+            <InputField
+              className="md:col-span-3"
+              id="edu_url"
+              name="url"
+              label="URL"
+              placeholder="URL"
+            />
             <div className="md:col-span-6">
               <Button type="submit">
                 <IconPlus className="size-4" />
@@ -48,18 +80,67 @@ export function EducationTab({
                 <Card key={item.id}>
                   <CardContent className="pt-6">
                     {editing ? (
-                      <form method="post" className="grid grid-cols-1 gap-4 md:grid-cols-6">
-                        <input type="hidden" name="_action" value="update_education" />
-                        <input type="hidden" name="id" value={String(item.id)} />
-                        <Field className="md:col-span-2" id={`edu_name_${item.id}`} name="name" label="School" defaultValue={item.name} />
-                        <Field id={`edu_degree_${item.id}`} name="degree" label="Degree" defaultValue={item.degree} />
-                        <Field id={`edu_field_${item.id}`} name="field" label="Field of study" defaultValue={item.field} />
-                        <Field id={`edu_start_${item.id}`} name="start_date" label="Start date" type="date" defaultValue={formatDateInput(item.startDate)} />
-                        <Field id={`edu_end_${item.id}`} name="end_date" label="End date" type="date" defaultValue={formatDateInput(item.endDate)} />
-                        <Field className="md:col-span-3" id={`edu_url_${item.id}`} name="url" label="URL" defaultValue={item.url} />
+                      <form
+                        method="post"
+                        className="grid grid-cols-1 gap-4 md:grid-cols-6"
+                      >
+                        <input
+                          type="hidden"
+                          name="_action"
+                          value="update_education"
+                        />
+                        <input
+                          type="hidden"
+                          name="id"
+                          value={String(item.id)}
+                        />
+                        <InputField
+                          className="md:col-span-2"
+                          id={`edu_name_${item.id}`}
+                          name="name"
+                          label="School"
+                          defaultValue={item.name}
+                        />
+                        <InputField
+                          id={`edu_degree_${item.id}`}
+                          name="degree"
+                          label="Degree"
+                          defaultValue={item.degree}
+                        />
+                        <InputField
+                          id={`edu_field_${item.id}`}
+                          name="field"
+                          label="InputField of study"
+                          defaultValue={item.field}
+                        />
+                        <InputField
+                          id={`edu_start_${item.id}`}
+                          name="start_date"
+                          label="Start date"
+                          type="date"
+                          defaultValue={formatDateInput(item.startDate)}
+                        />
+                        <InputField
+                          id={`edu_end_${item.id}`}
+                          name="end_date"
+                          label="End date"
+                          type="date"
+                          defaultValue={formatDateInput(item.endDate)}
+                        />
+                        <InputField
+                          className="md:col-span-3"
+                          id={`edu_url_${item.id}`}
+                          name="url"
+                          label="URL"
+                          defaultValue={item.url}
+                        />
                         <div className="flex items-center gap-3 md:col-span-6">
                           <Button type="submit">Save</Button>
-                          <Button type="button" variant="outline" onClick={() => onTabChange("education")}>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onTabChange("education")}
+                          >
                             Cancel
                           </Button>
                         </div>
@@ -73,14 +154,20 @@ export function EducationTab({
                           <p className="text-sm text-fg-subtle">{item.field}</p>
                           <p className="text-sm text-fg-subtle">
                             {monthYear(item.startDate)}
-                            {item.endDate ? ` - ${monthYear(item.endDate)}` : ""}
+                            {item.endDate
+                              ? ` - ${monthYear(item.endDate)}`
+                              : ""}
                           </p>
                         </div>
                         <ActionButtons
                           entityId={item.id}
                           deleteAction="delete_education"
                           onEdit={() =>
-                            onEditState("education", { editEdu: item.id }, { education: item.id })
+                            onEditState(
+                              "education",
+                              { editEdu: item.id },
+                              { education: item.id },
+                            )
                           }
                         />
                       </div>

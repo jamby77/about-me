@@ -29,7 +29,7 @@ export const OptionalTrimmed = z.string().trim().optional();
 export const RequiredTrimmed = z
   .string()
   .trim()
-  .min(1, { message: "Field is required" });
+  .min(1, { message: "InputField is required" });
 
 const hundredYearsAgo = new Date();
 hundredYearsAgo.setFullYear(hundredYearsAgo.getFullYear() - 100);

@@ -1,5 +1,5 @@
 import type { SectionProps } from "@/components/react/admin/sections/types";
-import { ErrorBanner, Field } from "@/components/react/admin/shared";
+import { ErrorBanner, InputField } from "@/components/react/admin/shared";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,19 +22,19 @@ export function BasicTab({ model }: Pick<SectionProps, "model">) {
           <ErrorBanner message={model.errorByTab.basic} />
           <form method="post" className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <input type="hidden" name="_action" value="update_user_basic" />
-            <Field
+            <InputField
               id="first_name"
               name="first_name"
               label="First name"
               defaultValue={model.user.firstName}
             />
-            <Field
+            <InputField
               id="last_name"
               name="last_name"
               label="Last name"
               defaultValue={model.user.lastName}
             />
-            <Field
+            <InputField
               id="email"
               name="email"
               label="Email"
