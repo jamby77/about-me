@@ -16,6 +16,19 @@ import {
 } from "astro:db";
 
 // https://astro.build/db/seed
+//
+// This file is DEV-ONLY PLACEHOLDER DATA. It runs automatically when astro:db
+// spins up the local shadow database (pnpm dev without --remote). None of the
+// values below are real — the user rows, the OAuth-style `account` stub, the
+// hashed credential password, and the dummy tokens are all fixtures for
+// browsing the admin UI against a stable dataset.
+//
+// The seed DOES NOT run against the remote Turso database. Production data is
+// managed through the admin editor itself; the placeholders here never land in
+// production.
+//
+// If you need to sign in during local dev, use the DEV_USER / DEV_PASS values
+// from .env.local — those match the seeded credential account below.
 export default async function seed() {
   await db.insert(users).values({
     id: 1,

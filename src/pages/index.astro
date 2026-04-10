@@ -12,16 +12,29 @@ import {
 } from "@/components/react/site";
 import { PortfolioExperienceSection } from "@/components/react/site-experience";
 
-const [user] = await db.select().from(users).where(eq(users.id, 1));
-const [info] = await db.select().from(personal_info).limit(1);
-const workRows = await db.select().from(experience).where(eq(experience.user_id, 1));
-const educationRows = await db.select().from(education).where(eq(education.user_id, 1));
-const certificateRows = await db
-  .select()
-  .from(certificates)
-  .where(eq(certificates.user_id, 1));
-const projectRows = await db.select().from(projects).where(eq(projects.user_id, 1));
-const skillRows = await db.select().from(skills).where(eq(skills.user_id, 1));
+const [
+  userRows,
+  infoRows,
+  workRows,
+  educationRows,
+  certificateRows,
+  projectRows,
+  skillRows,
+] = await Promise.all([
+  db.select().from(users).where(eq(users.id, 1)),
+  db.select().from(personal_info).limit(1),
+  db.select().from(experience).where(eq(experience.user_id, 1)),
+  db.select().from(education).where(eq(education.user_id, 1)),
+  db.select().from(certificates).where(eq(certificates.user_id, 1)),
+  db.select().from(projects).where(eq(projects.user_id, 1)),
+  db.select().from(skills).where(eq(skills.user_id, 1)),
+]);
+const [user] = userRows;
+const [info] = infoRows;
+
+if (!user || !info) {
+  return new Response("Portfolio data not set up yet.", { status: 404 });
+}
 
 const name = `${user.first_name} ${user.last_name}`;
 const cv = buildPortfolioViewModel({
