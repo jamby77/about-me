@@ -19,7 +19,9 @@ export function failValidation(
 ): ActionResult {
   const fieldErrors: Record<string, string> = {};
   for (const [key, errs] of Object.entries(flat.fieldErrors)) {
-    if (errs && errs.length > 0) fieldErrors[key] = errs[0];
+    if (errs && errs.length > 0) {
+      fieldErrors[key] = errs[0];
+    }
   }
   const message = flat.formErrors[0] || fallback;
   return { ok: false, error: message, fieldErrors };
