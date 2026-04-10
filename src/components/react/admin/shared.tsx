@@ -1,23 +1,13 @@
 import type { ReactNode } from "react";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Field, FieldLabel } from "@/components/ui/field.tsx";
 import { NativeSelect } from "@/components/ui/native-select.tsx";
+import { AppAlertDialog } from "@/components/react/app-alert-dialog";
 
 export function initials(value?: string | null) {
   if (!value) return "?";
@@ -175,44 +165,28 @@ export function ActionButtons({
       </Button>
 
       {/*
-        The actual delete form is a sibling of the dialog so it can persist
-        across re-renders. The dialog's confirm button submits it via the
-        HTML5 `form="…"` attribute, which works even when the button is
-        portaled out of the form's DOM ancestry.
+        The actual delete form is a sibling of the dialog so the confirm
+        button can submit it via the HTML5 `form="…"` attribute (works even
+        when the button is portaled out of the form's DOM ancestry).
       */}
       <form id={formId} method="post">
         <input type="hidden" name="_action" value={deleteAction} />
         <input type="hidden" name="id" value={String(entityId)} />
       </form>
 
-      <AlertDialog>
-        <AlertDialogTrigger
-          render={
-            <Button type="button" variant="destructive">
-              <IconTrash className="size-4" />
-              Delete
-            </Button>
-          }
-        />
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{dialogTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              type="submit"
-              form={formId}
-              variant="destructive"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AppAlertDialog
+        trigger={
+          <Button type="button" variant="destructive">
+            <IconTrash className="size-4" />
+            Delete
+          </Button>
+        }
+        title={dialogTitle}
+        description="This action cannot be undone."
+        actionLabel="Delete"
+        actionVariant="destructive"
+        submitForm={formId}
+      />
     </div>
   );
 }
