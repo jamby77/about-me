@@ -13,7 +13,11 @@ import {
   users as Users,
   experience as Experience,
 } from "astro:db";
-import { handleAdminUserPost } from "@/lib/admin";
+import {
+  handleAdminUserPost,
+  ADMIN_ACTION_TO_TAB,
+  type AdminAction,
+} from "@/lib/admin";
 import AdminLayout from "@/layouts/AdminLayout.astro";
 import { ENABLE_UPLOADS } from "@/lib/flags.ts";
 import { buildAdminUserEditorViewModel, getAdminTabs } from "@/lib/view-models";
@@ -72,25 +76,11 @@ const activeTab = Astro.url.searchParams.get("tab") || "basic";
 // Determine active tab based on post error if applicable
 let errorTab = activeTab;
 
-const tabActions = [
-  { id: "basic", actions: ["update_user_basic"] },
-  { id: "personal", actions: ["upsert_personal_info"] },
-  { id: "image", actions: ["upload_user_image"] },
-  { id: "education", actions: ["add_education", "update_education", "delete_education"] },
-  { id: "experience", actions: ["add_experience", "update_experience", "delete_experience"] },
-  { id: "certificates", actions: ["add_certificate", "update_certificate", "delete_certificate"] },
-  {
-    id: "projects",
-    actions: ["add_project", "update_project", "delete_project", "upload_project_image"],
-  },
-  { id: "skills", actions: ["add_skill", "delete_skill"] },
-  { id: "languages", actions: ["add_language", "delete_language"] },
-];
 const tabs = getAdminTabs(ENABLE_UPLOADS);
 
 if (postError) {
   errorTab =
-    tabActions.find((tab) => tab.actions.includes(postError.action))?.id || activeTab;
+    ADMIN_ACTION_TO_TAB[postError.action as AdminAction] ?? activeTab;
 }
 const finalTab = postError ? errorTab : activeTab;
 
@@ -98,35 +88,26 @@ const getError = (tabId: string) => {
   return postError && errorTab === tabId ? postError.error : undefined;
 };
 
-const [personalInfo] = await db
-  .select()
-  .from(PersonalInfo)
-  .where(eq(PersonalInfo.user_id, userId));
-const educationRows = await db
-  .select()
-  .from(Education)
-  .where(eq(Education.user_id, userId));
-const experienceRows = await db
-  .select()
-  .from(Experience)
-  .where(eq(Experience.user_id, userId));
-const certificateRows = await db
-  .select()
-  .from(Certificates)
-  .where(eq(Certificates.user_id, userId));
-const projectRows = await db
-  .select()
-  .from(Projects)
-  .where(eq(Projects.user_id, userId));
-const skillRows = await db
-  .select()
-  .from(Skills)
-  .where(eq(Skills.user_id, userId));
-const languageOptions = await db.select().from(Languages);
-const userLanguageRows = await db
-  .select()
-  .from(UserLanguages)
-  .where(eq(UserLanguages.user_id, userId));
+const [
+  personalInfoRows,
+  educationRows,
+  experienceRows,
+  certificateRows,
+  projectRows,
+  skillRows,
+  languageOptions,
+  userLanguageRows,
+] = await Promise.all([
+  db.select().from(PersonalInfo).where(eq(PersonalInfo.user_id, userId)),
+  db.select().from(Education).where(eq(Education.user_id, userId)),
+  db.select().from(Experience).where(eq(Experience.user_id, userId)),
+  db.select().from(Certificates).where(eq(Certificates.user_id, userId)),
+  db.select().from(Projects).where(eq(Projects.user_id, userId)),
+  db.select().from(Skills).where(eq(Skills.user_id, userId)),
+  db.select().from(Languages),
+  db.select().from(UserLanguages).where(eq(UserLanguages.user_id, userId)),
+]);
+const [personalInfo] = personalInfoRows;
 
 const model = buildAdminUserEditorViewModel({
   userId,

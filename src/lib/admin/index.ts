@@ -10,6 +10,35 @@ export * from "./skills";
 export * from "./user-languages";
 
 import type { ActionResult } from "./utils";
+import type { AdminTabId } from "@/types/view-models";
+
+// Single source of truth mapping each admin form _action to the tab it
+// belongs to. Used by the admin page to route validation errors back to
+// the right tab, and by the dispatch switch below to keep the two in sync.
+export const ADMIN_ACTION_TO_TAB = {
+  update_user_basic: "basic",
+  upsert_personal_info: "personal",
+  upload_user_image: "image",
+  add_education: "education",
+  update_education: "education",
+  delete_education: "education",
+  add_experience: "experience",
+  update_experience: "experience",
+  delete_experience: "experience",
+  add_certificate: "certificates",
+  update_certificate: "certificates",
+  delete_certificate: "certificates",
+  add_project: "projects",
+  update_project: "projects",
+  delete_project: "projects",
+  upload_project_image: "projects",
+  add_skill: "skills",
+  delete_skill: "skills",
+  add_language: "languages",
+  delete_language: "languages",
+} as const satisfies Record<string, AdminTabId>;
+
+export type AdminAction = keyof typeof ADMIN_ACTION_TO_TAB;
 
 // Import handlers without aliases for clarity
 import { updateUserBasic } from "./users";
