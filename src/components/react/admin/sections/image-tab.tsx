@@ -21,7 +21,7 @@ export function ImageTab({ model }: Pick<SectionProps, "model">) {
           <CardDescription>Upload the main portfolio image.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ErrorBanner message={model.errorByTab.image} />
+          <ErrorBanner message={model.errorByTab.image?.message} />
           <div className="flex flex-col gap-6 md:flex-row">
             <div className="grow">
               <ImageUploadForm action="upload_user_image" inputName="image_file" />

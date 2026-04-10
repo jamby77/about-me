@@ -26,10 +26,12 @@ export function ExperienceForm({
   mode,
   idPrefix,
   skills,
+  fieldErrors,
 }: {
   mode: ExperienceFormMode;
   idPrefix: string;
   skills: AdminSkillItem[];
+  fieldErrors?: Record<string, string>;
 }) {
   const isEdit = mode.kind === "edit";
   const item = isEdit ? mode.item : null;
@@ -52,6 +54,7 @@ export function ExperienceForm({
         name="name"
         label="Company"
         defaultValue={item?.name ?? undefined}
+        error={fieldErrors?.name}
       />
       <InputField
         className="md:col-span-3"
@@ -59,6 +62,7 @@ export function ExperienceForm({
         name="title"
         label="Job title"
         defaultValue={item?.title ?? undefined}
+        error={fieldErrors?.title}
       />
       <InputField
         className="md:col-span-3"
@@ -66,6 +70,7 @@ export function ExperienceForm({
         name="role"
         label="Role"
         defaultValue={item?.role ?? undefined}
+        error={fieldErrors?.role}
       />
       <TextAreaField
         className="md:col-span-6"
@@ -74,6 +79,7 @@ export function ExperienceForm({
         label="Description"
         defaultValue={item?.description ?? undefined}
         rows={3}
+        error={fieldErrors?.description}
       />
       <InputField
         className="md:col-span-2"
@@ -81,6 +87,7 @@ export function ExperienceForm({
         name="url"
         label="Company URL"
         defaultValue={item?.url ?? undefined}
+        error={fieldErrors?.url}
       />
       <InputField
         className="md:col-span-2"
@@ -89,6 +96,7 @@ export function ExperienceForm({
         label="Start date"
         type="date"
         defaultValue={item ? formatDateInput(item.startDate) : undefined}
+        error={fieldErrors?.start_date}
       />
       <InputField
         className="md:col-span-2"
@@ -97,6 +105,7 @@ export function ExperienceForm({
         label="End date"
         type="date"
         defaultValue={item ? formatDateInput(item.endDate) : undefined}
+        error={fieldErrors?.end_date}
       />
       <TextAreaField
         className="md:col-span-3"
@@ -105,6 +114,7 @@ export function ExperienceForm({
         label="Responsibilities (one per line)"
         defaultValue={item?.responsibilities?.join("\n")}
         rows={4}
+        error={fieldErrors?.responsibilities}
       />
       <TextAreaField
         className="md:col-span-3"
@@ -113,6 +123,7 @@ export function ExperienceForm({
         label="Achievements (one per line)"
         defaultValue={item?.achievements?.join("\n")}
         rows={4}
+        error={fieldErrors?.achievements}
       />
       <InputField
         className="md:col-span-2"
@@ -120,6 +131,7 @@ export function ExperienceForm({
         name="location"
         label="Location"
         defaultValue={item?.location ?? undefined}
+        error={fieldErrors?.location}
       />
       <SelectField
         className="md:col-span-2"
@@ -127,6 +139,7 @@ export function ExperienceForm({
         name="location_type"
         label="Location type"
         defaultValue={item?.locationType ?? "Remote"}
+        error={fieldErrors?.location_type}
       >
         <NativeSelectOption value="Remote">Remote</NativeSelectOption>
         <NativeSelectOption value="On Site">On Site</NativeSelectOption>

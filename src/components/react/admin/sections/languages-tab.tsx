@@ -11,6 +11,7 @@ export function LanguagesTab({
   model,
   selectedLanguageIds,
 }: Pick<SectionProps, "model"> & { selectedLanguageIds: Set<number> }) {
+  const tabError = model.errorByTab.languages;
   return (
     <TabsContent value="languages">
       <Card>
@@ -18,7 +19,7 @@ export function LanguagesTab({
           <CardTitle>Languages</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <ErrorBanner message={model.errorByTab.languages} />
+          <ErrorBanner message={tabError?.message} />
           <form method="post" className="flex items-end gap-3">
             <input type="hidden" name="_action" value="add_language" />
             <SelectField
@@ -26,6 +27,7 @@ export function LanguagesTab({
               id="language_id"
               name="language_id"
               label="Select language"
+              error={tabError?.fieldErrors?.language_id}
             >
               {model.languageOptions.map((language) => (
                 <NativeSelectOption key={language.id} value={language.id}>

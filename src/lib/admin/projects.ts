@@ -2,7 +2,7 @@ import { z } from "zod";
 import { db, projects as Projects, eq } from "astro:db";
 import { ENABLE_UPLOADS } from "@/lib/flags.ts";
 import { imageDataUrlFromForm } from "./images.ts";
-import { type ActionResult, fail, withTry } from "./utils.ts";
+import { type ActionResult, fail, failValidation, withTry } from "./utils.ts";
 import {
   RequiredTrimmed,
   OptionalTrimmed,
@@ -25,7 +25,7 @@ export async function addProject(
   const { success, error, data } = schema.safeParse(
     Object.fromEntries(form.entries()),
   );
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { name, description, url, repoUrl, date, image } = data;
   return withTry("add_project", async () => {
     await db.insert(Projects).values({
@@ -56,7 +56,7 @@ export async function updateProject(
   const { success, error, data } = schema.safeParse(
     Object.fromEntries(form.entries()),
   );
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { id, name, description, url, repoUrl, date, image } = data;
   return withTry("update_project", async () => {
     await db
@@ -73,7 +73,7 @@ export async function deleteProject(
   const { success, error, data } = z
     .object({ id: IdNumber })
     .safeParse(Object.fromEntries(form.entries()));
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { id } = data;
   return withTry("delete_project", async () => {
     await db.delete(Projects).where(eq(Projects.id, id));

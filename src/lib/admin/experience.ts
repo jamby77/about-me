@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, experience as Experience, eq } from "astro:db";
-import { type ActionResult, fail, withTry } from "./utils";
+import { type ActionResult, failValidation, withTry } from "./utils";
 import {
   RequiredTrimmed,
   OptionalTrimmed,
@@ -58,7 +58,7 @@ export async function addExperience(
     skills: form.getAll("skills"),
   });
   if (!success) {
-    return fail(z.prettifyError(error) ?? "Invalid input");
+    return failValidation(z.flattenError(error));
   }
   const {
     name,
@@ -142,7 +142,7 @@ export async function updateExperience(
     ...base,
     skills: form.getAll("skills"),
   });
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const {
     id,
     name,
@@ -186,7 +186,7 @@ export async function deleteExperience(
   const { success, error, data } = z
     .object({ id: IdNumber })
     .safeParse(Object.fromEntries(form.entries()));
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { id } = data;
   return withTry("delete_experience", async () => {
     await db.delete(Experience).where(eq(Experience.id, id));

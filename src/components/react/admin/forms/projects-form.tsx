@@ -18,10 +18,12 @@ export function ProjectsForm({
   mode,
   idPrefix,
   enableUploads,
+  fieldErrors,
 }: {
   mode: ProjectsFormMode;
   idPrefix: string;
   enableUploads: boolean;
+  fieldErrors?: Record<string, string>;
 }) {
   const isEdit = mode.kind === "edit";
   const item = isEdit ? mode.item : null;
@@ -44,24 +46,28 @@ export function ProjectsForm({
           name="name"
           label="Name"
           defaultValue={item?.name}
+          error={fieldErrors?.name}
         />
         <InputField
           id={fieldId("description")}
           name="description"
           label="Description"
           defaultValue={item?.description}
+          error={fieldErrors?.description}
         />
         <InputField
           id={fieldId("url")}
           name="url"
           label="URL"
           defaultValue={item?.url}
+          error={fieldErrors?.url}
         />
         <InputField
           id={fieldId("repo_url")}
           name="repoUrl"
           label="Repo URL"
           defaultValue={item?.repoUrl}
+          error={fieldErrors?.repoUrl}
         />
         <InputField
           id={fieldId("date")}
@@ -69,6 +75,7 @@ export function ProjectsForm({
           label="Date"
           type="date"
           defaultValue={item ? formatDateInput(item.date) : undefined}
+          error={fieldErrors?.date}
         />
         {!enableUploads ? (
           <InputField
@@ -76,6 +83,7 @@ export function ProjectsForm({
             name="image"
             label="Image URL"
             defaultValue={item?.image}
+            error={fieldErrors?.image}
           />
         ) : null}
 

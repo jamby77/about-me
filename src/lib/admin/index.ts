@@ -63,10 +63,16 @@ import {
 import { addSkill, deleteSkill } from "./skills";
 import { addUserLanguage, deleteUserLanguage } from "./user-languages";
 
+export type AdminPostResult = {
+  action: string;
+  error?: string;
+  fieldErrors?: Record<string, string>;
+};
+
 export async function handleAdminUserPost(
   userId: number,
   form: FormData,
-): Promise<{ action: string; error?: string }> {
+): Promise<AdminPostResult> {
   const action = String(form.get("_action") || "");
   let res: ActionResult;
   switch (action) {
@@ -133,5 +139,6 @@ export async function handleAdminUserPost(
     default:
       return { action, error: "Invalid action" };
   }
-  return { action, error: res.ok ? undefined : res.error };
+  if (res.ok) return { action };
+  return { action, error: res.error, fieldErrors: res.fieldErrors };
 }

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, education as Education, eq } from "astro:db";
-import { type ActionResult, fail, withTry } from "./utils";
+import { type ActionResult, failValidation, withTry } from "./utils";
 import {
   RequiredTrimmed,
   OptionalTrimmed,
@@ -25,7 +25,7 @@ export async function addEducation(
   const fromEntries = Object.fromEntries(form.entries());
   const { success, error, data } = schema.safeParse(fromEntries);
   if (!success) {
-    return fail(z.prettifyError(error) ?? "Invalid input");
+    return failValidation(z.flattenError(error));
   }
   const { name, degree, field, start_date, end_date, url } = data;
   return withTry("add_education", async () => {
@@ -58,7 +58,7 @@ export async function updateEducation(
     Object.fromEntries(form.entries()),
   );
   if (!success) {
-    return fail(z.prettifyError(error) ?? "Invalid input");
+    return failValidation(z.flattenError(error));
   }
   const { id, name, degree, field, start_date, end_date, url } = data;
   return withTry("update_education", async () => {
@@ -77,7 +77,7 @@ export async function deleteEducation(
     .object({ id: IdNumber })
     .safeParse(Object.fromEntries(form.entries()));
   if (!success) {
-    return fail(z.prettifyError(error) ?? "Invalid input");
+    return failValidation(z.flattenError(error));
   }
   const { id } = data;
   return withTry("delete_education", async () => {

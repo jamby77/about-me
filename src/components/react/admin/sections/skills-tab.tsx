@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
 
 export function SkillsTab({ model }: Pick<SectionProps, "model">) {
+  const tabError = model.errorByTab.skills;
   return (
     <TabsContent value="skills">
       <Card>
@@ -13,7 +14,7 @@ export function SkillsTab({ model }: Pick<SectionProps, "model">) {
           <CardTitle>Skills</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <ErrorBanner message={model.errorByTab.skills} />
+          <ErrorBanner message={tabError?.message} />
           <form method="post" className="flex items-end gap-3">
             <input type="hidden" name="_action" value="add_skill" />
             <InputField
@@ -22,6 +23,7 @@ export function SkillsTab({ model }: Pick<SectionProps, "model">) {
               name="name"
               label="Skill name"
               placeholder="e.g. React"
+              error={tabError?.fieldErrors?.name}
             />
             <Button type="submit">
               <IconPlus className="size-4" />

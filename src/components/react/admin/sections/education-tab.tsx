@@ -14,6 +14,7 @@ export function EducationTab({
   onTabChange,
   onEditState,
 }: SectionProps) {
+  const tabError = model.errorByTab.education;
   return (
     <TabsContent value="education">
       <Card>
@@ -21,9 +22,13 @@ export function EducationTab({
           <CardTitle>Education</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <ErrorBanner message={model.errorByTab.education} />
+          <ErrorBanner message={tabError?.message} />
 
-          <EducationForm mode={{ kind: "add" }} idPrefix="edu_new" />
+          <EducationForm
+            mode={{ kind: "add" }}
+            idPrefix="edu_new"
+            fieldErrors={tabError?.fieldErrors}
+          />
 
           <div className="space-y-4">
             {model.education.map((item) => {
@@ -39,6 +44,7 @@ export function EducationTab({
                           onCancel: () => onTabChange("education"),
                         }}
                         idPrefix={`edu_${item.id}`}
+                        fieldErrors={tabError?.fieldErrors}
                       />
                     ) : (
                       <div className="flex items-center justify-between gap-4">

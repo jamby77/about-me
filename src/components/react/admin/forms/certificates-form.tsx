@@ -15,9 +15,11 @@ type CertificatesFormMode =
 export function CertificatesForm({
   mode,
   idPrefix,
+  fieldErrors,
 }: {
   mode: CertificatesFormMode;
   idPrefix: string;
+  fieldErrors?: Record<string, string>;
 }) {
   const isEdit = mode.kind === "edit";
   const item = isEdit ? mode.item : null;
@@ -40,6 +42,7 @@ export function CertificatesForm({
         name="name"
         label="Name"
         defaultValue={item?.name}
+        error={fieldErrors?.name}
       />
       <InputField
         id={fieldId("date")}
@@ -47,18 +50,21 @@ export function CertificatesForm({
         label="Date"
         type="date"
         defaultValue={item ? formatDateInput(item.date) : undefined}
+        error={fieldErrors?.date}
       />
       <InputField
         id={fieldId("description")}
         name="description"
         label="Issuer / Description"
         defaultValue={item?.description}
+        error={fieldErrors?.description}
       />
       <InputField
         id={fieldId("url")}
         name="url"
         label="URL"
         defaultValue={item?.url}
+        error={fieldErrors?.url}
       />
 
       <div className="flex items-center gap-3 md:col-span-5">

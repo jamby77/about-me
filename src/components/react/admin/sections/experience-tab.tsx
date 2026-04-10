@@ -14,6 +14,7 @@ export function ExperienceTab({
   onTabChange,
   onEditState,
 }: SectionProps) {
+  const tabError = model.errorByTab.experience;
   return (
     <TabsContent value="experience">
       <Card>
@@ -21,12 +22,13 @@ export function ExperienceTab({
           <CardTitle>Experience</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <ErrorBanner message={model.errorByTab.experience} />
+          <ErrorBanner message={tabError?.message} />
 
           <ExperienceForm
             mode={{ kind: "add" }}
             idPrefix="exp_new"
             skills={model.skills}
+            fieldErrors={tabError?.fieldErrors}
           />
 
           <div className="space-y-4">
@@ -44,6 +46,7 @@ export function ExperienceTab({
                         }}
                         idPrefix={`exp_${item.id}`}
                         skills={model.skills}
+                        fieldErrors={tabError?.fieldErrors}
                       />
                     ) : (
                       <div className="space-y-3">

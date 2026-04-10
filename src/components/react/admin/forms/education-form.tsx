@@ -15,9 +15,11 @@ type EducationFormMode =
 export function EducationForm({
   mode,
   idPrefix,
+  fieldErrors,
 }: {
   mode: EducationFormMode;
   idPrefix: string;
+  fieldErrors?: Record<string, string>;
 }) {
   const isEdit = mode.kind === "edit";
   const item = isEdit ? mode.item : null;
@@ -41,6 +43,7 @@ export function EducationForm({
         label="School"
         placeholder="School"
         defaultValue={item?.name}
+        error={fieldErrors?.name}
       />
       <InputField
         id={fieldId("degree")}
@@ -48,6 +51,7 @@ export function EducationForm({
         label="Degree"
         placeholder="Degree"
         defaultValue={item?.degree}
+        error={fieldErrors?.degree}
       />
       <InputField
         id={fieldId("field")}
@@ -55,6 +59,7 @@ export function EducationForm({
         label="Field of study"
         placeholder="Field of study"
         defaultValue={item?.field}
+        error={fieldErrors?.field}
       />
       <InputField
         id={fieldId("start_date")}
@@ -62,6 +67,7 @@ export function EducationForm({
         label="Start date"
         type="date"
         defaultValue={item ? formatDateInput(item.startDate) : undefined}
+        error={fieldErrors?.start_date}
       />
       <InputField
         id={fieldId("end_date")}
@@ -69,6 +75,7 @@ export function EducationForm({
         label="End date"
         type="date"
         defaultValue={item ? formatDateInput(item.endDate) : undefined}
+        error={fieldErrors?.end_date}
       />
       <InputField
         className="md:col-span-3"
@@ -77,6 +84,7 @@ export function EducationForm({
         label="URL"
         placeholder="URL"
         defaultValue={item?.url}
+        error={fieldErrors?.url}
       />
 
       <div className="flex items-center gap-3 md:col-span-6">

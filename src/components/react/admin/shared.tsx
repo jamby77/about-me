@@ -40,6 +40,15 @@ export function ErrorBanner({ message }: { message?: string }) {
   );
 }
 
+function FieldErrorMessage({ id, error }: { id: string; error?: string }) {
+  if (!error) return null;
+  return (
+    <p id={`${id}-error`} className="text-xs text-destructive">
+      {error}
+    </p>
+  );
+}
+
 export function InputField({
   id,
   name,
@@ -49,6 +58,7 @@ export function InputField({
   className,
   placeholder,
   required,
+  error,
 }: {
   id: string;
   name: string;
@@ -58,6 +68,7 @@ export function InputField({
   className?: string;
   placeholder?: string;
   required?: boolean;
+  error?: string;
 }) {
   return (
     <Field className={cn("InputField", className)}>
@@ -69,7 +80,10 @@ export function InputField({
         defaultValue={defaultValue ?? ""}
         placeholder={placeholder}
         required={required}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
       />
+      <FieldErrorMessage id={id} error={error} />
     </Field>
   );
 }
@@ -82,6 +96,7 @@ export function SelectField({
   className,
   children,
   multiple,
+  error,
   ...props
 }: {
   id: string;
@@ -91,6 +106,7 @@ export function SelectField({
   className?: string;
   children: ReactNode;
   multiple?: boolean;
+  error?: string;
 }) {
   return (
     <Field className={cn("SelectField", className)}>
@@ -100,10 +116,13 @@ export function SelectField({
         name={name}
         defaultValue={defaultValue}
         multiple={multiple}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
         {...props}
       >
         {children}
       </NativeSelect>
+      <FieldErrorMessage id={id} error={error} />
     </Field>
   );
 }
@@ -116,6 +135,7 @@ export function TextAreaField({
   rows = 4,
   className,
   placeholder,
+  error,
 }: {
   id: string;
   name: string;
@@ -124,6 +144,7 @@ export function TextAreaField({
   rows?: number;
   className?: string;
   placeholder?: string;
+  error?: string;
 }) {
   return (
     <Field className={cn("TextAreaField", className)}>
@@ -134,7 +155,10 @@ export function TextAreaField({
         defaultValue={defaultValue ?? ""}
         rows={rows}
         placeholder={placeholder}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
       />
+      <FieldErrorMessage id={id} error={error} />
     </Field>
   );
 }

@@ -15,6 +15,8 @@ import {
 import { TabsContent } from "@/components/ui/tabs";
 
 export function PersonalTab({ model }: Pick<SectionProps, "model">) {
+  const tabError = model.errorByTab.personal;
+  const fieldErrors = tabError?.fieldErrors;
   return (
     <TabsContent value="personal">
       <Card>
@@ -23,7 +25,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
           <CardDescription>Profile copy and public links.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ErrorBanner message={model.errorByTab.personal} />
+          <ErrorBanner message={tabError?.message} />
           <form method="post" className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <input type="hidden" name="_action" value="upsert_personal_info" />
             {!model.enableUploads ? (
@@ -32,6 +34,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
                 name="image"
                 label="Image"
                 defaultValue={model.personalInfo?.image}
+                error={fieldErrors?.image}
               />
             ) : null}
             <InputField
@@ -39,6 +42,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               name="title"
               label="Title"
               defaultValue={model.personalInfo?.title}
+              error={fieldErrors?.title}
             />
             <InputField
               id="phone"
@@ -46,12 +50,14 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               label="Phone"
               type="tel"
               defaultValue={model.personalInfo?.phone}
+              error={fieldErrors?.phone}
             />
             <InputField
               id="location"
               name="location"
               label="Location"
               defaultValue={model.personalInfo?.location}
+              error={fieldErrors?.location}
             />
             <InputField
               id="website"
@@ -59,6 +65,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               label="Website"
               type="url"
               defaultValue={model.personalInfo?.website}
+              error={fieldErrors?.website}
             />
             <InputField
               id="linkedin"
@@ -66,6 +73,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               label="LinkedIn"
               type="url"
               defaultValue={model.personalInfo?.linkedin}
+              error={fieldErrors?.linkedin}
             />
             <InputField
               id="github"
@@ -73,6 +81,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               label="GitHub"
               type="url"
               defaultValue={model.personalInfo?.github}
+              error={fieldErrors?.github}
             />
             <InputField
               id="twitter"
@@ -80,6 +89,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               label="Twitter"
               type="url"
               defaultValue={model.personalInfo?.twitter}
+              error={fieldErrors?.twitter}
             />
             <TextAreaField
               id="description"
@@ -87,6 +97,7 @@ export function PersonalTab({ model }: Pick<SectionProps, "model">) {
               label="Description"
               className="md:col-span-3"
               defaultValue={model.personalInfo?.description}
+              error={fieldErrors?.description}
             />
             <div className="md:col-span-3">
               <Button type="submit">Save personal info</Button>

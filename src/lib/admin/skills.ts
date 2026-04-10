@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, skills as Skills, eq } from "astro:db";
-import { type ActionResult, fail, withTry } from "./utils.ts";
+import { type ActionResult, failValidation, withTry } from "./utils.ts";
 import { RequiredTrimmed, IdNumber } from "@/lib/schemas.ts";
 
 export async function addSkill(
@@ -11,7 +11,7 @@ export async function addSkill(
   const { success, error, data } = schema.safeParse(
     Object.fromEntries(form.entries()),
   );
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { name } = data;
   return withTry("add_skill", async () => {
     await db.insert(Skills).values({ user_id: userId, name });
@@ -25,7 +25,7 @@ export async function deleteSkill(
   const { success, error, data } = z
     .object({ id: IdNumber })
     .safeParse(Object.fromEntries(form.entries()));
-  if (!success) return fail(z.prettifyError(error) ?? "Invalid input");
+  if (!success) return failValidation(z.flattenError(error));
   const { id } = data;
   return withTry("delete_skill", async () => {
     await db.delete(Skills).where(eq(Skills.id, id));
