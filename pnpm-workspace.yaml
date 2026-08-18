@@ -2,7 +2,3 @@ allowBuilds:
   esbuild: true
   msw: true
   sharp: true
-onlyBuiltDependencies:
-  - esbuild
-  - msw
-  - sharp
