@@ -1,0 +1,22 @@
+[pr_reviewer]
+persistent_comment = true
+enable_help_text = false
+extra_instructions = """
+Follow CLAUDE.md and AGENTS.md when present as repository conventions.
+Review about-me as an Astro SSR portfolio/CV app with React islands, Base UI,
+Astro DB/Turso, Better Auth admin access, Vercel deployment, and pnpm.
+Check server/client boundaries, authentication and admin authorization,
+portfolio subject versus login user identifiers, form validation, upload
+limits and feature flags, view-model consistency, and database correctness.
+Respect the thin Astro shell and React island pattern, @/ imports, and the
+public portfolio's future self-contained HTML export constraints.
+Focus on actionable bugs, security problems, and regressions introduced by
+this PR. Explain concrete impact and reference affected code. Avoid speculative
+findings and cosmetic noise. Do not infer model or API availability from memory;
+require concrete evidence before reporting incompatibility.
+No comments in production code. Commit messages must be concise, imperative,
+within 80 columns, and contain no agent attribution. All merges into main or
+master must go through a PR; never recommend a local merge.
+Publish review feedback only. Do not change code, the PR title or description,
+labels, assignees, or milestones, and do not approve or merge the PR.
+"""
